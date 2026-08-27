@@ -85,6 +85,10 @@ class Assessment:
     closeness: float
     tier: str          # "alert" | "watch" | "quiet"
     reasons: tuple[str, ...]
+    # Which branch of _closeness fired. The notifier re-voices these in PTT
+    # slang; a tag keeps that translation from re-deriving -- and drifting
+    # from -- the tying-run boundaries below.
+    closeness_tag: str = "even"
 
     @property
     def should_alert(self) -> bool:
@@ -107,29 +111,29 @@ def _one_run_weight(inning: int, margin: int) -> float:
     return lateness * _ONE_RUN_BY_MARGIN.get(margin, _ONE_RUN_DEFAULT)
 
 
-def _closeness(state: GameState) -> tuple[float, str]:
-    """Score-margin gate. Returns (factor, human reason)."""
+def _closeness(state: GameState) -> tuple[float, str, str]:
+    """Score-margin gate. Returns (factor, human reason, tag)."""
     deficit = state.deficit          # >0 => batting team trails
     runners = state.runners
 
     if deficit == 0:
-        return 1.0, "平手"
+        return 1.0, "平手", "even"
 
     if deficit > 0:
         # Batting team is trying to come back.
         if deficit <= runners:
-            return 1.0, f"追平分已在壘上 (落後{deficit}分)"
+            return 1.0, f"追平分已在壘上 (落後{deficit}分)", "tying_on_base"
         if deficit == runners + 1:
-            return 0.95, f"打者就是追平分 (落後{deficit}分)"
+            return 0.95, f"打者就是追平分 (落後{deficit}分)", "tying_at_plate"
         if deficit == runners + 2:
-            return 0.60, f"追平分在下一棒 (落後{deficit}分)"
+            return 0.60, f"追平分在下一棒 (落後{deficit}分)", "tying_on_deck"
         # Too far back for this rally to decide anything.
         return (max(0.12, 0.60 - 0.15 * (deficit - runners - 2)),
-                f"落後{deficit}分，差距過大")
+                f"落後{deficit}分，差距過大", "blowout")
 
     # Batting team leads; this is insurance, or the other side sweating.
     lead = -deficit
-    return max(0.18, 1.0 - 0.18 * lead), f"領先{lead}分"
+    return max(0.18, 1.0 - 0.18 * lead), f"領先{lead}分", "leading"
 
 
 def assess(state: GameState, threshold: float = DEFAULT_THRESHOLD) -> Assessment:
@@ -144,7 +148,7 @@ def assess(state: GameState, threshold: float = DEFAULT_THRESHOLD) -> Assessment
     situation = (1.0 - w) * expected + w * one_run
 
     urgency = _urgency(state.inning)
-    closeness, close_reason = _closeness(state)
+    closeness, close_reason, close_tag = _closeness(state)
 
     tension = min(100.0, 100.0 * situation * urgency * closeness)
 
@@ -179,4 +183,5 @@ def assess(state: GameState, threshold: float = DEFAULT_THRESHOLD) -> Assessment
         closeness=round(closeness, 3),
         tier=tier,
         reasons=tuple(reasons),
+        closeness_tag=close_tag,
     )

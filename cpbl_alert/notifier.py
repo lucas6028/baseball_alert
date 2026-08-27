@@ -3,6 +3,14 @@
 The notification leads with the product name because that is the whole
 point: on a lock screen, "快轉台" is the message -- the score below it is
 just the detail.
+
+Everything after that first line is written in the register of PTT's
+Baseball board, which is where this audience already watches games: a
+``[LIVE]`` scoreboard headline, a ``※ 發信站`` footer, and the reasoning
+delivered as 推文 rather than as bullet points. The vocabulary lives in
+:mod:`cpbl_alert.ptt`; this module only decides the running order -- and
+that order is deliberately front-loaded, so the two lines a phone preview
+shows are still the score and the situation, never the scaffolding.
 """
 
 from __future__ import annotations
@@ -12,6 +20,7 @@ from typing import Protocol
 
 import requests
 
+from . import ptt
 from .leverage import Assessment
 from .models import GameState
 
@@ -37,20 +46,21 @@ def _diamond(state: GameState) -> str:
 
 
 def format_alert(state: GameState, assessment: Assessment) -> str:
-    """Human-facing alert text (Telegram HTML)."""
+    """Human-facing alert text (Telegram HTML), written as a 直播文."""
     outs = "●" * state.outs + "○" * (2 - state.outs)
     lines = [
-        f"<b>{BRAND}</b>　⚾ {state.visiting_team} {state.visiting_score} - "
-        f"{state.home_score} {state.home_team}",
-        f"<b>{state.inning}局{state.half}　{state.outs}出局</b>　{outs}",
+        f"<b>{BRAND}</b>　{ptt.headline(state)}",
+        f"<b>{ptt.inning_label(state)}　{ptt.outs_label(state.outs)}</b>　{outs}",
         "",
         f"<code>{_diamond(state)}</code>",
         "",
         f"打者　{state.batter}",
         f"投手　{state.pitcher}",
         "",
-        f"{SCORE_LABEL} <b>{assessment.tension:.0f}</b> {_bar(assessment.tension)}",
-        "· " + "\n· ".join(assessment.reasons),
+        f"{SCORE_LABEL} <b>{assessment.tension:.0f}</b>　"
+        f"{ptt.tension_word(assessment.tension)}　{_bar(assessment.tension)}",
+        ptt.footer(BRAND),
+        *ptt.push_lines(state, assessment),
     ]
     return "\n".join(lines)
 

@@ -10,7 +10,7 @@ def s(**kw):
     base = dict(
         game_sno=1, year="2026", kind_code="A", inning=1, is_top=True, outs=0,
         first=False, second=False, third=False, balls=0, strikes=0,
-        visiting_score=0, home_score=0, batter="", pitcher="", pkno="x",
+        visiting_score=0, home_score=0, batter="", pitcher="", event_no="x",
         created_at="", visiting_team="V", home_team="H",
     )
     base.update(kw)

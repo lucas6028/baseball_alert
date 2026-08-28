@@ -35,7 +35,8 @@
    "Content": "擊出內野平飛球， 打者-三壘手 飛球接殺出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110001000"
   },
   {
    "InningSeq": 1,
@@ -61,7 +62,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110002000"
   },
   {
    "InningSeq": 1,
@@ -87,7 +89,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110003000"
   },
   {
    "InningSeq": 1,
@@ -113,7 +116,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110004000"
   },
   {
    "InningSeq": 1,
@@ -139,7 +143,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110005000"
   },
   {
    "InningSeq": 1,
@@ -165,7 +170,8 @@
    "Content": "擊出內野高飛球， 打者-二壘手 飛球接殺出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110006000"
   },
   {
    "InningSeq": 1,
@@ -191,7 +197,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110007000"
   },
   {
    "InningSeq": 1,
@@ -217,7 +224,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110008000"
   },
   {
    "InningSeq": 1,
@@ -243,7 +251,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110009000"
   },
   {
    "InningSeq": 1,
@@ -269,7 +278,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110010000"
   },
   {
    "InningSeq": 1,
@@ -295,7 +305,8 @@
    "Content": "壞球。四壞球上壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110011000"
   },
   {
    "InningSeq": 1,
@@ -321,7 +332,8 @@
    "Content": "擊出右外野高飛球，一壘安打 。 一壘跑者吳念庭 上三壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110012000"
   },
   {
    "InningSeq": 1,
@@ -347,7 +359,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110013000"
   },
   {
    "InningSeq": 1,
@@ -373,7 +386,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110014000"
   },
   {
    "InningSeq": 1,
@@ -399,7 +413,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110015000"
   },
   {
    "InningSeq": 1,
@@ -425,7 +440,8 @@
    "Content": "揮棒落空。 打者出局-三振出局。 3人出局。一、三壘殘壘。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0110016000"
   },
   {
    "InningSeq": 1,
@@ -451,7 +467,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120001000"
   },
   {
    "InningSeq": 1,
@@ -477,7 +494,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120002000"
   },
   {
    "InningSeq": 1,
@@ -503,7 +521,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120003000"
   },
   {
    "InningSeq": 1,
@@ -529,7 +548,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120004000"
   },
   {
    "InningSeq": 1,
@@ -555,7 +575,8 @@
    "Content": "揮棒落空。 打者出局-三振出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120005000"
   },
   {
    "InningSeq": 1,
@@ -581,7 +602,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120006000"
   },
   {
    "InningSeq": 1,
@@ -607,7 +629,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120007000"
   },
   {
    "InningSeq": 1,
@@ -633,7 +656,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120008000"
   },
   {
    "InningSeq": 1,
@@ -659,7 +683,8 @@
    "Content": "擊出中外野滾地球，一壘安打 。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120009000"
   },
   {
    "InningSeq": 1,
@@ -685,7 +710,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120010000"
   },
   {
    "InningSeq": 1,
@@ -711,7 +737,8 @@
    "Content": "擊出內野滾地球， 打者-捕手  傳一壘手刺殺出局。 2人出局。 一壘跑者葉子霆 上二壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120011000"
   },
   {
    "InningSeq": 1,
@@ -737,7 +764,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120012000"
   },
   {
    "InningSeq": 1,
@@ -763,7 +791,8 @@
    "Content": "揮棒落空。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120013000"
   },
   {
    "InningSeq": 1,
@@ -789,7 +818,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120014000"
   },
   {
    "InningSeq": 1,
@@ -815,7 +845,8 @@
    "Content": "擊出內野平飛球， 打者-游擊手 飛球接殺出局。 3人出局。二壘殘壘。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0120015000"
   },
   {
    "InningSeq": 2,
@@ -841,7 +872,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210001000"
   },
   {
    "InningSeq": 2,
@@ -867,7 +899,8 @@
    "Content": "擊出左外野高飛球，二壘安打 。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210002000"
   },
   {
    "InningSeq": 2,
@@ -893,7 +926,8 @@
    "Content": "擊出球(觸擊)， 打者-犧牲短打 投手  傳一壘手刺殺出局。 1人出局。 二壘跑者王柏融 上三壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210003000"
   },
   {
    "InningSeq": 2,
@@ -919,7 +953,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210004000"
   },
   {
    "InningSeq": 2,
@@ -945,7 +980,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210005000"
   },
   {
    "InningSeq": 2,
@@ -971,7 +1007,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210006000"
   },
   {
    "InningSeq": 2,
@@ -997,7 +1034,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210007000"
   },
   {
    "InningSeq": 2,
@@ -1023,7 +1061,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210008000"
   },
   {
    "InningSeq": 2,
@@ -1049,7 +1088,8 @@
    "Content": "揮棒落空。 打者出局-三振出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210009000"
   },
   {
    "InningSeq": 2,
@@ -1075,7 +1115,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210010000"
   },
   {
    "InningSeq": 2,
@@ -1101,7 +1142,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210011000"
   },
   {
    "InningSeq": 2,
@@ -1127,7 +1169,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210012000"
   },
   {
    "InningSeq": 2,
@@ -1153,7 +1196,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210013000"
   },
   {
    "InningSeq": 2,
@@ -1179,7 +1223,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210014000"
   },
   {
    "InningSeq": 2,
@@ -1205,7 +1250,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210015000"
   },
   {
    "InningSeq": 2,
@@ -1231,7 +1277,8 @@
    "Content": "擊出右外野高飛球，一壘安打 。1分打點。 三壘跑者王柏融回本壘得分。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210016000"
   },
   {
    "InningSeq": 2,
@@ -1257,7 +1304,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210017000"
   },
   {
    "InningSeq": 2,
@@ -1283,7 +1331,8 @@
    "Content": "擊出內野滾地球， 打者-一壘手 自踩壘包出局。 3人出局。一壘殘壘。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0210018000"
   },
   {
    "InningSeq": 2,
@@ -1309,7 +1358,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220001000"
   },
   {
    "InningSeq": 2,
@@ -1335,7 +1385,8 @@
    "Content": "壞球。觸身死球上壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220002000"
   },
   {
    "InningSeq": 2,
@@ -1361,7 +1412,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220003000"
   },
   {
    "InningSeq": 2,
@@ -1387,7 +1439,8 @@
    "Content": "揮棒落空。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220004000"
   },
   {
    "InningSeq": 2,
@@ -1413,7 +1466,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220005000"
   },
   {
    "InningSeq": 2,
@@ -1439,7 +1493,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220006000"
   },
   {
    "InningSeq": 2,
@@ -1465,7 +1520,8 @@
    "Content": "揮棒落空。 打者出局-三振出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220007000"
   },
   {
    "InningSeq": 2,
@@ -1491,7 +1547,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220008000"
   },
   {
    "InningSeq": 2,
@@ -1517,7 +1574,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220009000"
   },
   {
    "InningSeq": 2,
@@ -1543,7 +1601,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220010000"
   },
   {
    "InningSeq": 2,
@@ -1569,7 +1628,8 @@
    "Content": "投手牽制一壘跑者",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220011000"
   },
   {
    "InningSeq": 2,
@@ -1595,7 +1655,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220012000"
   },
   {
    "InningSeq": 2,
@@ -1621,7 +1682,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220013000"
   },
   {
    "InningSeq": 2,
@@ -1647,7 +1709,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220014000"
   },
   {
    "InningSeq": 2,
@@ -1673,7 +1736,8 @@
    "Content": "好球沒揮棒。 打者出局-三振出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220015000"
   },
   {
    "InningSeq": 2,
@@ -1699,7 +1763,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220016000"
   },
   {
    "InningSeq": 2,
@@ -1725,7 +1790,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220017000"
   },
   {
    "InningSeq": 2,
@@ -1751,7 +1817,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220018000"
   },
   {
    "InningSeq": 2,
@@ -1777,7 +1844,8 @@
    "Content": "壞球。四壞球上壘。 一壘跑者董子恩 上二壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220019000"
   },
   {
    "InningSeq": 2,
@@ -1803,7 +1871,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220020000"
   },
   {
    "InningSeq": 2,
@@ -1829,7 +1898,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220021000"
   },
   {
    "InningSeq": 2,
@@ -1855,7 +1925,8 @@
    "Content": "揮棒落空。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220022000"
   },
   {
    "InningSeq": 2,
@@ -1881,7 +1952,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220023000"
   },
   {
    "InningSeq": 2,
@@ -1907,7 +1979,8 @@
    "Content": "擊出右外野平飛球，一壘安打 。1分打點。 二壘跑者董子恩回本壘得分。 一壘跑者張育豪 上三壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220024000"
   },
   {
    "InningSeq": 2,
@@ -1933,7 +2006,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220025000"
   },
   {
    "InningSeq": 2,
@@ -1959,7 +2033,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220026000"
   },
   {
    "InningSeq": 2,
@@ -1985,7 +2060,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220027000"
   },
   {
    "InningSeq": 2,
@@ -2011,7 +2087,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220028000"
   },
   {
    "InningSeq": 2,
@@ -2037,7 +2114,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220029000"
   },
   {
    "InningSeq": 2,
@@ -2063,7 +2141,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220030000"
   },
   {
    "InningSeq": 2,
@@ -2089,7 +2168,8 @@
    "Content": "擊出左外野平飛球，二壘安打 。1分打點。 三壘跑者張育豪回本壘得分。 一壘跑者童堉誠 上三壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220031000"
   },
   {
    "InningSeq": 2,
@@ -2115,7 +2195,8 @@
    "Content": "教練暫停",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220032000"
   },
   {
    "InningSeq": 2,
@@ -2141,7 +2222,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220033000"
   },
   {
    "InningSeq": 2,
@@ -2167,7 +2249,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220034000"
   },
   {
    "InningSeq": 2,
@@ -2193,7 +2276,8 @@
    "Content": "擊出內野滾地球， 打者-三壘手  傳一壘手刺殺出局。 3人出局。二、三壘殘壘。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0220035000"
   },
   {
    "InningSeq": 3,
@@ -2219,7 +2303,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310001000"
   },
   {
    "InningSeq": 3,
@@ -2245,7 +2330,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310002000"
   },
   {
    "InningSeq": 3,
@@ -2271,7 +2357,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310003000"
   },
   {
    "InningSeq": 3,
@@ -2297,7 +2384,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310004000"
   },
   {
    "InningSeq": 3,
@@ -2323,7 +2411,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310005000"
   },
   {
    "InningSeq": 3,
@@ -2349,7 +2438,8 @@
    "Content": "擊出左外野高飛球， 打者-左外野手 飛球接殺出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310006000"
   },
   {
    "InningSeq": 3,
@@ -2375,7 +2465,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310007000"
   },
   {
    "InningSeq": 3,
@@ -2401,7 +2492,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310008000"
   },
   {
    "InningSeq": 3,
@@ -2427,7 +2519,8 @@
    "Content": "擊出中外野平飛球，一壘安打 。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310009000"
   },
   {
    "InningSeq": 3,
@@ -2453,7 +2546,8 @@
    "Content": "擊出內野滾地球， 一壘跑者吳念庭-三壘手  傳二壘手封殺出局 2人出局。趁傳上壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310010000"
   },
   {
    "InningSeq": 3,
@@ -2479,7 +2573,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310011000"
   },
   {
    "InningSeq": 3,
@@ -2505,7 +2600,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310012000"
   },
   {
    "InningSeq": 3,
@@ -2531,7 +2627,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310013000"
   },
   {
    "InningSeq": 3,
@@ -2557,7 +2654,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310014000"
   },
   {
    "InningSeq": 3,
@@ -2583,7 +2681,8 @@
    "Content": "投手牽制一壘跑者",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310015000"
   },
   {
    "InningSeq": 3,
@@ -2609,7 +2708,8 @@
    "Content": "擊出內野滾地球， 一壘跑者魔鷹-游擊手  傳二壘手封殺出局 3人出局。趁傳上壘。一壘殘壘。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0310016000"
   },
   {
    "InningSeq": 3,
@@ -2635,7 +2735,8 @@
    "Content": "擊出左外野平飛球，一壘安打 。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320001000"
   },
   {
    "InningSeq": 3,
@@ -2661,7 +2762,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320002000"
   },
   {
    "InningSeq": 3,
@@ -2687,7 +2789,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320003000"
   },
   {
    "InningSeq": 3,
@@ -2713,7 +2816,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320004000"
   },
   {
    "InningSeq": 3,
@@ -2739,7 +2843,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320005000"
   },
   {
    "InningSeq": 3,
@@ -2765,7 +2870,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320006000"
   },
   {
    "InningSeq": 3,
@@ -2791,7 +2897,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320007000"
   },
   {
    "InningSeq": 3,
@@ -2817,7 +2924,8 @@
    "Content": "擊出左外野高飛球，全壘打。2分打點。 一壘跑者林澤彬回本壘得分。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320008000"
   },
   {
    "InningSeq": 3,
@@ -2843,7 +2951,8 @@
    "Content": "擊出內野滾地球， 打者-二壘手  傳一壘手刺殺出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320009000"
   },
   {
    "InningSeq": 3,
@@ -2869,7 +2978,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320010000"
   },
   {
    "InningSeq": 3,
@@ -2895,7 +3005,8 @@
    "Content": "擊出右外野高飛球，一壘安打 。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320011000"
   },
   {
    "InningSeq": 3,
@@ -2921,7 +3032,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320012000"
   },
   {
    "InningSeq": 3,
@@ -2947,7 +3059,8 @@
    "Content": "擊出內野滾地球， 打者-二壘手  傳一壘手刺殺出局。 2人出局。 一壘跑者王苡丞 上二壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320013000"
   },
   {
    "InningSeq": 3,
@@ -2973,7 +3086,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320014000"
   },
   {
    "InningSeq": 3,
@@ -2999,7 +3113,8 @@
    "Content": "擊出左外野滾地球，一壘安打 。 二壘跑者王苡丞 上三壘。 三壘跑者王苡丞-左外野手  傳捕手觸殺出局 3人出局。一壘殘壘。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0320015000"
   },
   {
    "InningSeq": 4,
@@ -3025,7 +3140,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410001000"
   },
   {
    "InningSeq": 4,
@@ -3051,7 +3167,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410002000"
   },
   {
    "InningSeq": 4,
@@ -3077,7 +3194,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410003000"
   },
   {
    "InningSeq": 4,
@@ -3103,7 +3221,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410004000"
   },
   {
    "InningSeq": 4,
@@ -3129,7 +3248,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410005000"
   },
   {
    "InningSeq": 4,
@@ -3155,7 +3275,8 @@
    "Content": "揮棒落空。 打者出局-三振出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410006000"
   },
   {
    "InningSeq": 4,
@@ -3181,7 +3302,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410007000"
   },
   {
    "InningSeq": 4,
@@ -3207,7 +3329,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410008000"
   },
   {
    "InningSeq": 4,
@@ -3233,7 +3356,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410009000"
   },
   {
    "InningSeq": 4,
@@ -3259,7 +3383,8 @@
    "Content": "揮棒落空。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410010000"
   },
   {
    "InningSeq": 4,
@@ -3285,7 +3410,8 @@
    "Content": "揮棒落空。 打者出局-三振出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410011000"
   },
   {
    "InningSeq": 4,
@@ -3311,7 +3437,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410012000"
   },
   {
    "InningSeq": 4,
@@ -3337,7 +3464,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410013000"
   },
   {
    "InningSeq": 4,
@@ -3363,7 +3491,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410014000"
   },
   {
    "InningSeq": 4,
@@ -3389,7 +3518,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410015000"
   },
   {
    "InningSeq": 4,
@@ -3415,7 +3545,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410016000"
   },
   {
    "InningSeq": 4,
@@ -3441,7 +3572,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410017000"
   },
   {
    "InningSeq": 4,
@@ -3467,7 +3599,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410018000"
   },
   {
    "InningSeq": 4,
@@ -3493,7 +3626,8 @@
    "Content": "壞球。四壞球上壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410019000"
   },
   {
    "InningSeq": 4,
@@ -3519,7 +3653,8 @@
    "Content": "擊出右外野高飛球， 打者-右外野手 飛球接殺出局。 3人出局。一壘殘壘。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0410020000"
   },
   {
    "InningSeq": 4,
@@ -3545,7 +3680,8 @@
    "Content": "擊出內野滾地球， 打者-游擊手  傳一壘手刺殺出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0420001000"
   },
   {
    "InningSeq": 4,
@@ -3571,7 +3707,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0420002000"
   },
   {
    "InningSeq": 4,
@@ -3597,7 +3734,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0420003000"
   },
   {
    "InningSeq": 4,
@@ -3623,7 +3761,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0420004000"
   },
   {
    "InningSeq": 4,
@@ -3649,7 +3788,8 @@
    "Content": "擊出內野滾地球， 打者-一壘手 自踩壘包出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0420005000"
   },
   {
    "InningSeq": 4,
@@ -3675,7 +3815,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0420006000"
   },
   {
    "InningSeq": 4,
@@ -3701,7 +3842,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0420007000"
   },
   {
    "InningSeq": 4,
@@ -3727,7 +3869,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0420008000"
   },
   {
    "InningSeq": 4,
@@ -3753,7 +3896,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0420009000"
   },
   {
    "InningSeq": 4,
@@ -3779,7 +3923,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0420010000"
   },
   {
    "InningSeq": 4,
@@ -3805,7 +3950,8 @@
    "Content": "擊出內野滾地球， 打者-游擊手  傳一壘手刺殺出局。 3人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0420011000"
   },
   {
    "InningSeq": 5,
@@ -3831,7 +3977,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510001000"
   },
   {
    "InningSeq": 5,
@@ -3857,7 +4004,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510002000"
   },
   {
    "InningSeq": 5,
@@ -3883,7 +4031,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510003000"
   },
   {
    "InningSeq": 5,
@@ -3909,7 +4058,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510004000"
   },
   {
    "InningSeq": 5,
@@ -3935,7 +4085,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510005000"
   },
   {
    "InningSeq": 5,
@@ -3961,7 +4112,8 @@
    "Content": "擊出內野滾地球， 打者-二壘手  傳一壘手刺殺出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510006000"
   },
   {
    "InningSeq": 5,
@@ -3987,7 +4139,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510007000"
   },
   {
    "InningSeq": 5,
@@ -4013,7 +4166,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510008000"
   },
   {
    "InningSeq": 5,
@@ -4039,7 +4193,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510009000"
   },
   {
    "InningSeq": 5,
@@ -4065,7 +4220,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510010000"
   },
   {
    "InningSeq": 5,
@@ -4091,7 +4247,8 @@
    "Content": "擊出內野平飛球， 打者-游擊手 飛球接殺出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510011000"
   },
   {
    "InningSeq": 5,
@@ -4117,7 +4274,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510012000"
   },
   {
    "InningSeq": 5,
@@ -4143,7 +4301,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510013000"
   },
   {
    "InningSeq": 5,
@@ -4169,7 +4328,8 @@
    "Content": "擊出內野滾地球， 打者-一壘手 自踩壘包出局。 3人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0510014000"
   },
   {
    "InningSeq": 5,
@@ -4195,7 +4355,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0520001000"
   },
   {
    "InningSeq": 5,
@@ -4221,7 +4382,8 @@
    "Content": "擊出內野滾地球， 打者-游擊手  傳一壘手刺殺出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0520002000"
   },
   {
    "InningSeq": 5,
@@ -4247,7 +4409,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0520003000"
   },
   {
    "InningSeq": 5,
@@ -4273,7 +4436,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0520004000"
   },
   {
    "InningSeq": 5,
@@ -4299,7 +4463,8 @@
    "Content": "揮棒落空。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0520005000"
   },
   {
    "InningSeq": 5,
@@ -4325,7 +4490,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0520006000"
   },
   {
    "InningSeq": 5,
@@ -4351,7 +4517,8 @@
    "Content": "擊出內野高飛球， 打者-捕手 飛球接殺出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0520007000"
   },
   {
    "InningSeq": 5,
@@ -4377,7 +4544,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0520008000"
   },
   {
    "InningSeq": 5,
@@ -4403,7 +4571,8 @@
    "Content": "擊出右外野高飛球， 打者-右外野手 飛球接殺出局。 3人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0520009000"
   },
   {
    "InningSeq": 6,
@@ -4429,7 +4598,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0610001000"
   },
   {
    "InningSeq": 6,
@@ -4455,7 +4625,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0610002000"
   },
   {
    "InningSeq": 6,
@@ -4481,7 +4652,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0610003000"
   },
   {
    "InningSeq": 6,
@@ -4507,7 +4679,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0610004000"
   },
   {
    "InningSeq": 6,
@@ -4533,7 +4706,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0610005000"
   },
   {
    "InningSeq": 6,
@@ -4559,7 +4733,8 @@
    "Content": "擊出內野滾地球， 打者-三壘手  傳一壘手刺殺出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0610006000"
   },
   {
    "InningSeq": 6,
@@ -4585,7 +4760,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0610007000"
   },
   {
    "InningSeq": 6,
@@ -4611,7 +4787,8 @@
    "Content": "擊出右外野高飛球， 打者-右外野手 飛球接殺出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0610008000"
   },
   {
    "InningSeq": 6,
@@ -4637,7 +4814,8 @@
    "Content": "擊出中外野高飛球， 打者-中外野手 飛球接殺出局。 3人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0610009000"
   },
   {
    "InningSeq": 6,
@@ -4663,7 +4841,8 @@
    "Content": "揮棒落空。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620001000"
   },
   {
    "InningSeq": 6,
@@ -4689,7 +4868,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620002000"
   },
   {
    "InningSeq": 6,
@@ -4715,7 +4895,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620003000"
   },
   {
    "InningSeq": 6,
@@ -4741,7 +4922,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620004000"
   },
   {
    "InningSeq": 6,
@@ -4767,7 +4949,8 @@
    "Content": "擊出內野滾地球， 打者-二壘手  傳一壘手刺殺出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620005000"
   },
   {
    "InningSeq": 6,
@@ -4793,7 +4976,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620006000"
   },
   {
    "InningSeq": 6,
@@ -4819,7 +5003,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620007000"
   },
   {
    "InningSeq": 6,
@@ -4845,7 +5030,8 @@
    "Content": "裁定壞球-投手。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620008000"
   },
   {
    "InningSeq": 6,
@@ -4871,7 +5057,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620009000"
   },
   {
    "InningSeq": 6,
@@ -4897,7 +5084,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620010000"
   },
   {
    "InningSeq": 6,
@@ -4923,7 +5111,8 @@
    "Content": "擊出右外野高飛球， 打者-右外野手 飛球接殺出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620011000"
   },
   {
    "InningSeq": 6,
@@ -4949,7 +5138,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620012000"
   },
   {
    "InningSeq": 6,
@@ -4975,7 +5165,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620013000"
   },
   {
    "InningSeq": 6,
@@ -5001,7 +5192,8 @@
    "Content": "擊出中外野高飛球， 打者-中外野手 飛球接殺出局。 3人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0620014000"
   },
   {
    "InningSeq": 7,
@@ -5027,7 +5219,8 @@
    "Content": "更換投手：瑪帝斯=>張瑞麟。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710001000"
   },
   {
    "InningSeq": 7,
@@ -5053,7 +5246,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710002000"
   },
   {
    "InningSeq": 7,
@@ -5079,7 +5273,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710003000"
   },
   {
    "InningSeq": 7,
@@ -5105,7 +5300,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710004000"
   },
   {
    "InningSeq": 7,
@@ -5131,7 +5327,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710005000"
   },
   {
    "InningSeq": 7,
@@ -5157,7 +5354,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710006000"
   },
   {
    "InningSeq": 7,
@@ -5183,7 +5381,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710007000"
   },
   {
    "InningSeq": 7,
@@ -5209,7 +5408,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710008000"
   },
   {
    "InningSeq": 7,
@@ -5235,7 +5435,8 @@
    "Content": "擊出中外野滾地球，一壘安打 。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710009000"
   },
   {
    "InningSeq": 7,
@@ -5261,7 +5462,8 @@
    "Content": "更換代打：陳世嘉=>顏清浤。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710010000"
   },
   {
    "InningSeq": 7,
@@ -5287,7 +5489,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710011000"
   },
   {
    "InningSeq": 7,
@@ -5313,7 +5516,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710012000"
   },
   {
    "InningSeq": 7,
@@ -5339,7 +5543,8 @@
    "Content": "壞球。觸身死球上壘。 一壘跑者陳文杰 上二壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710013000"
   },
   {
    "InningSeq": 7,
@@ -5365,7 +5570,8 @@
    "Content": "教練暫停",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710014000"
   },
   {
    "InningSeq": 7,
@@ -5391,7 +5597,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710015000"
   },
   {
    "InningSeq": 7,
@@ -5417,7 +5624,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710016000"
   },
   {
    "InningSeq": 7,
@@ -5443,7 +5651,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710017000"
   },
   {
    "InningSeq": 7,
@@ -5469,7 +5678,8 @@
    "Content": "壞球。 二壘跑者陳文杰 投手暴投上三壘。 一壘跑者顏清浤 投手暴投上二壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710018000"
   },
   {
    "InningSeq": 7,
@@ -5495,7 +5705,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710019000"
   },
   {
    "InningSeq": 7,
@@ -5521,7 +5732,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710020000"
   },
   {
    "InningSeq": 7,
@@ -5547,7 +5759,8 @@
    "Content": "擊出左外野滾地球，一壘安打 。1分打點。 三壘跑者陳文杰回本壘得分。 二壘跑者顏清浤 上三壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710021000"
   },
   {
    "InningSeq": 7,
@@ -5573,7 +5786,8 @@
    "Content": "更換投手：張瑞麟=>廖任磊。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710022000"
   },
   {
    "InningSeq": 7,
@@ -5599,7 +5813,8 @@
    "Content": "揮棒落空。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710023000"
   },
   {
    "InningSeq": 7,
@@ -5625,7 +5840,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710024000"
   },
   {
    "InningSeq": 7,
@@ -5651,7 +5867,8 @@
    "Content": "擊出左外野高飛球， 打者出局-犧牲飛球出局。1分打點。 1人出局。 三壘跑者顏清浤回本壘得分。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710025000"
   },
   {
    "InningSeq": 7,
@@ -5677,7 +5894,8 @@
    "Content": "投手牽制一壘跑者",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710026000"
   },
   {
    "InningSeq": 7,
@@ -5703,7 +5921,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710027000"
   },
   {
    "InningSeq": 7,
@@ -5729,7 +5948,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710028000"
   },
   {
    "InningSeq": 7,
@@ -5755,7 +5975,8 @@
    "Content": "擊出內野滾地球， 一壘跑者永田颯太郎-二壘手  傳游擊手封殺出局 2人出局。 打者出局-雙殺打。 3人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0710029000"
   },
   {
    "InningSeq": 7,
@@ -5781,7 +6002,8 @@
    "Content": "更換選手：-顏清浤=>捕手-陳致嘉。\r\n更換投手：坎南=>韋宏亮。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0720001000"
   },
   {
    "InningSeq": 7,
@@ -5807,7 +6029,8 @@
    "Content": "更換代打：童堉誠=>王正棠。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0720002000"
   },
   {
    "InningSeq": 7,
@@ -5833,7 +6056,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0720003000"
   },
   {
    "InningSeq": 7,
@@ -5859,7 +6083,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0720004000"
   },
   {
    "InningSeq": 7,
@@ -5885,7 +6110,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0720005000"
   },
   {
    "InningSeq": 7,
@@ -5911,7 +6137,8 @@
    "Content": "擊出內野滾地球， 打者-二壘手  傳一壘手刺殺出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0720006000"
   },
   {
    "InningSeq": 7,
@@ -5937,7 +6164,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0720007000"
   },
   {
    "InningSeq": 7,
@@ -5963,7 +6191,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0720008000"
   },
   {
    "InningSeq": 7,
@@ -5989,7 +6218,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0720009000"
   },
   {
    "InningSeq": 7,
@@ -6015,7 +6245,8 @@
    "Content": "揮棒落空。 打者出局-三振出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0720010000"
   },
   {
    "InningSeq": 7,
@@ -6041,7 +6272,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0720011000"
   },
   {
    "InningSeq": 7,
@@ -6067,7 +6299,8 @@
    "Content": "擊出內野滾地球， 打者-三壘手  傳一壘手刺殺出局。 3人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0720012000"
   },
   {
    "InningSeq": 8,
@@ -6093,7 +6326,8 @@
    "Content": "更換守備：孔念恩-中外野手=>右外野手。\r\n更換選手：-王正棠=>中外野手-周佳樂。\r\n更換投手：廖任磊=>張奕。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810001000"
   },
   {
    "InningSeq": 8,
@@ -6119,7 +6353,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810002000"
   },
   {
    "InningSeq": 8,
@@ -6145,7 +6380,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810003000"
   },
   {
    "InningSeq": 8,
@@ -6171,7 +6407,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810004000"
   },
   {
    "InningSeq": 8,
@@ -6197,7 +6434,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810005000"
   },
   {
    "InningSeq": 8,
@@ -6223,7 +6461,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810006000"
   },
   {
    "InningSeq": 8,
@@ -6249,7 +6488,8 @@
    "Content": "擊出右外野高飛球， 打者-右外野手 飛球接殺出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810007000"
   },
   {
    "InningSeq": 8,
@@ -6275,7 +6515,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810008000"
   },
   {
    "InningSeq": 8,
@@ -6301,7 +6542,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810009000"
   },
   {
    "InningSeq": 8,
@@ -6327,7 +6569,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810010000"
   },
   {
    "InningSeq": 8,
@@ -6353,7 +6596,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810011000"
   },
   {
    "InningSeq": 8,
@@ -6379,7 +6623,8 @@
    "Content": "揮棒落空。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810012000"
   },
   {
    "InningSeq": 8,
@@ -6405,7 +6650,8 @@
    "Content": "擊出中外野滾地球，一壘安打 。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810013000"
   },
   {
    "InningSeq": 8,
@@ -6431,7 +6677,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810014000"
   },
   {
    "InningSeq": 8,
@@ -6457,7 +6704,8 @@
    "Content": "揮棒落空。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810015000"
   },
   {
    "InningSeq": 8,
@@ -6483,7 +6731,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810016000"
   },
   {
    "InningSeq": 8,
@@ -6509,7 +6758,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810017000"
   },
   {
    "InningSeq": 8,
@@ -6535,7 +6785,8 @@
    "Content": "好球沒揮棒。 打者出局-三振出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810018000"
   },
   {
    "InningSeq": 8,
@@ -6561,7 +6812,8 @@
    "Content": "擊出左外野高飛球，一壘安打 。 一壘跑者魔鷹 上二壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810019000"
   },
   {
    "InningSeq": 8,
@@ -6587,7 +6839,8 @@
    "Content": "教練暫停",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810020000"
   },
   {
    "InningSeq": 8,
@@ -6613,7 +6866,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810021000"
   },
   {
    "InningSeq": 8,
@@ -6639,7 +6893,8 @@
    "Content": "擊出左外野高飛球，一壘安打 。1分打點。 二壘跑者魔鷹回本壘得分。(富邦悍將重播輔助判決-原判) 一壘跑者王柏融 上二壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810022000"
   },
   {
    "InningSeq": 8,
@@ -6665,7 +6920,8 @@
    "Content": "更換代打：陳致嘉=>劉時豪。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810023000"
   },
   {
    "InningSeq": 8,
@@ -6691,7 +6947,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810024000"
   },
   {
    "InningSeq": 8,
@@ -6717,7 +6974,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810025000"
   },
   {
    "InningSeq": 8,
@@ -6743,7 +7001,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810026000"
   },
   {
    "InningSeq": 8,
@@ -6769,7 +7028,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810027000"
   },
   {
    "InningSeq": 8,
@@ -6795,7 +7055,8 @@
    "Content": "擊出內野滾地球， 一壘跑者陳文杰出局-野手接球自踩壘包(二壘) 3人出局。趁傳上壘。一、二壘殘壘。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0810028000"
   },
   {
    "InningSeq": 8,
@@ -6821,7 +7082,8 @@
    "Content": "更換守備：劉時豪-=>捕手。\r\n更換投手：韋宏亮=>許峻暘。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820001000"
   },
   {
    "InningSeq": 8,
@@ -6847,7 +7109,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820002000"
   },
   {
    "InningSeq": 8,
@@ -6873,7 +7136,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820003000"
   },
   {
    "InningSeq": 8,
@@ -6899,7 +7163,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820004000"
   },
   {
    "InningSeq": 8,
@@ -6925,7 +7190,8 @@
    "Content": "揮棒落空。 打者出局-三振出局。 1人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820005000"
   },
   {
    "InningSeq": 8,
@@ -6951,7 +7217,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820006000"
   },
   {
    "InningSeq": 8,
@@ -6977,7 +7244,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820007000"
   },
   {
    "InningSeq": 8,
@@ -7003,7 +7271,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820008000"
   },
   {
    "InningSeq": 8,
@@ -7029,7 +7298,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820009000"
   },
   {
    "InningSeq": 8,
@@ -7055,7 +7325,8 @@
    "Content": "擊出右外野高飛球， 打者-右外野手 飛球接殺出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820010000"
   },
   {
    "InningSeq": 8,
@@ -7081,7 +7352,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820011000"
   },
   {
    "InningSeq": 8,
@@ -7107,7 +7379,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820012000"
   },
   {
    "InningSeq": 8,
@@ -7133,7 +7406,8 @@
    "Content": "擊出左外野平飛球，一壘安打 。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820013000"
   },
   {
    "InningSeq": 8,
@@ -7159,7 +7433,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820014000"
   },
   {
    "InningSeq": 8,
@@ -7185,7 +7460,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820015000"
   },
   {
    "InningSeq": 8,
@@ -7211,7 +7487,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820016000"
   },
   {
    "InningSeq": 8,
@@ -7237,7 +7514,8 @@
    "Content": "壞球。四壞球上壘。 一壘跑者董子恩 上二壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820017000"
   },
   {
    "InningSeq": 8,
@@ -7263,7 +7541,8 @@
    "Content": "更換投手：許峻暘=>王躍霖。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820018000"
   },
   {
    "InningSeq": 8,
@@ -7289,7 +7568,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820019000"
   },
   {
    "InningSeq": 8,
@@ -7315,7 +7595,8 @@
    "Content": "擊出中外野高飛球，一壘安打 。1分打點。 二壘跑者董子恩回本壘得分。 一壘跑者王苡丞 上二壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820020000"
   },
   {
    "InningSeq": 8,
@@ -7341,7 +7622,8 @@
    "Content": "更換代打：張育豪=>戴培峰。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820021000"
   },
   {
    "InningSeq": 8,
@@ -7367,7 +7649,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820022000"
   },
   {
    "InningSeq": 8,
@@ -7393,7 +7676,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820023000"
   },
   {
    "InningSeq": 8,
@@ -7419,7 +7703,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820024000"
   },
   {
    "InningSeq": 8,
@@ -7445,7 +7730,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820025000"
   },
   {
    "InningSeq": 8,
@@ -7471,7 +7757,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820026000"
   },
   {
    "InningSeq": 8,
@@ -7497,7 +7784,8 @@
    "Content": "擊出左外野高飛球， 打者-左外野手 飛球接殺出局。 3人出局。一、二壘殘壘。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0820027000"
   },
   {
    "InningSeq": 9,
@@ -7523,7 +7811,8 @@
    "Content": "更換守備：戴培峰-=>捕手。\r\n更換投手：張奕=>曾峻岳。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910001000"
   },
   {
    "InningSeq": 9,
@@ -7549,7 +7838,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910002000"
   },
   {
    "InningSeq": 9,
@@ -7575,7 +7865,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910003000"
   },
   {
    "InningSeq": 9,
@@ -7601,7 +7892,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910004000"
   },
   {
    "InningSeq": 9,
@@ -7627,7 +7919,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910005000"
   },
   {
    "InningSeq": 9,
@@ -7653,7 +7946,8 @@
    "Content": "壞球。四壞球上壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910006000"
   },
   {
    "InningSeq": 9,
@@ -7679,7 +7973,8 @@
    "Content": "投手牽制一壘跑者",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910007000"
   },
   {
    "InningSeq": 9,
@@ -7705,7 +8000,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910008000"
   },
   {
    "InningSeq": 9,
@@ -7731,7 +8027,8 @@
    "Content": "擊出球(觸擊)， 一壘跑者永田颯太郎-投手  傳游擊手封殺出局 1人出局。趁傳上壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910009000"
   },
   {
    "InningSeq": 9,
@@ -7757,7 +8054,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910010000"
   },
   {
    "InningSeq": 9,
@@ -7783,7 +8081,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910011000"
   },
   {
    "InningSeq": 9,
@@ -7809,7 +8108,8 @@
    "Content": "投手牽制一壘跑者",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910012000"
   },
   {
    "InningSeq": 9,
@@ -7835,7 +8135,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910013000"
   },
   {
    "InningSeq": 9,
@@ -7861,7 +8162,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910014000"
   },
   {
    "InningSeq": 9,
@@ -7887,7 +8189,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910015000"
   },
   {
    "InningSeq": 9,
@@ -7913,7 +8216,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910016000"
   },
   {
    "InningSeq": 9,
@@ -7939,7 +8243,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910017000"
   },
   {
    "InningSeq": 9,
@@ -7965,7 +8270,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910018000"
   },
   {
    "InningSeq": 9,
@@ -7991,7 +8297,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910019000"
   },
   {
    "InningSeq": 9,
@@ -8017,7 +8324,8 @@
    "Content": "壞球。四壞球上壘。 一壘跑者王博玄 上二壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910020000"
   },
   {
    "InningSeq": 9,
@@ -8043,7 +8351,8 @@
    "Content": "教練暫停",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910021000"
   },
   {
    "InningSeq": 9,
@@ -8069,7 +8378,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910022000"
   },
   {
    "InningSeq": 9,
@@ -8095,7 +8405,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910023000"
   },
   {
    "InningSeq": 9,
@@ -8121,7 +8432,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910024000"
   },
   {
    "InningSeq": 9,
@@ -8147,7 +8459,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910025000"
   },
   {
    "InningSeq": 9,
@@ -8173,7 +8486,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910026000"
   },
   {
    "InningSeq": 9,
@@ -8199,7 +8513,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910027000"
   },
   {
    "InningSeq": 9,
@@ -8225,7 +8540,8 @@
    "Content": "壞球。四壞球上壘。 二壘跑者王博玄 上三壘。 一壘跑者曾子祐 上二壘。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910028000"
   },
   {
    "InningSeq": 9,
@@ -8251,7 +8567,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910029000"
   },
   {
    "InningSeq": 9,
@@ -8277,7 +8594,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910030000"
   },
   {
    "InningSeq": 9,
@@ -8303,7 +8621,8 @@
    "Content": "擊出界外球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910031000"
   },
   {
    "InningSeq": 9,
@@ -8329,7 +8648,8 @@
    "Content": "揮棒落空。 打者出局-三振出局。 2人出局。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910032000"
   },
   {
    "InningSeq": 9,
@@ -8355,7 +8675,8 @@
    "Content": "好球沒揮棒。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910033000"
   },
   {
    "InningSeq": 9,
@@ -8381,7 +8702,8 @@
    "Content": "壞球。",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910034000"
   },
   {
    "InningSeq": 9,
@@ -8407,7 +8729,8 @@
    "Content": "擊出內野滾地球， 打者-一壘手  傳投手刺殺出局。 3人出局。一、二、三壘殘壘。\r\n",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910035000"
   },
   {
    "InningSeq": 9,
@@ -8433,7 +8756,8 @@
    "Content": "比賽結束",
    "GameSno": 290,
    "Year": "2026",
-   "KindCode": "A"
+   "KindCode": "A",
+   "MainEventNo": "0910035000"
   }
  ]
 }

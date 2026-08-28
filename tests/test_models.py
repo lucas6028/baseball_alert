@@ -7,7 +7,7 @@ def _state(**kw):
     base = dict(
         game_sno=1, year="2026", kind_code="A", inning=1, is_top=True, outs=0,
         first=False, second=False, third=False, balls=0, strikes=0,
-        visiting_score=0, home_score=0, batter="", pitcher="", pkno="x",
+        visiting_score=0, home_score=0, batter="", pitcher="", event_no="x",
         created_at="", visiting_team="V", home_team="H",
     )
     base.update(kw)
@@ -68,3 +68,35 @@ def test_out_count_is_pre_pitch(game290):
         elif nxt["OutCnt"] == cur["OutCnt"]:
             same += 1
     assert lag > same * 5, f"expected pre-pitch outs, got lag={lag} same={same}"
+
+
+def test_pitch_id_survives_a_live_log_rebuild():
+    """The identity must not move when CPBL regenerates the log.
+
+    Measured against the live endpoint on 2026-08-28: two polls 90 seconds
+    apart returned the same 185 pitches with a brand-new ``Pkno`` on every
+    row (overlap: zero), and re-fetching the long-finished game 290 gave
+    different Pknos than the ones captured in the fixture. Anything keyed on
+    Pkno forgets the whole game about once a minute.
+    """
+    row = {"InningSeq": 6, "VisitingHomeType": "1", "MainEventNo": "0610008000",
+           "Pkno": "Z05S8VRX"}
+    rebuilt = {**row, "Pkno": "Z05S91AD", "CreateTime": "2026-08-28T20:27:35"}
+    assert state_from_row(row).pitch_id == state_from_row(rebuilt).pitch_id
+
+
+def test_pitch_id_falls_back_to_the_situation():
+    """If MainEventNo ever disappears, degrade to the moment, not to a mint."""
+    a = _state(event_no="", inning=6, outs=1, second=True, balls=2, strikes=1)
+    b = _state(event_no="", inning=6, outs=1, second=True, balls=2, strikes=1)
+    c = _state(event_no="", inning=6, outs=1, second=True, balls=3, strikes=1)
+    assert a.pitch_id == b.pitch_id
+    assert a.pitch_id != c.pitch_id
+
+
+def test_fixture_rows_carry_a_stable_identity(game290):
+    rows = game290["rows"]
+    ids = {state_from_row(r).pitch_id for r in rows}
+    # 324 pitches, 323 ids: the "比賽結束" marker repeats the final pitch's
+    # MainEventNo, and swallowing that row is the behaviour we want.
+    assert len(ids) == len(rows) - 1

@@ -1,5 +1,7 @@
 """The polling loop, with the network stubbed out."""
 
+from cpbl_alert.models import state_from_row
+from cpbl_alert.notifier import inning_label
 from cpbl_alert.watcher import Watcher
 
 
@@ -73,13 +75,13 @@ def test_team_filter_does_not_consume_tracker_state(game290):
     """A filtered-out game must not touch the tracker.
 
     The filter used to run *after* should_fire(), which already records the
-    Pkno and arms the rally -- so the game was silently burned through even
+    pitch id and arms the rally -- so the game was silently burned through even
     though nothing was sent.
     """
     w = Watcher(StubClient(_payload(game290)), RecordingNotifier(), teams=["中信兄弟"])
     w.process(_payload(game290), 290)
     tracker = w.trackers.get(290)
-    assert tracker is None or (not tracker.seen_pknos and tracker.rally_half is None)
+    assert tracker is None or (not tracker.seen_pitches and tracker.rally_half is None)
 
 
 def test_team_filter_passes_matching_game(game290):
@@ -115,3 +117,50 @@ def test_poll_interval_is_floored():
     """Politeness: never poll someone else's site faster than the floor."""
     w = Watcher(StubClient({}), RecordingNotifier(), poll_seconds=1)
     assert w.poll_seconds >= 10
+
+
+def _rebuilt(payload):
+    """The same live log after CPBL regenerates it server-side.
+
+    Every ``Pkno`` is minted fresh on a rebuild while the pitches themselves
+    are unchanged; this reproduces that without going near the network.
+    """
+    rows = [{**row, "Pkno": f"REBUILT{i:05d}",
+             "CreateTime": "2026-08-26T23:59:59"}
+            for i, row in enumerate(payload["rows"])]
+    return {**payload, "rows": rows}
+
+
+def test_a_log_rebuild_does_not_replay_the_whole_game(game290):
+    """The bug this fixes: the same rally pushed again every ~90 seconds.
+
+    A rebuilt log is the identical game with new row keys. Before the
+    pitch-id watermark, every row looked new, the walk through the history
+    reset the rally memory at each half-inning boundary, and the night's
+    best moment was re-sent on every rebuild.
+    """
+    notifier = RecordingNotifier()
+    w = Watcher(StubClient(_payload(game290)), notifier)
+    w.prime(_payload(game290, upto=150), 290)
+    assert w.process(_payload(game290), 290) >= 1
+    notifier.sent.clear()
+    assert w.process(_rebuilt(_payload(game290)), 290) == 0
+    assert notifier.sent == []
+
+
+def test_history_is_never_announced(game290):
+    """Only the half-inning the game is actually in may reach the phone.
+
+    Belt and braces for the same failure: whatever the watermark believes,
+    a 四上 alert delivered while the game is in 五下 is wrong, because the
+    whole point is to get you to the TV in time.
+    """
+    notifier = RecordingNotifier()
+    w = Watcher(StubClient(_payload(game290)), notifier)
+    # Attach before the 7th-inning rally, then poll once at the end of the
+    # game: innings 7 and 8 are over by the time we look.
+    w.prime(_payload(game290, upto=150), 290)
+    w.process(_payload(game290), 290)
+    live = state_from_row(game290["rows"][-1], game290["meta"])
+    assert notifier.sent, "the live half-inning must still alert"
+    assert all(inning_label(live) in text for text in notifier.sent)

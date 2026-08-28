@@ -9,8 +9,11 @@ situation four or five times. We alert on *changes*, not on pitches:
   * re-arm only when the half-inning changes, not on a momentary dip -- an
     out mid-rally drops tension below the alert tier, and without this
     hysteresis a single inning would buzz three times as the rally rebuilt;
-  * never fire twice for the same pitch (``Pkno`` watermark), which also
-    means a row the official scorer edits later will not re-alert.
+  * never fire twice for the same pitch (``GameState.pitch_id`` watermark),
+    which also means a row the official scorer edits later will not re-alert.
+
+The watermark is only as good as the identity behind it, and CPBL's ``Pkno``
+is *not* an identity -- see :attr:`GameState.pitch_id`.
 """
 
 from __future__ import annotations
@@ -28,7 +31,7 @@ class GameTracker:
     """Per-game alert memory."""
 
     escalation_step: float = ESCALATION_STEP
-    seen_pknos: set[str] = field(default_factory=set)
+    seen_pitches: set[str] = field(default_factory=set)
     last_alert_tension: float | None = None
     last_alert_key: tuple | None = None
     rally_half: tuple | None = None
@@ -45,10 +48,10 @@ class GameTracker:
     def should_fire(self, state: GameState, assessment: Assessment) -> bool:
         """Decide whether this pitch's situation deserves a notification."""
         # A pitch we've already processed (including a scorer's later edit).
-        if state.pkno and state.pkno in self.seen_pknos:
+        pitch_id = state.pitch_id
+        if pitch_id in self.seen_pitches:
             return False
-        if state.pkno:
-            self.seen_pknos.add(state.pkno)
+        self.seen_pitches.add(pitch_id)
 
         half = self._half(state)
         if self.rally_half is not None and half != self.rally_half:

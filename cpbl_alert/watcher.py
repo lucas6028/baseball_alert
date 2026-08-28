@@ -66,6 +66,15 @@ class Watcher:
     def _tracker(self, game_sno: int) -> GameTracker:
         return self.trackers.setdefault(game_sno, GameTracker())
 
+    @staticmethod
+    def _half(state) -> tuple:
+        """The half-inning, ordered so that later halves compare greater.
+
+        ``not is_top`` rather than ``is_top``: the bottom of the 6th comes
+        after the top of it, and ``True > False`` would order those backwards.
+        """
+        return (state.inning, not state.is_top)
+
     # -- core --------------------------------------------------------------
     def process(self, payload: dict, game_sno: int | str) -> int:
         """Run one live payload through the model. Returns alerts fired."""
@@ -75,12 +84,29 @@ class Watcher:
 
         tracker = self._tracker(int(game_sno))
         fired = 0
-        # Walk every row so a burst between polls is never missed; the Pkno
-        # watermark inside the tracker makes replaying old rows a no-op.
-        for row in rows:
-            state = state_from_row(row, meta)
+        states = [state_from_row(row, meta) for row in rows]
+        # The half-inning the game is actually in. Everything before it is
+        # history: even if the watermark somehow lost track of a row, a 四上
+        # bases-loaded alert delivered while the game is already in 五下 is
+        # wrong -- the premise of this thing is "turn the TV on *now*". The
+        # cost is that a rally which both started and ended between two polls
+        # goes unannounced, which is the right trade: it is over either way.
+        #
+        # Taken as the max rather than from the last row. The log is ordered
+        # in practice (checked on a finished game and a live one), but it also
+        # carries special-event rows -- 比賽結束 is one -- and a stray one at
+        # the tail must not be able to silence a live rally.
+        live_half = max(self._half(st) for st in states)
+        # Walk every row so a burst between polls is never missed; the
+        # pitch-id watermark inside the tracker makes replaying old rows a
+        # no-op.
+        for state in states:
             assessment = assess(state, threshold=self.threshold)
             if not tracker.should_fire(state, assessment):
+                continue
+            if self._half(state) != live_half:
+                log.debug("game %s: not alerting on history (%s, live half is %s)",
+                          game_sno, state.describe(), live_half)
                 continue
             text = format_alert(state, assessment)
             log.info("ALERT game %s | %s | tension=%s",
@@ -100,11 +126,9 @@ class Watcher:
         """
         tracker = self._tracker(int(game_sno))
         for row in payload.get("rows") or []:
-            pkno = str(row.get("Pkno") or "")
-            if pkno:
-                tracker.seen_pknos.add(pkno)
+            tracker.seen_pitches.add(state_from_row(row).pitch_id)
         log.info("primed game %s with %d existing pitches",
-                 game_sno, len(tracker.seen_pknos))
+                 game_sno, len(tracker.seen_pitches))
 
     def check_game(self, game_sno: int | str, year: str, kind_code: str = "A") -> int:
         """Fetch and process one game (used for manual/one-off checks)."""

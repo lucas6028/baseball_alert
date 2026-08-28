@@ -174,7 +174,7 @@ def test_season_schedule_is_cached(client, monkeypatch):
 
 
 def test_embedded_json_strings_are_decoded(client, monkeypatch):
-    rows = [{"InningSeq": 1, "Pkno": "a"}]
+    rows = [{"InningSeq": 1, "MainEventNo": "0110001000"}]
     monkeypatch.setattr(client.session, "post", lambda *a, **k: FakeResp(
         200, payload={"Success": True, "LiveLogJson": json.dumps(rows),
                       "CurtGameDetailJson": json.dumps({"GameSno": 290, "GameStatus": 2})}))

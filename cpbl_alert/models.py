@@ -48,10 +48,42 @@ class GameState:
     home_score: int
     batter: str
     pitcher: str
-    pkno: str
+    event_no: str
     created_at: str
     visiting_team: str = ""
     home_team: str = ""
+
+    # -- identity ----------------------------------------------------------
+    @property
+    def pitch_id(self) -> str:
+        """Stable identity for this pitch, used as the no-repeat watermark.
+
+        NOT ``Pkno``. The live log is regenerated server-side every 60-90
+        seconds, and every ``Pkno`` in it is minted fresh each time: two polls
+        either side of a rebuild share *zero* Pknos out of 185 rows, and the
+        finished game 290 came back with different Pknos than the ones in
+        tests/fixtures/game290.json. A watermark built on Pkno therefore
+        evaporates about once a minute, the whole game replays as if new, and
+        the same rally is pushed to the phone again and again.
+
+        ``MainEventNo`` is structural instead of minted -- ``0610008000`` is
+        inning 06, top half, the 8th event -- so it survives a rebuild
+        unchanged. Its one known collision is the ``比賽結束`` marker, which
+        repeats the final pitch's number; swallowing that row is right.
+
+        What this does *not* cover: if a scorer inserts a missed pitch, every
+        MainEventNo after it shifts and the rest of the game looks new. The
+        watcher's "history never alerts" rule is what caps that to the live
+        half-inning.
+        """
+        if self.event_no:
+            return self.event_no
+        # If CPBL ever drops MainEventNo, fall back to the situation itself.
+        # Two rows with an identical count *and* identical bases/outs/score
+        # are the same moment as far as an alert is concerned.
+        return (f"{self.inning}|{self.is_top}|{self.outs}|{self.base_code()}|"
+                f"{self.visiting_score}-{self.home_score}|{self.balls}-{self.strikes}|"
+                f"{self.batter}|{self.pitcher}")
 
     # -- derived -----------------------------------------------------------
     @property
@@ -129,7 +161,7 @@ def state_from_row(row: dict, meta: dict | None = None) -> GameState:
         home_score=int(row.get("HomeScore") or 0),
         batter=str(row.get("HitterName") or ""),
         pitcher=str(row.get("PitcherName") or ""),
-        pkno=str(row.get("Pkno") or ""),
+        event_no=str(row.get("MainEventNo") or ""),
         created_at=str(row.get("CreateTime") or ""),
         visiting_team=str(meta.get("VisitingTeamName") or ""),
         home_team=str(meta.get("HomeTeamName") or ""),

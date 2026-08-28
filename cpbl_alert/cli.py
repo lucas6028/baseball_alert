@@ -13,7 +13,13 @@ from .client import CpblClient, CpblError
 from .dedupe import GameTracker
 from .leverage import assess
 from .models import state_from_row
-from .notifier import build_notifier, format_alert
+from .notifier import (
+    RULER_LINES,
+    RULER_WIDTH,
+    build_notifier,
+    format_alert,
+    ruler_text,
+)
 from .watcher import Watcher, today_tw
 
 STATUS_LABELS = {0: "?", 1: "pending", 2: "LIVE", 3: "final",
@@ -112,12 +118,34 @@ def cmd_chat_id(args, cfg) -> int:
 
 def cmd_test(args, cfg) -> int:
     notifier = build_notifier(cfg)
+    if args.ruler:
+        return _send_ruler(notifier)
+    # No 快轉台 here: the bot's own display name titles the notification.
     ok = notifier.send(
-        "<b>快轉台</b>　測試 <b>0-0</b> 測試\n"
+        "測試 <b>0-0</b> 測試\n"
         "設定完成　中職有機會的時候就會像這樣推給你"
     )
     print("sent" if ok else "failed")
     return 0 if ok else 1
+
+
+def _send_ruler(notifier) -> int:
+    """Push a ruler so the alert can be sized against a real phone.
+
+    Nobody can tell you how many lines your notifications show: it moves with
+    the OS, the launcher and the font-size setting. So look at yours.
+    """
+    if not notifier.send(ruler_text()):
+        print("failed")
+        return 1
+    print(f"ruler sent -- {RULER_LINES} numbered lines.\n"
+          "Look at your lock screen WITHOUT expanding the notification:\n"
+          "  1. the last number you can still read is your line budget\n"
+          f"  2. every ┤ should sit on the same row as its number; if one "
+          f"wrapped, {RULER_WIDTH} columns is too wide\n"
+          "\nnote: the title of a Telegram notification is the chat name, so "
+          "whatever you named the bot is already on screen above line 1.")
+    return 0
 
 
 def cmd_run(args, cfg) -> int:
@@ -169,6 +197,9 @@ def main(argv=None) -> int:
     c.set_defaults(func=cmd_chat_id)
 
     t = sub.add_parser("test", help="send a test notification")
+    t.add_argument("--ruler", action="store_true",
+                   help="send a numbered ruler instead, to measure how many "
+                        "lines your phone actually shows")
     t.set_defaults(func=cmd_test)
 
     args = p.parse_args(argv)

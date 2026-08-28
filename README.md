@@ -5,32 +5,48 @@
 盯著中華職棒的實況，在比賽真正緊張的時候推一則 Telegram 給你——九局滿壘、
 一分差的追平分上壘、八局撕破平手——大比分落後和無聊的半局則完全安靜。
 
-The name is the notification: on a lock screen, **快轉台** *is* the message,
-and the score below it is just the detail.
+通知的標題就是產品名——Telegram 用聊天室名稱當標題，而那就是 bot 的顯示名稱
+**快轉台**。所以正文裡不再寫一次：那會用掉最稀有的一行，去講一個螢幕上已經有
+的詞。
 
 ```
-快轉台　台鋼 4-5 富邦
-九上・一出局・滿壘　心跳指數 89
+台鋼 4-5 富邦　九上・一出局
+　◆　　打者 魔鷹
+◆　◆　投手 曾峻岳
+心跳指數 89　♥♥♥♥♥♥♥♥♥♡
 ```
 
-通知只有兩行，而且兩行都在做事。第一行是預覽一定看得到的那行，要能單獨成立：
-誰打誰、比數多少。第二行是它為什麼響——場面，然後是決定它響的那個數字。
+**四行是量出來的，不是猜的。** 手機到底顯示幾行不能查表：iOS 鎖定畫面大約四
+行，原生 Android 一行，三星 One UI 通常兩行，而且都會隨系統版本和字級設定跑
+掉。所以 `cpbl-alert test --ruler` 會推一把有編號的尺到你自己的手機上，你看得
+到的最後一個數字就是行數預算，行尾的 `┤` 沒被擠到下一行就代表寬度還夠。這份
+排版是照量到的結果（四行、38 半形欄）做的，量出別的數字就改別的數字。
 
-再多就是寫給沒有人看的：你不是轉台就是不轉，而那個決定只需要比數、局面和
-心跳指數多大聲。壘包圖、打者、投手、一排愛心，都要花一眼卻不會改變答案，
-所以都拿掉了。
+四行的順序，是讓你**每多看一行都更清楚一點**，因為疊在一起的通知會顯示得比單
+獨一則少：先是哪一場、比數多少，再來是為什麼是現在，然後是誰對決誰，最後才是
+它有多重要。
 
-用字刻意平鋪直敘：講 **台鋼** 不講「台鋼雄鷹」，因為短名才塞得進一行；
-講 **滿壘** 不畫壘包圖，因為那是同一件事的兩個字。對不上的隊名（季後賽、
-明星賽、改名）原樣輸出，不會變成空字串。
+用字刻意平鋪直敘：講 **台鋼** 不講「台鋼雄鷹」，因為短名才塞得進一行。對不上
+的隊名（季後賽、明星賽、改名）原樣輸出，不會變成空字串。
 
-短到只剩兩行的東西，好不好看就是斷句好不好。這裡只有兩種記號，而且都在做事：
-全形空白 `　` 是**大斷點**，每行剛好一個——第一行隔開品牌與比分，第二行隔開
-場面與指數，兩行因此對得起來，而不只是疊在一起；`・` 則把「局數、出局數、
-壘包」黏成一句，因為那三件事講的是同一個瞬間。
+**壘包畫成真的壘包圖，這件事也是量出來的。** 圖只有在**對齊**的時候才讀得懂，
+而鎖定畫面會把用來保證對齊的等寬格式吃掉，所以這個形狀是先推到真手機上確認過
+才拿來用的。它站得住是因為每一格都是一個在中文環境下寬度剛好一格的字元
+（`◆`、`◇`、全形空白都是），不需要靠補空格喬位置。位置能表示意思，是線性排一
+排菱形做不到的：`◆◆◇` 沒有標籤就講不出是哪兩個壘包。
+
+也因為對齊只取決於每行**開頭**那四格，右邊還能掛東西——打者和投手就掛在那裡，
+不用自己佔一行。這是兩者都塞得進預算的唯一原因。
+
+被吃掉之後還活著的只有標點和形狀，所以每個記號都在做事：全形空白 `　` 是**大
+斷點**，每段文字至多一個，而且一定隔開兩種不同的東西（它同時也是壘包圖的格子，
+但那是結構不是標點）；`・` 把同一類的事實黏成一句；`♥♡` 是十格量表，所以那條
+就是百分比。
 
 粗體只是進 app 之後的加分：鎖定畫面的預覽會把格式吃掉，所以節奏必須在純文字
 下就成立——這也是為什麼工作交給記號，`<b>` 只負責補強。
+
+另外提醒：把 bot 在 BotFather 裡的顯示名稱設成 **快轉台**，通知的標題才會是它。
 
 **命名**：產品名就是 **快轉台**，沒有英文對應名——它不需要一個。
 Package 與 CLI 用純描述性的 `cpbl_alert`，讓陌生人一眼看懂這是什麼、也搜得到。
@@ -62,7 +78,7 @@ cp config.example.json config.json      # then fill in your bot token
 | `run` | Watch today's live games and push alerts. `--dry-run` prints instead, `--once` does a single pass |
 | `live` | List today's games with real status (pending / LIVE / final) |
 | `check <gameSno>` | Replay a real game through the model and show what *would* have fired — the way to tune your threshold |
-| `test` | Send a test notification |
+| `test` | Send a test notification. `--ruler` sends a numbered ruler instead, so you can see how many lines your phone shows before it truncates |
 | `chat-id` | Look up your Telegram chat id |
 
 Tuning against a game you actually watched is the fastest way to find your
@@ -184,7 +200,7 @@ every threshold off by one pitch.
 ## Development
 
 ```bash
-.venv/Scripts/python.exe -m pytest tests/ -q     # 77 tests
+.venv/Scripts/python.exe -m pytest tests/ -q     # 94 tests
 python scripts/replay.py --all                   # offline, against the fixture
 ```
 

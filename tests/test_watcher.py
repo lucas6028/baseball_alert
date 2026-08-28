@@ -52,7 +52,8 @@ def test_alerts_fire_for_pitches_arriving_after_priming(game290):
     fired = w.process(_payload(game290), 290)
     assert fired >= 1
     assert len(notifier.sent) == fired
-    assert "滿壘" in "".join(notifier.sent), "the 9th-inning rally should be reported"
+    loaded = [t for t in notifier.sent if t.count("◆") == 3 and "◇" not in t]
+    assert loaded, "the 9th-inning bases-loaded rally should be reported"
 
 
 def test_repolling_is_silent(game290):

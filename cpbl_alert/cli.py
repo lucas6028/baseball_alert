@@ -113,7 +113,7 @@ def cmd_chat_id(args, cfg) -> int:
 def cmd_test(args, cfg) -> int:
     notifier = build_notifier(cfg)
     ok = notifier.send(
-        "<b>快轉台</b>　測試 0-0 測試\n"
+        "<b>快轉台</b>　測試 <b>0-0</b> 測試\n"
         "設定完成　中職有機會的時候就會像這樣推給你"
     )
     print("sent" if ok else "failed")

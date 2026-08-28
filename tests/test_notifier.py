@@ -1,10 +1,14 @@
 """Alert formatting."""
 
+import re
+
 import pytest
 
 from cpbl_alert.leverage import assess
 from cpbl_alert.models import GameState, state_from_row
 from cpbl_alert.notifier import (
+    BREAK,
+    JOIN,
     ConsoleNotifier,
     bases_label,
     build_notifier,
@@ -12,6 +16,7 @@ from cpbl_alert.notifier import (
     format_alert,
     inning_label,
     outs_label,
+    situation,
     team,
 )
 
@@ -77,6 +82,31 @@ def test_alert_text_contains_the_essentials(game290):
     assert "心跳指數" in text
 
 
+def test_the_situation_is_one_joined_phrase(game290):
+    """Inning, outs and bases describe one moment, so they read as one."""
+    st = state_from_row(game290["rows"][-1], game290["meta"])
+    assert situation(st) == f"九上{JOIN}兩出局{JOIN}滿壘"
+
+
+def test_each_line_breaks_exactly_once(game290):
+    """The spacing rule the two lines rhyme on: one major break per line.
+
+    A lock-screen preview strips bold, so this punctuation is the only
+    hierarchy that survives to where the alert is actually read.
+    """
+    st = state_from_row(game290["rows"][-1], game290["meta"])
+    for line in format_alert(st, assess(st)).split("\n"):
+        assert line.count(BREAK) == 1, f"{line!r} should break once"
+
+
+def test_plain_text_still_reads_when_formatting_is_stripped(game290):
+    """What the phone actually shows: no tags, no stray spacing artefacts."""
+    st = state_from_row(game290["rows"][-1], game290["meta"])
+    plain = re.sub(r"</?b>", "", format_alert(st, assess(st)))
+    assert plain == ("快轉台　台鋼 4-5 富邦\n"
+                     "九上・兩出局・滿壘　心跳指數 42")
+
+
 def test_alert_leads_with_the_brand_and_the_score(game290):
     """On a lock screen the product name is the message, so it goes first.
 
@@ -86,7 +116,7 @@ def test_alert_leads_with_the_brand_and_the_score(game290):
     st = state_from_row(game290["rows"][-1], game290["meta"])
     head, tail = format_alert(st, assess(st)).split("\n")
     assert head.startswith("<b>快轉台</b>")
-    assert "台鋼 4-5 富邦" in head
+    assert "台鋼 <b>4-5</b> 富邦" in head, "the score is what the eye goes to"
     assert "心跳指數" in tail
 
 

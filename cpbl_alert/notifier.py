@@ -14,6 +14,20 @@ commentary -- costs a glance without changing the answer.
 The vocabulary is deliberately plain: 台鋼 rather than 台鋼雄鷹 because the
 short name is what makes one line fit, 滿壘 rather than a diagram because it
 is the same fact in two characters.
+
+Two lines this short live or die on their spacing, and both marks used here
+are load-bearing rather than ornamental:
+
+* ``　`` (ideographic space) is the *major* break, and each line gets exactly
+  one -- brand from scoreboard, situation from score. That single rule is what
+  makes the two lines rhyme instead of merely stacking.
+* ``・`` joins the three facts that describe one moment. They are one thought,
+  so they are punctuated as a list rather than spaced apart like separate
+  fields.
+
+Bold is in-app polish only: a lock-screen preview strips formatting, so the
+rhythm has to survive as plain text. It does -- which is why the marks do the
+work and ``<b>`` merely reinforces it.
 """
 
 from __future__ import annotations
@@ -30,6 +44,12 @@ log = logging.getLogger(__name__)
 
 BRAND = "快轉台"
 SCORE_LABEL = "心跳指數"
+
+# The major break within a line, and the join between facts. See the module
+# docstring: one BREAK per line, exactly.
+BREAK = "　"       # ideographic space
+JOIN = "・"        # katakana middle dot -- the narrow ASCII · reads
+                       # cramped between full-width characters
 
 # Nobody says 統一7-ELEVEn獅 out loud, and the full names do not fit on one
 # line. An unknown or renamed side (postseason, all-star) falls through to
@@ -92,9 +112,16 @@ def bases_label(state: GameState) -> str:
 
 
 def headline(state: GameState) -> str:
+    """'台鋼 4-5 富邦' -- the score bold, because it is what the eye wants."""
     return (f"{team(state.visiting_team)} "
-            f"{state.visiting_score}-{state.home_score} "
+            f"<b>{state.visiting_score}-{state.home_score}</b> "
             f"{team(state.home_team)}")
+
+
+def situation(state: GameState) -> str:
+    """'九上・一出局・滿壘' -- one moment, so one joined phrase."""
+    return JOIN.join((inning_label(state), outs_label(state.outs),
+                      bases_label(state)))
 
 
 def format_alert(state: GameState, assessment: Assessment) -> str:
@@ -103,11 +130,11 @@ def format_alert(state: GameState, assessment: Assessment) -> str:
     Line one is what a truncated preview is guaranteed to show, so it has to
     stand alone: the brand, who is playing, and where the score stands. Line
     two is why it buzzed -- the situation, then the number that decided it.
+    Each line breaks once, in the same place, so the pair reads as a block.
     """
     return (
-        f"<b>{BRAND}</b>　{headline(state)}\n"
-        f"{inning_label(state)} {outs_label(state.outs)} {bases_label(state)}"
-        f"　{SCORE_LABEL} <b>{assessment.tension:.0f}</b>"
+        f"<b>{BRAND}</b>{BREAK}{headline(state)}\n"
+        f"{situation(state)}{BREAK}{SCORE_LABEL} <b>{assessment.tension:.0f}</b>"
     )
 
 

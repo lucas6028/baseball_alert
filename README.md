@@ -6,15 +6,18 @@
 
 > 有機會了，別錯過。
 
-盯著中華職棒的實況，在比賽真正緊張的時候推一則 Telegram 給你——九局滿壘、
-一分差的追平分上壘、八局撕破平手——大比分落後和無聊的半局則完全安靜。
+盯著中華職棒的實況，在比賽真正緊張的時候推一則 Telegram 或 Discord 給你——
+九局滿壘、一分差的追平分上壘、八局撕破平手——大比分落後和無聊的半局則完全安靜。
 
 也盯大聯盟和日職，但盯的是另一件事：**台灣選手上場的那一刻**——鄧愷威登板、
 李灝宇站上打擊區、古林睿煬在西武的主場踏上投手丘。同一支 bot、同樣四行。
 
+三個聯盟可以推到**不同的頻道**——中職進中職台，大聯盟、日職各進各的，
+[往下看](#一個聯盟一個頻道)。
+
 通知的標題就是產品名——Telegram 用聊天室名稱當標題，而那就是 bot 的顯示名稱
-**快轉台**。所以正文裡不再寫一次：那會用掉最稀有的一行，去講一個螢幕上已經有
-的詞。
+**快轉台**；Discord 則是 webhook 的名字。所以正文裡不再寫一次：那會用掉最稀有
+的一行，去講一個螢幕上已經有的詞。
 
 ```
 台鋼 4-5 富邦　九上・一出局
@@ -52,6 +55,7 @@ Copy-Item config.example.json config.json
 .venv/Scripts/python.exe -m cpbl_alert.cli test      # send a test message
 .venv/Scripts/python.exe -m cpbl_alert.cli run       # watch CPBL
 .venv/Scripts/python.exe -m cpbl_alert.cli mlb       # watch MLB (in another terminal)
+.venv/Scripts/python.exe -m cpbl_alert.cli npb       # watch NPB (in another again)
 ```
 
 ### Linux / macOS
@@ -65,11 +69,14 @@ cp config.example.json config.json
 .venv/bin/python -m cpbl_alert.cli test
 .venv/bin/python -m cpbl_alert.cli run
 .venv/bin/python -m cpbl_alert.cli mlb       # in another terminal
+.venv/bin/python -m cpbl_alert.cli npb       # in another again
 ```
 
 Before running `chat-id`, fill in `telegram_token` in `config.json` (or set
-`TELEGRAM_TOKEN`). The CPBL and MLB watchers are separate processes; run either
-one or both depending on what you want to follow.
+`TELEGRAM_TOKEN`). Prefer Discord? Skip `chat-id` entirely and put a webhook
+URL in `discord_webhook` instead — or set both, and every alert goes to both.
+The three watchers are separate processes; run whichever of them you want to
+follow.
 
 ### Getting a Telegram bot
 
@@ -78,6 +85,54 @@ one or both depending on what you want to follow.
 3. Send your new bot any message.
 4. Run `python -m cpbl_alert.cli chat-id` and copy the id into `config.json`.
 
+### Getting a Discord webhook
+
+1. Server Settings → Integrations → Webhooks → **New Webhook**.
+2. Pick the channel it posts to, and name it 快轉台 — that name is what
+   Discord prints above every alert, which is why the four lines don't spend
+   one saying it.
+3. **Copy Webhook URL**, and paste it into `discord_webhook` in `config.json`
+   (or set `DISCORD_WEBHOOK`).
+4. `python -m cpbl_alert.cli test` — the message should land in that channel.
+
+The URL is a credential: anyone holding it can post to the channel. Keeping it
+in the environment rather than in a file is why `DISCORD_WEBHOOK` exists.
+
+### 一個聯盟，一個頻道
+
+A webhook URL *is* a channel, so putting CPBL, MLB and NPB in different places
+is a matter of making one webhook per channel and naming which is which. Any
+channel key takes a `_cpbl`, `_mlb` or `_npb` suffix, and the suffixed one
+wins for that league:
+
+```json
+{
+  "discord_webhook_cpbl": "https://discord.com/api/webhooks/111.../aaa...",
+  "discord_webhook_mlb":  "https://discord.com/api/webhooks/222.../bbb...",
+  "discord_webhook_npb":  "https://discord.com/api/webhooks/333.../ccc..."
+}
+```
+
+One webhook made in each channel: 中職台, 大聯盟台, 日職台.
+
+You do not have to split all three. Leave a suffix out and that league falls
+back to `discord_webhook`, so `discord_webhook` plus `discord_webhook_mlb`
+puts 大聯盟 on its own and leaves 中職 and 日職 together — which is a real
+setup, since those two barely overlap in the day. Leave all the suffixes out
+and everything shares one channel. A league with no channel of its own and no
+`discord_webhook` to fall back to prints to the console instead. Telegram
+splits the same way with `telegram_chat_id_cpbl` / `_mlb` / `_npb`, so 中職
+can go to a group chat while 日職 goes to a channel.
+
+`test` sends once per *channel* rather than once per league — two leagues
+sharing a webhook is one message, naming both — and each message says which
+league it is testing, which is the thing worth checking once they are split:
+
+```bash
+python -m cpbl_alert.cli test               # every channel configured
+python -m cpbl_alert.cli test --league npb  # just the NPB one
+```
+
 ## Commands
 
 | Command | What it does |
@@ -85,7 +140,7 @@ one or both depending on what you want to follow.
 | `run` | Watch today's live games and push alerts. `--dry-run` prints instead, `--once` does a single pass |
 | `live` | List today's games with real status (pending / LIVE / final) |
 | `check <gameSno>` | Replay a real game through the model and show what *would* have fired — the way to tune your threshold |
-| `test` | Send a test notification. `--ruler` sends a numbered ruler instead, so you can see how many lines your phone shows before it truncates |
+| `test` | Send a test notification to every channel configured, one per channel. `--league cpbl\|mlb\|npb` tests just that league's; `--ruler` sends a numbered ruler instead, so you can see how many lines your phone shows before it truncates |
 | `chat-id` | Look up your Telegram chat id |
 | `mlb` | Watch MLB and push when a Taiwanese player takes the plate or the mound. `--dry-run` and `--once` as above |
 | `mlb-live` | List the MLB games in the current window, with who is batting and pitching in each |
@@ -112,6 +167,13 @@ Set `CPBL_ALERT_CONFIG` to use a config file at a different path:
 |---|---|---|---|
 | `telegram_token` | `TELEGRAM_TOKEN` | — | Bot token from BotFather |
 | `telegram_chat_id` | `TELEGRAM_CHAT_ID` | — | Where to send |
+| `telegram_chat_id_cpbl` | `TELEGRAM_CHAT_ID_CPBL` | — | CPBL's own chat, overriding the above for `run` |
+| `telegram_chat_id_mlb` | `TELEGRAM_CHAT_ID_MLB` | — | MLB's own chat, overriding the above for `mlb` |
+| `telegram_chat_id_npb` | `TELEGRAM_CHAT_ID_NPB` | — | NPB's own chat, overriding the above for `npb` |
+| `discord_webhook` | `DISCORD_WEBHOOK` | — | Webhook URL; the URL *is* the channel |
+| `discord_webhook_cpbl` | `DISCORD_WEBHOOK_CPBL` | — | CPBL's own channel, overriding the above for `run` |
+| `discord_webhook_mlb` | `DISCORD_WEBHOOK_MLB` | — | MLB's own channel, overriding the above for `mlb` |
+| `discord_webhook_npb` | `DISCORD_WEBHOOK_NPB` | — | NPB's own channel, overriding the above for `npb` |
 | `threshold` | `CPBL_THRESHOLD` | `55` | 心跳指數 that triggers an alert |
 | `poll_seconds` | — | `15` | Seconds between polls (floored at 10) |
 | `teams` | `CPBL_TEAMS` | `[]` | Only alert on these teams; empty means all |
@@ -120,8 +182,10 @@ Set `CPBL_ALERT_CONFIG` to use a config file at a different path:
 | `npb_players` | `NPB_PLAYERS` | `[]` | Extra NPB players to alert on, by name in either orthography. npb.jp publishes no nationality, so unlike the MLB key this is the supported way to add a new signing rather than an escape hatch |
 | `npb_poll_seconds` | — | `30` | Seconds between NPB polls (floored at 15) |
 
-Without credentials it falls back to printing alerts to the console, so you can
-try it before setting up a bot.
+Telegram and Discord are independent: configure either, or both, and both get
+the alert — one dead channel does not silence the other. Without credentials it
+falls back to printing alerts to the console, so you can try it before setting
+up a bot.
 
 ## How a situation is scored
 
@@ -301,7 +365,7 @@ fix is one edit to `FIELD_PATTERNS`.
 ## Development
 
 ```bash
-.venv/Scripts/python.exe -m pytest tests/ -q     # 186 tests
+.venv/Scripts/python.exe -m pytest tests/ -q     # 219 tests
 python scripts/replay.py --all                   # offline, against the fixture
 ```
 
@@ -336,7 +400,8 @@ the assumption gets checked against the site.
   `npb` watches NPB; they are separate processes and none knows about the
   others. The package and CLI are still called `cpbl_alert` / `cpbl-alert`,
   which is now two thirds of a lie — but a rename would break every existing
-  invocation to fix a name nobody types twice.
+  invocation to fix a name nobody types twice. It is also why sending each
+  league to its own channel is a config key rather than a router.
 - **The NPB page rules are unverified against the live site.** They were
   written without network access to npb.jp, so a wrong rule shows up as silence
   rather than as an error. `npb-probe` is the check, and it takes a minute.
@@ -358,6 +423,10 @@ the assumption gets checked against the site.
 - **Run-expectancy tables are MLB-derived.** CPBL's run environment differs;
   only the relative ordering is used, which is stable, but the absolute numbers
   aren't CPBL-calibrated.
+- **Discord alerts are plain messages, not embeds.** The four lines were
+  measured against a phone's lock screen and they read the same in a channel;
+  an embed would buy colour and cost the shape. `<b>` becomes `**`, and that
+  is the whole difference between what the two services are sent.
 - **One-pitch lag**, as described above.
 - **Regular season (`kindCode=A`) by default.** Postseason uses different codes.
 - **Unofficial endpoints** — if CPBL changes its site, this breaks.

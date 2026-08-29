@@ -12,12 +12,14 @@ from . import config as config_mod
 from . import mlb
 from . import npb
 from .client import CpblClient, CpblError
+from .config import LEAGUES
 from .dedupe import GameTracker
 from .leverage import assess
 from .models import state_from_row
 from .notifier import (
     RULER_LINES,
     RULER_WIDTH,
+    Notifier,
     build_notifier,
     format_alert,
     ruler_text,
@@ -119,47 +121,96 @@ def cmd_chat_id(args, cfg) -> int:
 
 
 def cmd_test(args, cfg) -> int:
-    notifier = build_notifier(cfg)
-    if args.ruler:
-        return _send_ruler(notifier)
-    # No 快轉台 here: the bot's own display name titles the notification.
-    ok = notifier.send(
-        "測試 <b>0-0</b> 測試\n"
-        "設定完成　中職有機會的時候就會像這樣推給你"
-    )
-    print("sent" if ok else "failed")
+    """Send a test message to every channel that is configured.
+
+    Every league by default, because the point of a test is to find the
+    channel you got wrong, and a per-league setup has three of them to get
+    wrong. Leagues pointed at one channel share one message rather than
+    getting one each -- the channel is what is being tested, not the league.
+    """
+    ok = True
+    for leagues, notifier in channels_to_test(cfg, args.league):
+        sent = (_send_ruler(notifier) if args.ruler
+                else notifier.send(setup_message(leagues)))
+        print(f"{'/'.join(leagues)}: {notifier.label} -- "
+              f"{'sent' if sent else 'failed'}")
+        ok = ok and sent
+    if args.ruler and ok:
+        print(RULER_HELP)
     return 0 if ok else 1
 
 
-def _send_ruler(notifier) -> int:
+# What a channel is for, in the words the alerts themselves use.
+LEAGUE_LABELS = {"cpbl": "中職", "mlb": "大聯盟", "npb": "日職"}
+
+
+def setup_message(leagues) -> str:
+    """The test alert, naming the leagues that will arrive in this channel.
+
+    Which is the thing worth checking once the two are split up: not that
+    something arrives, but that the right one does. No 快轉台 in the body --
+    the bot's display name titles the Telegram notification and the
+    webhook's name sits above the Discord one.
+    """
+    named = "、".join(LEAGUE_LABELS.get(lg, lg) for lg in leagues)
+    return ("測試 <b>0-0</b> 測試\n"
+            f"設定完成　{named}的通知會像這樣推給你")
+
+
+def channels_to_test(cfg, league: str | None = None) -> list[tuple[list[str], Notifier]]:
+    """The distinct channels to test, each with the leagues that use it."""
+    targets: list[tuple[list[str], Notifier]] = []
+    seen: dict[tuple, int] = {}
+    for name in ([league] if league else list(LEAGUES)):
+        notifier = build_notifier(cfg, name)
+        if notifier.key in seen:
+            targets[seen[notifier.key]][0].append(name)
+            continue
+        seen[notifier.key] = len(targets)
+        targets.append(([name], notifier))
+    return targets
+
+
+RULER_HELP = (
+    f"ruler sent -- {RULER_LINES} numbered lines.\n"
+    "Look at your lock screen WITHOUT expanding the notification:\n"
+    "  1. the last number you can still read is your line budget\n"
+    f"  2. every ┤ should sit on the same row as its number; if one "
+    f"wrapped, {RULER_WIDTH} columns is too wide\n"
+    "\nnote: the title of a Telegram notification is the chat name, so "
+    "whatever you named the bot is already on screen above line 1.")
+
+
+def _send_ruler(notifier) -> bool:
     """Push a ruler so the alert can be sized against a real phone.
 
     Nobody can tell you how many lines your notifications show: it moves with
     the OS, the launcher and the font-size setting. So look at yours.
     """
-    if not notifier.send(ruler_text()):
-        print("failed")
-        return 1
-    print(f"ruler sent -- {RULER_LINES} numbered lines.\n"
-          "Look at your lock screen WITHOUT expanding the notification:\n"
-          "  1. the last number you can still read is your line budget\n"
-          f"  2. every ┤ should sit on the same row as its number; if one "
-          f"wrapped, {RULER_WIDTH} columns is too wide\n"
-          "\nnote: the title of a Telegram notification is the chat name, so "
-          "whatever you named the bot is already on screen above line 1.")
-    return 0
+    return notifier.send(ruler_text())
+
+
+def _destination(watcher) -> str:
+    """Where this watcher's alerts will land, for the line it prints on start.
+
+    Worth printing at all because the channel is now a per-league setting:
+    the way you find out you pointed both leagues at the same webhook is
+    reading it here, not by waiting for a rally.
+    """
+    return "dry-run" if watcher.dry_run else watcher.notifier.label
 
 
 def cmd_mlb(args, cfg) -> int:
     """Watch MLB and push when a Taiwanese player is on stage."""
     watcher = mlb.TaiwaneseWatcher(
         client=mlb.MlbClient(),
-        notifier=build_notifier(cfg),
+        notifier=build_notifier(cfg, "mlb"),
         extra_players=cfg.get("mlb_players"),
         poll_seconds=int(args.poll or cfg.get("mlb_poll_seconds") or 20),
         dry_run=args.dry_run,
     )
-    print(f"watching MLB for Taiwanese players (poll {watcher.poll_seconds}s)")
+    print(f"watching MLB for Taiwanese players (poll {watcher.poll_seconds}s)"
+          f" -> {_destination(watcher)}")
     try:
         watcher.run(once=args.once)
     except KeyboardInterrupt:
@@ -179,7 +230,7 @@ def cmd_mlb_live(args, cfg) -> int:
     if not games:
         print(f"no MLB games between {start} and {end}")
         return 0
-    watcher = mlb.TaiwaneseWatcher(client, build_notifier(cfg),
+    watcher = mlb.TaiwaneseWatcher(client, build_notifier(cfg, "mlb"),
                                    extra_players=cfg.get("mlb_players"))
     try:
         watcher.roster = client.taiwanese_players(end[:4], end)
@@ -234,13 +285,14 @@ def cmd_npb(args, cfg) -> int:
     """Watch NPB and push when a Taiwanese player is on stage."""
     watcher = npb.TaiwaneseWatcher(
         feed=npb.NpbClient(),
-        notifier=build_notifier(cfg),
+        notifier=build_notifier(cfg, "npb"),
         extra_players=cfg.get("npb_players"),
         poll_seconds=int(args.poll or cfg.get("npb_poll_seconds")
                          or npb.DEFAULT_POLL_SECONDS),
         dry_run=args.dry_run,
     )
-    print(f"watching NPB for Taiwanese players (poll {watcher.poll_seconds}s)")
+    print(f"watching NPB for Taiwanese players (poll {watcher.poll_seconds}s)"
+          f" -> {_destination(watcher)}")
     try:
         watcher.run(once=args.once)
     except KeyboardInterrupt:
@@ -260,7 +312,7 @@ def cmd_npb_live(args, cfg) -> int:
     if not games:
         print(f"no NPB games on {day} (JST)")
         return 0
-    watcher = npb.TaiwaneseWatcher(client, build_notifier(cfg),
+    watcher = npb.TaiwaneseWatcher(client, build_notifier(cfg, "npb"),
                                    extra_players=cfg.get("npb_players"))
     print(f"NPB games on {day} (JST):")
     for g in games:
@@ -345,14 +397,15 @@ def cmd_npb_probe(args, cfg) -> int:
 def cmd_run(args, cfg) -> int:
     watcher = Watcher(
         client=CpblClient(),
-        notifier=build_notifier(cfg),
+        notifier=build_notifier(cfg, "cpbl"),
         threshold=float(args.threshold if args.threshold is not None else cfg["threshold"]),
         poll_seconds=int(args.poll or cfg["poll_seconds"]),
         teams=cfg.get("teams"),
         dry_run=args.dry_run,
     )
     print(f"watching CPBL (threshold {watcher.threshold}, poll {watcher.poll_seconds}s"
-          + (f", teams {watcher.teams}" if watcher.teams else "") + ")")
+          + (f", teams {watcher.teams}" if watcher.teams else "") + ")"
+          + f" -> {_destination(watcher)}")
     try:
         watcher.run(once=args.once)
     except KeyboardInterrupt:
@@ -429,6 +482,9 @@ def main(argv=None) -> int:
     c.set_defaults(func=cmd_chat_id)
 
     t = sub.add_parser("test", help="send a test notification")
+    t.add_argument("--league", choices=LEAGUES, default=None,
+                   help="only test this league's channel "
+                        "(default: every league)")
     t.add_argument("--ruler", action="store_true",
                    help="send a numbered ruler instead, to measure how many "
                         "lines your phone actually shows")

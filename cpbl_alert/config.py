@@ -6,9 +6,30 @@ import io
 import json
 import os
 
+# The leagues this thing watches, which are also the three things it can route
+# separately. A league name is a config-key suffix (``discord_webhook_npb``)
+# and an environment-variable suffix (``DISCORD_WEBHOOK_NPB``), so a fourth
+# league needs its name here, its two channel keys in DEFAULTS, and nothing
+# else -- the routing, the env overrides and ``test`` all read this tuple.
+LEAGUES = ("cpbl", "mlb", "npb")
+
 DEFAULTS = {
+    # -- where alerts land -------------------------------------------------
+    # Telegram and Discord are independent: configure either, or both, and
+    # both get the alert. A league-suffixed key overrides the plain one for
+    # that league alone, which is how 中職, 大聯盟 and 日職 end up in three
+    # different channels while still sharing one bot / one webhook by default.
     "telegram_token": "",
     "telegram_chat_id": "",
+    "telegram_chat_id_cpbl": "",
+    "telegram_chat_id_mlb": "",
+    "telegram_chat_id_npb": "",
+    # A Discord webhook URL *is* a channel -- that is the whole mechanism.
+    "discord_webhook": "",
+    "discord_webhook_cpbl": "",
+    "discord_webhook_mlb": "",
+    "discord_webhook_npb": "",
+    # -- what fires --------------------------------------------------------
     "threshold": 55.0,
     "poll_seconds": 15,
     "teams": [],          # e.g. ["中信兄弟"] -- empty means all games
@@ -39,6 +60,16 @@ def load(path: str | None = None) -> dict:
         cfg["telegram_token"] = os.environ["TELEGRAM_TOKEN"]
     if os.environ.get("TELEGRAM_CHAT_ID"):
         cfg["telegram_chat_id"] = os.environ["TELEGRAM_CHAT_ID"]
+    if os.environ.get("DISCORD_WEBHOOK"):
+        cfg["discord_webhook"] = os.environ["DISCORD_WEBHOOK"]
+    # The per-league overrides, which are the same two settings with a league
+    # on the end. Spelling them out one by one would be six near-identical
+    # blocks that a fourth league would turn into eight.
+    for league in LEAGUES:
+        for key in ("telegram_chat_id", "discord_webhook"):
+            env = f"{key}_{league}".upper()
+            if os.environ.get(env):
+                cfg[f"{key}_{league}"] = os.environ[env]
     if os.environ.get("CPBL_THRESHOLD"):
         cfg["threshold"] = float(os.environ["CPBL_THRESHOLD"])
     if os.environ.get("CPBL_TEAMS"):

@@ -42,11 +42,28 @@ load-bearing rather than ornamental:
 Bold is in-app polish only: a lock-screen preview strips formatting, so the
 rhythm has to survive as plain text. It does -- which is why the marks do the
 work and ``<b>`` merely reinforces it.
+
+Two places an alert can land, Telegram and Discord, and the text is written
+once for both: the alert is composed in Telegram's HTML and
+:func:`discord_markdown` rewrites the one tag it uses on the way out. Both
+carry the name above the body rather than in it -- Telegram from the chat
+name, Discord from the webhook's -- so the four lines stay four lines
+either way.
+
+Which channel an alert lands in is a per-league question, because CPBL
+tension and 台灣選手上場 are different subscriptions, and 大聯盟 and 日職 are
+different again -- they run at different hours and interest different people.
+Someone who wants every 九局滿壘 may want the NPB alerts somewhere quieter,
+or shared with people who only care about that one. So
+:func:`build_notifier` takes the league and looks for a channel named for it
+before falling back to the common one.
 """
 
 from __future__ import annotations
 
 import logging
+import re
+import time
 import unicodedata
 from typing import Protocol
 
@@ -280,16 +297,50 @@ def format_stage_alert(state: GameState, spot: OnStage) -> str:
 format_mlb_alert = format_stage_alert
 
 
+# -- where it goes ---------------------------------------------------------
 class Notifier(Protocol):
     def send(self, text: str) -> bool: ...
+
+    @property
+    def key(self) -> tuple: ...
+
+    @property
+    def label(self) -> str: ...
+
+
+_BOLD_RE = re.compile(r"</?b>")
+
+
+def plain_text(text: str) -> str:
+    """The alert with its markup stripped -- what a lock screen shows anyway."""
+    return _BOLD_RE.sub("", text)
+
+
+def discord_markdown(text: str) -> str:
+    """Telegram HTML -> Discord markdown.
+
+    The alert uses exactly one tag, ``<b>``, so this is a rewrite rather than
+    a parser: ``**`` on both ends. Everything else in the alert -- the
+    diamond, the hearts, the ideographic spaces -- is literal text in both
+    places, and none of it is markdown to Discord.
+
+    An odd tag would leave ``**`` dangling and swallow the rest of the
+    message, so an unbalanced count is stripped instead of rewritten. The
+    formatting is polish; the four lines are not.
+    """
+    if text.count("<b>") != text.count("</b>"):
+        return plain_text(text)
+    return _BOLD_RE.sub("**", text)
 
 
 class ConsoleNotifier:
     """Fallback / dry-run sink."""
 
+    key = ("console",)
+    label = "console"
+
     def send(self, text: str) -> bool:
-        import re
-        print("\n" + re.sub(r"</?b>", "", text) + "\n" + "-" * 40)
+        print("\n" + plain_text(text) + "\n" + "-" * 40)
         return True
 
 
@@ -305,6 +356,14 @@ class TelegramNotifier:
         self.token = token
         self.chat_id = chat_id
         self.timeout = timeout
+
+    @property
+    def key(self) -> tuple:
+        return ("telegram", self.chat_id)
+
+    @property
+    def label(self) -> str:
+        return f"telegram chat {self.chat_id}"
 
     def send(self, text: str) -> bool:
         try:
@@ -323,10 +382,147 @@ class TelegramNotifier:
             return False
 
 
-def build_notifier(config: dict) -> Notifier:
-    token = (config.get("telegram_token") or "").strip()
-    chat_id = str(config.get("telegram_chat_id") or "").strip()
+# Discord answers a webhook post with 204 No Content on success, and with 429
+# plus a ``retry_after`` when the webhook's five-per-two-seconds bucket is
+# empty. A rally can fire two alerts a few seconds apart, so a 429 is worth
+# one wait and one retry rather than a dropped alert -- but only one, and
+# never a long one: an alert that lands a minute late is about a moment that
+# has already passed.
+DISCORD_MAX_RETRY_WAIT = 5.0
+
+
+def _retry_after(resp) -> float:
+    """Seconds Discord asked us to wait, from the body or the header."""
+    try:
+        wait = float((resp.json() or {}).get("retry_after"))
+    except (ValueError, TypeError, AttributeError):
+        try:
+            wait = float(resp.headers.get("Retry-After", 1))
+        except (ValueError, TypeError):
+            wait = 1.0
+    return min(max(wait, 0.0), DISCORD_MAX_RETRY_WAIT)
+
+
+class DiscordNotifier:
+    """Push via a Discord webhook.
+
+    A webhook URL *is* a channel -- Server Settings -> Integrations ->
+    Webhooks -> New Webhook picks the channel and hands you the URL. That is
+    the whole mechanism behind putting 中職, 大聯盟 and 日職 in different
+    places: one webhook per channel, no routing logic anywhere else.
+
+    The name above the message is the webhook's, which is why the body still
+    does not print 快轉台 -- same reasoning as Telegram's chat name, same
+    four lines.
+    """
+
+    def __init__(self, webhook_url: str, timeout: int = 10) -> None:
+        self.webhook_url = webhook_url
+        self.timeout = timeout
+
+    @property
+    def key(self) -> tuple:
+        return ("discord", self.webhook_url)
+
+    @property
+    def label(self) -> str:
+        # The id, never the token: this goes into logs and onto a terminal,
+        # and anyone holding the token can post to the channel.
+        parts = [p for p in self.webhook_url.split("/") if p]
+        return f"discord webhook {parts[-2] if len(parts) >= 2 else '?'}"
+
+    def _post(self, payload: dict):
+        return requests.post(self.webhook_url, json=payload, timeout=self.timeout)
+
+    def send(self, text: str) -> bool:
+        payload = {
+            "content": discord_markdown(text),
+            # A player or team name can never be made to ping a room: nothing
+            # in an alert is addressed to anybody.
+            "allowed_mentions": {"parse": []},
+        }
+        try:
+            resp = self._post(payload)
+            if resp.status_code == 429:
+                wait = _retry_after(resp)
+                log.warning("discord rate limited; retrying in %.1fs", wait)
+                time.sleep(wait)
+                resp = self._post(payload)
+            if not 200 <= resp.status_code < 300:
+                log.error("discord send failed %s: %s",
+                          resp.status_code, resp.text[:200])
+                return False
+            return True
+        except requests.RequestException as exc:
+            log.error("discord send error: %s", exc)
+            return False
+
+
+class FanOutNotifier:
+    """Every sink gets the alert; one failing does not silence the others.
+
+    Telegram and Discord are not alternatives -- someone can reasonably want
+    the push on their phone *and* the line in a channel their friends read.
+    So a failure is reported but not raised, and the send is only a failure
+    if nothing got through.
+    """
+
+    def __init__(self, sinks) -> None:
+        self.sinks = list(sinks)
+
+    @property
+    def key(self) -> tuple:
+        return ("fanout",) + tuple(sink.key for sink in self.sinks)
+
+    @property
+    def label(self) -> str:
+        return " + ".join(sink.label for sink in self.sinks)
+
+    def send(self, text: str) -> bool:
+        delivered = False
+        for sink in self.sinks:
+            if sink.send(text):
+                delivered = True
+            else:
+                log.error("delivery to %s failed", sink.label)
+        return delivered
+
+
+def channel_for(config: dict, key: str, league: str | None) -> str:
+    """The league's own channel if it has one, otherwise the common one.
+
+    ``discord_webhook_mlb`` beats ``discord_webhook`` for the MLB watcher and
+    is invisible to the CPBL one. Configure only the plain key and both
+    leagues share it, which is the setup most people start with.
+    """
+    if league:
+        specific = str(config.get(f"{key}_{league}") or "").strip()
+        if specific:
+            return specific
+    return str(config.get(key) or "").strip()
+
+
+def build_notifier(config: dict, league: str | None = None) -> Notifier:
+    """The sink for one league: Telegram, Discord, both, or the console.
+
+    ``league`` is one of :data:`cpbl_alert.config.LEAGUES`; ``None`` means
+    "whatever is configured for everything", which is what the commands that
+    are not watching a particular league use.
+    """
+    sinks: list[Notifier] = []
+
+    token = str(config.get("telegram_token") or "").strip()
+    chat_id = channel_for(config, "telegram_chat_id", league)
     if token and chat_id:
-        return TelegramNotifier(token, chat_id)
-    log.warning("no telegram credentials configured -- printing to console instead")
-    return ConsoleNotifier()
+        sinks.append(TelegramNotifier(token, chat_id))
+
+    webhook = channel_for(config, "discord_webhook", league)
+    if webhook:
+        sinks.append(DiscordNotifier(webhook))
+
+    if not sinks:
+        log.warning("no telegram or discord channel configured%s "
+                    "-- printing to console instead",
+                    f" for {league}" if league else "")
+        return ConsoleNotifier()
+    return sinks[0] if len(sinks) == 1 else FanOutNotifier(sinks)

@@ -17,6 +17,12 @@ DEFAULTS = {
     # record as Taiwan-born, given as ids or as full names.
     "mlb_players": [],
     "mlb_poll_seconds": 20,
+    # NPB. There is no nationality field on npb.jp, so the built-in table is
+    # the whole detector rather than a backstop -- this is where you add a
+    # player it does not know yet, by the name the site prints (either
+    # orthography; they are matched folded).
+    "npb_players": [],
+    "npb_poll_seconds": 30,
 }
 
 CONFIG_PATH = os.environ.get("CPBL_ALERT_CONFIG", "config.json")
@@ -39,5 +45,8 @@ def load(path: str | None = None) -> dict:
         cfg["teams"] = [t.strip() for t in os.environ["CPBL_TEAMS"].split(",") if t.strip()]
     if os.environ.get("MLB_PLAYERS"):
         cfg["mlb_players"] = [p.strip() for p in os.environ["MLB_PLAYERS"].split(",")
+                              if p.strip()]
+    if os.environ.get("NPB_PLAYERS"):
+        cfg["npb_players"] = [p.strip() for p in os.environ["NPB_PLAYERS"].split(",")
                               if p.strip()]
     return cfg

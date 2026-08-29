@@ -5,5 +5,7 @@
   "poll_seconds": 15,
   "teams": [],
   "mlb_players": [],
-  "mlb_poll_seconds": 20
+  "mlb_poll_seconds": 20,
+  "npb_players": [],
+  "npb_poll_seconds": 30
 }

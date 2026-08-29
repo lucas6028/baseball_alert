@@ -38,12 +38,12 @@ import datetime as dt
 import logging
 import time
 import urllib.parse
-from dataclasses import dataclass
 
 import requests
 
 from .models import GameState
-from .notifier import Notifier, cn_number, format_mlb_alert
+from .notifier import Notifier, cn_number, format_stage_alert
+from .stage import Spotlight, Stage, arrivals
 
 log = logging.getLogger(__name__)
 
@@ -212,16 +212,6 @@ def state_from_mlb_game(game: dict) -> GameState | None:
     )
 
 
-@dataclass(frozen=True)
-class Spotlight:
-    """Who triggered the alert, and what to say about him on line four."""
-
-    role: str            # "batter" | "pitcher" | "duel"
-    player_id: int | None
-    name: str
-    detail: str = ""     # 今日 1-2 / 今日 4.2局・7K / 第八棒 / nothing yet
-
-
 # -- client ----------------------------------------------------------------
 class MlbClient:
     """Thin StatsAPI client. Reuse one instance for the life of the poller."""
@@ -382,14 +372,6 @@ def batting_order_detail(line: dict) -> str:
 
 
 # -- the poller ------------------------------------------------------------
-@dataclass
-class Stage:
-    """Who was on stage in one game the last time we looked."""
-
-    batter_id: int | None = None
-    pitcher_id: int | None = None
-
-
 class TaiwaneseWatcher:
     """Poll MLB and push when a Taiwanese player takes the plate or the mound.
 
@@ -482,15 +464,12 @@ class TaiwaneseWatcher:
         self.stages[game_pk] = Stage(_person_id(batter), _person_id(pitcher))
 
         roles = {"batter": batter, "pitcher": pitcher}
-        was = {"batter": getattr(previous, "batter_id", None),
-               "pitcher": getattr(previous, "pitcher_id", None)}
         here = {role for role, player in roles.items() if self.is_taiwanese(player)}
-        # "Arrived" means the man in that role is not the man who was in it a
-        # poll ago -- which is exactly one event per plate appearance and one
-        # per relief appearance. On the very first look at a game nobody was
-        # in either role, so whoever is standing there counts as arriving.
-        arrived = {role for role in here
-                   if previous is None or was[role] != _person_id(roles[role])}
+        # See :func:`cpbl_alert.stage.arrivals` -- a role that changed hands
+        # since the last poll, which is one event per plate appearance and
+        # one per relief appearance.
+        arrived = arrivals(here, previous,
+                           {role: _person_id(p) for role, p in roles.items()})
         if not arrived:
             return 0
 
@@ -523,7 +502,7 @@ class TaiwaneseWatcher:
 
         spot = Spotlight(role=role, player_id=pid,
                          name=display_name(player), detail=detail)
-        text = format_mlb_alert(state, spot)
+        text = format_stage_alert(state, spot)
         log.info("MLB ALERT game %s | %s %s | %s",
                  game_pk, role, spot.name, state.describe())
         if self.dry_run:

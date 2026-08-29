@@ -223,10 +223,10 @@ def format_alert(state: GameState, assessment: Assessment) -> str:
 
 
 class OnStage(Protocol):
-    """Who an MLB alert is about. See :class:`cpbl_alert.mlb.Spotlight`.
+    """Who an on-stage alert is about. See :class:`cpbl_alert.stage.Spotlight`.
 
-    Structural rather than imported: ``mlb`` imports this module, and the
-    dependency only runs that way -- the notifier knows how to lay out a
+    Structural rather than imported: the league modules import this one, and
+    the dependency only runs that way -- the notifier knows how to lay out a
     baseball situation and stays ignorant of which league produced it.
     """
 
@@ -235,7 +235,9 @@ class OnStage(Protocol):
     detail: str
 
 
-# What line four says, by whose arrival triggered the alert. 登板 rather than
+# What line four says, by whose arrival triggered the alert. Shared by
+# every league that has an on-stage alert -- the sentence is about a person,
+# and a person reads the same in Anaheim and in Fukuoka. 登板 rather than
 # 上場 for a pitcher because that is the word for taking the mound, and the
 # verb is the only place a four-line alert can afford to be specific.
 STAGE_LABELS = {
@@ -245,11 +247,11 @@ STAGE_LABELS = {
 }
 
 
-def format_mlb_alert(state: GameState, spot: OnStage) -> str:
-    """The MLB alert: same four lines, different reason for sending them.
+def format_stage_alert(state: GameState, spot: OnStage) -> str:
+    """The on-stage alert: same four lines, different reason for sending them.
 
     Lines one to three are the CPBL alert's, unchanged -- a baseball
-    situation reads the same in either league, and the diamond was measured
+    situation reads the same in any league, and the diamond was measured
     once. Only line four differs, because the reason differs: 心跳指數 says
     *how much* this moment matters, and here the answer to that is beside
     the point. You asked to be told when he is up. So line four says that,
@@ -270,6 +272,12 @@ def format_mlb_alert(state: GameState, spot: OnStage) -> str:
         f"{bottom}投手 {state.pitcher}",
         f"<b>{reason}</b>" + (f"{BREAK}{detail}" if detail else ""),
     ))
+
+
+# The name this shipped under, from when MLB was the only league that had an
+# on-stage alert. NPB fires the identical four lines, so the function lost the
+# league from its name and kept the old one pointing at it.
+format_mlb_alert = format_stage_alert
 
 
 class Notifier(Protocol):

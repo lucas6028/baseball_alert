@@ -10,6 +10,7 @@ import requests
 
 from . import config as config_mod
 from . import mlb
+from . import npb
 from .client import CpblClient, CpblError
 from .dedupe import GameTracker
 from .leverage import assess
@@ -229,6 +230,118 @@ def cmd_mlb_players(args, cfg) -> int:
     return 0
 
 
+def cmd_npb(args, cfg) -> int:
+    """Watch NPB and push when a Taiwanese player is on stage."""
+    watcher = npb.TaiwaneseWatcher(
+        feed=npb.NpbClient(),
+        notifier=build_notifier(cfg),
+        extra_players=cfg.get("npb_players"),
+        poll_seconds=int(args.poll or cfg.get("npb_poll_seconds")
+                         or npb.DEFAULT_POLL_SECONDS),
+        dry_run=args.dry_run,
+    )
+    print(f"watching NPB for Taiwanese players (poll {watcher.poll_seconds}s)")
+    try:
+        watcher.run(once=args.once)
+    except KeyboardInterrupt:
+        print("\nstopped")
+    return 0
+
+
+def cmd_npb_live(args, cfg) -> int:
+    """List today's NPB games, marking who is on stage."""
+    client = npb.NpbClient()
+    day = args.date or npb.today_jst()
+    try:
+        games = client.games(day)
+    except (npb.NpbError, requests.RequestException) as exc:
+        print(f"scoreboard lookup failed: {exc}")
+        return 1
+    if not games:
+        print(f"no NPB games on {day} (JST)")
+        return 0
+    watcher = npb.TaiwaneseWatcher(client, build_notifier(cfg),
+                                   extra_players=cfg.get("npb_players"))
+    print(f"NPB games on {day} (JST):")
+    for g in games:
+        situation = ""
+        if g.status == "live":
+            flag = " <-- 台灣選手" if (watcher.is_taiwanese(g.batter)
+                                        or watcher.is_taiwanese(g.pitcher)) else ""
+            situation = (f"  {g.inning}{'top' if g.is_top else 'bot'} "
+                         f"{g.outs}out  B:{watcher.display(g.batter)} "
+                         f"P:{watcher.display(g.pitcher)}{flag}")
+        print(f"  {g.game_id} [{g.status:<7}] "
+              f"{g.away_team} {g.away_score} - {g.home_score} {g.home_team}"
+              f"{situation}")
+    return 0
+
+
+def cmd_npb_players(args, cfg) -> int:
+    """Who this thing would fire for in NPB, and how each name is written."""
+    print(f"NPB: {len(npb.TAIWANESE_NPB)} Taiwanese player(s) known offline")
+    for written, chinese in sorted(npb.TAIWANESE_NPB.items(),
+                                   key=lambda kv: kv[1]):
+        variant = "" if written == chinese else f"  (npb.jp writes {written})"
+        print(f"  {chinese}{variant}")
+    extra = [str(p) for p in (cfg.get("npb_players") or []) if p]
+    if extra:
+        print(f"\nalso alerting on (from config): {', '.join(extra)}")
+    print("\nnpb.jp publishes no nationality, so this table IS the detector -- "
+          "a player missing from it is a player this stays silent about.\n"
+          "Add one with npb_players in config.json (or the NPB_PLAYERS env var).")
+    return 0
+
+
+def cmd_npb_probe(args, cfg) -> int:
+    """Show what the page rules matched on a real NPB page, rule by rule.
+
+    The parsing in ``npb.py`` is anchored on the page's Japanese labels rather
+    than its markup, which makes it durable but not self-verifying. This is
+    how you verify it: point it at a live game, read what each rule found, and
+    fix ``FIELD_PATTERNS`` if a line comes back empty that should not be.
+    """
+    client = npb.NpbClient()
+    day = args.date or npb.today_jst()
+    try:
+        if args.game:
+            game_ids = [args.game if "/" in args.game
+                        else f"{day[:4]}/{day[5:7]}{day[8:10]}/{args.game}"]
+        else:
+            game_ids = client.game_ids(day)
+            print(f"scoreboard {day} -> {len(game_ids)} game link(s): "
+                  f"{', '.join(game_ids) or '(none)'}\n")
+    except requests.RequestException as exc:
+        print(f"fetch failed: {exc}")
+        return 1
+
+    for game_id in game_ids:
+        try:
+            page = client.game_page(game_id)
+        except requests.RequestException as exc:
+            print(f"{game_id}: fetch failed: {exc}")
+            continue
+        text = npb.strip_tags(page)
+        game = npb.parse_game_page(page, game_id)
+        print(f"== {game_id} ==  ({len(page)} bytes of HTML)")
+        print(f"  slug teams  {game.away_team or '?'} (away) vs "
+              f"{game.home_team or '?'} (home)")
+        print(f"  status      {game.status}")
+        for name in ("inning", "outs", "balls", "strikes", "batter",
+                     "pitcher", "batting_order", "average", "pitch_count"):
+            hit = npb.match_rule(text, name)
+            print(f"  {name:<12}{hit.group(0).strip() if hit else '-- no rule matched'}")
+        print(f"  bases       {game.first}/{game.second}/{game.third}")
+        print(f"  score       {game.away_score}-{game.home_score}")
+        state = npb.state_from_npb_game(game)
+        print(f"  -> state    {state.describe() if state else '(not live)'}")
+        if args.text:
+            print("\n--- page text ---")
+            print("\n".join(ln for ln in text.splitlines() if ln.strip()))
+        print()
+    return 0
+
+
 def cmd_run(args, cfg) -> int:
     watcher = Watcher(
         client=CpblClient(),
@@ -250,7 +363,7 @@ def cmd_run(args, cfg) -> int:
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(
         prog="cpbl-alert",
-        description="快轉台 -- 中職關鍵時刻、以及大聯盟台灣選手上場的通知")
+        description="快轉台 -- 中職關鍵時刻，以及大聯盟、日職台灣選手上場的通知")
     p.add_argument("-v", "--verbose", action="store_true")
     p.add_argument("--config", default=None)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -275,6 +388,30 @@ def main(argv=None) -> int:
                         help="list the Taiwanese players MLB currently knows about")
     mp.add_argument("--season", default=None, help="YYYY (default: this season)")
     mp.set_defaults(func=cmd_mlb_players)
+
+    n = sub.add_parser("npb", help="watch NPB and alert when a Taiwanese player is up")
+    n.add_argument("--poll", type=int, default=None)
+    n.add_argument("--once", action="store_true", help="single pass, then exit")
+    n.add_argument("--dry-run", action="store_true", help="print instead of pushing")
+    n.set_defaults(func=cmd_npb)
+
+    nl = sub.add_parser("npb-live", help="list today's NPB games and who is on stage")
+    nl.add_argument("--date", default=None, help="YYYY-MM-DD (default: today in Japan)")
+    nl.set_defaults(func=cmd_npb_live)
+
+    np_ = sub.add_parser("npb-players",
+                         help="list the Taiwanese players NPB alerts fire for")
+    np_.set_defaults(func=cmd_npb_players)
+
+    nb = sub.add_parser("npb-probe",
+                        help="check the page rules against a real npb.jp page")
+    nb.add_argument("game", nargs="?", default=None,
+                    help="slug (f-l-01) or full id (2026/0829/f-l-01); "
+                         "default: every game on the date")
+    nb.add_argument("--date", default=None, help="YYYY-MM-DD (default: today in Japan)")
+    nb.add_argument("--text", action="store_true",
+                    help="also dump the page as text, to write a new rule from")
+    nb.set_defaults(func=cmd_npb_probe)
 
     lv = sub.add_parser("live", help="list today's games and their status")
     lv.add_argument("--date", default=None, help="YYYY-MM-DD (default: today in Taiwan)")

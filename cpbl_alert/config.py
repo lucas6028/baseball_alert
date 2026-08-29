@@ -6,26 +6,29 @@ import io
 import json
 import os
 
-# The leagues this thing watches, which are also the two things it can route
-# separately. A league name is a config-key suffix (``discord_webhook_mlb``)
-# and an environment-variable suffix (``DISCORD_WEBHOOK_MLB``), so adding a
-# third league here is all it would take for the routing to know about it.
-LEAGUES = ("cpbl", "mlb")
+# The leagues this thing watches, which are also the three things it can route
+# separately. A league name is a config-key suffix (``discord_webhook_npb``)
+# and an environment-variable suffix (``DISCORD_WEBHOOK_NPB``), so a fourth
+# league needs its name here, its two channel keys in DEFAULTS, and nothing
+# else -- the routing, the env overrides and ``test`` all read this tuple.
+LEAGUES = ("cpbl", "mlb", "npb")
 
 DEFAULTS = {
     # -- where alerts land -------------------------------------------------
     # Telegram and Discord are independent: configure either, or both, and
     # both get the alert. A league-suffixed key overrides the plain one for
-    # that league alone, which is how CPBL and MLB end up in different
-    # channels while still sharing one bot / one webhook by default.
+    # that league alone, which is how 中職, 大聯盟 and 日職 end up in three
+    # different channels while still sharing one bot / one webhook by default.
     "telegram_token": "",
     "telegram_chat_id": "",
     "telegram_chat_id_cpbl": "",
     "telegram_chat_id_mlb": "",
+    "telegram_chat_id_npb": "",
     # A Discord webhook URL *is* a channel -- that is the whole mechanism.
     "discord_webhook": "",
     "discord_webhook_cpbl": "",
     "discord_webhook_mlb": "",
+    "discord_webhook_npb": "",
     # -- what fires --------------------------------------------------------
     "threshold": 55.0,
     "poll_seconds": 15,
@@ -35,6 +38,12 @@ DEFAULTS = {
     # record as Taiwan-born, given as ids or as full names.
     "mlb_players": [],
     "mlb_poll_seconds": 20,
+    # NPB. There is no nationality field on npb.jp, so the built-in table is
+    # the whole detector rather than a backstop -- this is where you add a
+    # player it does not know yet, by the name the site prints (either
+    # orthography; they are matched folded).
+    "npb_players": [],
+    "npb_poll_seconds": 30,
 }
 
 CONFIG_PATH = os.environ.get("CPBL_ALERT_CONFIG", "config.json")
@@ -54,8 +63,8 @@ def load(path: str | None = None) -> dict:
     if os.environ.get("DISCORD_WEBHOOK"):
         cfg["discord_webhook"] = os.environ["DISCORD_WEBHOOK"]
     # The per-league overrides, which are the same two settings with a league
-    # on the end. Spelling them out one by one would be four more near-identical
-    # blocks that a third league would turn into six.
+    # on the end. Spelling them out one by one would be six near-identical
+    # blocks that a fourth league would turn into eight.
     for league in LEAGUES:
         for key in ("telegram_chat_id", "discord_webhook"):
             env = f"{key}_{league}".upper()
@@ -67,5 +76,8 @@ def load(path: str | None = None) -> dict:
         cfg["teams"] = [t.strip() for t in os.environ["CPBL_TEAMS"].split(",") if t.strip()]
     if os.environ.get("MLB_PLAYERS"):
         cfg["mlb_players"] = [p.strip() for p in os.environ["MLB_PLAYERS"].split(",")
+                              if p.strip()]
+    if os.environ.get("NPB_PLAYERS"):
+        cfg["npb_players"] = [p.strip() for p in os.environ["NPB_PLAYERS"].split(",")
                               if p.strip()]
     return cfg

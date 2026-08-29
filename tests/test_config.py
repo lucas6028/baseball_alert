@@ -11,6 +11,7 @@ from cpbl_alert.notifier import ConsoleNotifier, DiscordNotifier
 
 WEBHOOK = "https://discord.com/api/webhooks/111/tok"
 OTHER = "https://discord.com/api/webhooks/222/tok"
+THIRD = "https://discord.com/api/webhooks/333/tok"
 
 
 @pytest.fixture
@@ -79,10 +80,19 @@ def test_one_shared_channel_is_tested_once():
 
 
 def test_split_channels_are_tested_separately():
+    """One message per channel, and every league accounted for."""
     targets = cli.channels_to_test({"discord_webhook_cpbl": WEBHOOK,
-                                "discord_webhook_mlb": OTHER})
-    assert [leagues for leagues, _ in targets] == [["cpbl"], ["mlb"]]
-    assert [n.webhook_url for _, n in targets] == [WEBHOOK, OTHER]
+                                    "discord_webhook_mlb": OTHER,
+                                    "discord_webhook_npb": THIRD})
+    assert [leagues for leagues, _ in targets] == [[lg] for lg in config.LEAGUES]
+    assert [n.webhook_url for _, n in targets] == [WEBHOOK, OTHER, THIRD]
+
+
+def test_channels_group_the_leagues_that_share_them():
+    """中職 and 日職 together, 大聯盟 on its own: two messages, not three."""
+    targets = cli.channels_to_test({"discord_webhook": WEBHOOK,
+                                    "discord_webhook_mlb": OTHER})
+    assert [leagues for leagues, _ in targets] == [["cpbl", "npb"], ["mlb"]]
 
 
 def test_one_league_can_be_tested_alone():
@@ -92,17 +102,25 @@ def test_one_league_can_be_tested_alone():
 
 
 def test_an_unconfigured_league_still_shows_up():
-    """Nothing configured for CPBL is a finding, not a reason to say nothing."""
-    by_league = {leagues[0]: n
-                 for leagues, n in cli.channels_to_test({"discord_webhook_mlb": OTHER})}
-    assert isinstance(by_league["cpbl"], ConsoleNotifier)
+    """A league with nowhere to go is a finding, not a reason to say nothing."""
+    by_league = {lg: n
+                 for leagues, n in cli.channels_to_test({"discord_webhook_mlb": OTHER})
+                 for lg in leagues}
+    assert set(by_league) == set(config.LEAGUES)
     assert isinstance(by_league["mlb"], DiscordNotifier)
+    assert isinstance(by_league["cpbl"], ConsoleNotifier)
+    assert isinstance(by_league["npb"], ConsoleNotifier)
 
 
 def test_the_test_message_names_the_league_it_is_testing():
     """With the leagues split, what matters is that the *right* one arrives."""
     assert "中職" in cli.setup_message(["cpbl"])
     assert "大聯盟" not in cli.setup_message(["cpbl"])
-    assert "大聯盟" in cli.setup_message(["mlb"])
-    both = cli.setup_message(list(config.LEAGUES))
-    assert "中職" in both and "大聯盟" in both
+    assert "日職" in cli.setup_message(["npb"])
+    every = cli.setup_message(list(config.LEAGUES))
+    assert all(label in every for label in cli.LEAGUE_LABELS.values())
+
+
+def test_every_league_has_a_name_to_print():
+    """An unnamed league would test its channel as "npb", in a Chinese line."""
+    assert set(cli.LEAGUE_LABELS) == set(config.LEAGUES)

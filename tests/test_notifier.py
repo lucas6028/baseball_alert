@@ -5,6 +5,7 @@ import re
 import pytest
 
 from cpbl_alert import BRAND
+from cpbl_alert.config import LEAGUES
 from cpbl_alert.leverage import assess
 from cpbl_alert.models import GameState, state_from_row
 from cpbl_alert.notifier import (
@@ -249,6 +250,7 @@ def test_ruler_carries_no_markup():
 
 # -- delivery --------------------------------------------------------------
 WEBHOOK = "https://discord.com/api/webhooks/111/tok"
+OTHER = "https://discord.com/api/webhooks/222/tok"
 
 
 class _Response:
@@ -305,17 +307,28 @@ def test_both_get_the_alert_when_both_are_configured():
 
 # -- one league, one channel ----------------------------------------------
 def test_a_league_channel_beats_the_common_one():
-    """The whole point: 中職 in one channel, 大聯盟 in another."""
+    """The whole point: 中職 in one channel, 大聯盟 and 日職 in others."""
     cfg = {"discord_webhook": WEBHOOK,
-           "discord_webhook_mlb": WEBHOOK.replace("111", "222")}
+           "discord_webhook_mlb": WEBHOOK.replace("111", "222"),
+           "discord_webhook_npb": WEBHOOK.replace("111", "333")}
     assert build_notifier(cfg, "cpbl").webhook_url == WEBHOOK
     assert build_notifier(cfg, "mlb").webhook_url.endswith("/222/tok")
+    assert build_notifier(cfg, "npb").webhook_url.endswith("/333/tok")
+
+
+def test_every_league_can_be_routed():
+    """A league in LEAGUES with no key of its own is one that cannot be split."""
+    for league in LEAGUES:
+        cfg = {"discord_webhook": WEBHOOK, f"discord_webhook_{league}": OTHER}
+        assert build_notifier(cfg, league).webhook_url == OTHER
+        for other in (lg for lg in LEAGUES if lg != league):
+            assert build_notifier(cfg, other).webhook_url == WEBHOOK
 
 
 def test_leagues_share_the_common_channel_when_they_have_no_own():
-    """The setup everyone starts with: one channel, both leagues."""
+    """The setup everyone starts with: one channel, every league."""
     cfg = {"discord_webhook": WEBHOOK}
-    assert build_notifier(cfg, "cpbl").key == build_notifier(cfg, "mlb").key
+    assert len({build_notifier(cfg, lg).key for lg in LEAGUES}) == 1
 
 
 def test_a_league_channel_is_invisible_to_the_other_league():

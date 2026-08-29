@@ -9,9 +9,11 @@
 盯著中華職棒的實況，在比賽真正緊張的時候推一則 Telegram 或 Discord 給你——
 九局滿壘、一分差的追平分上壘、八局撕破平手——大比分落後和無聊的半局則完全安靜。
 
-也盯大聯盟，但盯的是另一件事：**台灣選手上場的那一刻**——鄧愷威登板、李灝宇站
-上打擊區。同一支 bot、同樣四行，[往下看](#大聯盟台灣選手上場)。兩個聯盟可以
-推到**不同的頻道**——中職進中職台，大聯盟進大聯盟台，[往下看](#兩個聯盟兩個頻道)。
+也盯大聯盟和日職，但盯的是另一件事：**台灣選手上場的那一刻**——鄧愷威登板、
+李灝宇站上打擊區、古林睿煬在西武的主場踏上投手丘。同一支 bot、同樣四行。
+
+三個聯盟可以推到**不同的頻道**——中職進中職台，大聯盟、日職各進各的，
+[往下看](#一個聯盟一個頻道)。
 
 通知的標題就是產品名——Telegram 用聊天室名稱當標題，而那就是 bot 的顯示名稱
 **快轉台**；Discord 則是 webhook 的名字。所以正文裡不再寫一次：那會用掉最稀有
@@ -31,6 +33,13 @@
 台灣投手登板　今日 1.2局・3K・失1
 ```
 
+```
+火腿 3-2 西武　七上・一出局
+　◆　　打者 外崎
+◇　◇　投手 古林睿煬
+台灣投手登板　投 87球
+```
+
 ## Quick start
 
 Requires Python 3.10 or newer.
@@ -46,6 +55,7 @@ Copy-Item config.example.json config.json
 .venv/Scripts/python.exe -m cpbl_alert.cli test      # send a test message
 .venv/Scripts/python.exe -m cpbl_alert.cli run       # watch CPBL
 .venv/Scripts/python.exe -m cpbl_alert.cli mlb       # watch MLB (in another terminal)
+.venv/Scripts/python.exe -m cpbl_alert.cli npb       # watch NPB (in another again)
 ```
 
 ### Linux / macOS
@@ -59,13 +69,14 @@ cp config.example.json config.json
 .venv/bin/python -m cpbl_alert.cli test
 .venv/bin/python -m cpbl_alert.cli run
 .venv/bin/python -m cpbl_alert.cli mlb       # in another terminal
+.venv/bin/python -m cpbl_alert.cli npb       # in another again
 ```
 
 Before running `chat-id`, fill in `telegram_token` in `config.json` (or set
 `TELEGRAM_TOKEN`). Prefer Discord? Skip `chat-id` entirely and put a webhook
 URL in `discord_webhook` instead — or set both, and every alert goes to both.
-The CPBL and MLB watchers are separate processes; run either one or both
-depending on what you want to follow.
+The three watchers are separate processes; run whichever of them you want to
+follow.
 
 ### Getting a Telegram bot
 
@@ -87,34 +98,39 @@ depending on what you want to follow.
 The URL is a credential: anyone holding it can post to the channel. Keeping it
 in the environment rather than in a file is why `DISCORD_WEBHOOK` exists.
 
-### 兩個聯盟，兩個頻道
+### 一個聯盟，一個頻道
 
-A webhook URL *is* a channel, so putting CPBL and MLB in different places is a
-matter of making two webhooks and naming which is which. Any channel key can
-take a `_cpbl` or `_mlb` suffix, and the suffixed one wins for that league:
+A webhook URL *is* a channel, so putting CPBL, MLB and NPB in different places
+is a matter of making one webhook per channel and naming which is which. Any
+channel key takes a `_cpbl`, `_mlb` or `_npb` suffix, and the suffixed one
+wins for that league:
 
 ```json
 {
   "discord_webhook_cpbl": "https://discord.com/api/webhooks/111.../aaa...",
-  "discord_webhook_mlb":  "https://discord.com/api/webhooks/222.../bbb..."
+  "discord_webhook_mlb":  "https://discord.com/api/webhooks/222.../bbb...",
+  "discord_webhook_npb":  "https://discord.com/api/webhooks/333.../ccc..."
 }
 ```
 
-One webhook made in your 中職 channel, one made in your 大聯盟 channel.
+One webhook made in each channel: 中職台, 大聯盟台, 日職台.
 
-Leave the suffixed keys out and both leagues share `discord_webhook`, which is
-what most setups want to start with. Set only one of them and the other league
-has nowhere to go — it falls back to `discord_webhook`, or to the console if
-that is empty too. Telegram splits the same way with `telegram_chat_id_cpbl`
-and `telegram_chat_id_mlb`, so 中職 can go to a group chat while 大聯盟 goes
-to a channel.
+You do not have to split all three. Leave a suffix out and that league falls
+back to `discord_webhook`, so `discord_webhook` plus `discord_webhook_mlb`
+puts 大聯盟 on its own and leaves 中職 and 日職 together — which is a real
+setup, since those two barely overlap in the day. Leave all the suffixes out
+and everything shares one channel. A league with no channel of its own and no
+`discord_webhook` to fall back to prints to the console instead. Telegram
+splits the same way with `telegram_chat_id_cpbl` / `_mlb` / `_npb`, so 中職
+can go to a group chat while 日職 goes to a channel.
 
-`test` sends to every channel you configured, once each, naming the league it
-is testing — which is the thing worth checking once the two are split up:
+`test` sends once per *channel* rather than once per league — two leagues
+sharing a webhook is one message, naming both — and each message says which
+league it is testing, which is the thing worth checking once they are split:
 
 ```bash
-python -m cpbl_alert.cli test               # both channels
-python -m cpbl_alert.cli test --league mlb  # just the MLB one
+python -m cpbl_alert.cli test               # every channel configured
+python -m cpbl_alert.cli test --league npb  # just the NPB one
 ```
 
 ## Commands
@@ -124,11 +140,15 @@ python -m cpbl_alert.cli test --league mlb  # just the MLB one
 | `run` | Watch today's live games and push alerts. `--dry-run` prints instead, `--once` does a single pass |
 | `live` | List today's games with real status (pending / LIVE / final) |
 | `check <gameSno>` | Replay a real game through the model and show what *would* have fired — the way to tune your threshold |
-| `test` | Send a test notification to every channel configured, one per channel. `--league cpbl\|mlb` tests just that league's; `--ruler` sends a numbered ruler instead, so you can see how many lines your phone shows before it truncates |
+| `test` | Send a test notification to every channel configured, one per channel. `--league cpbl\|mlb\|npb` tests just that league's; `--ruler` sends a numbered ruler instead, so you can see how many lines your phone shows before it truncates |
 | `chat-id` | Look up your Telegram chat id |
 | `mlb` | Watch MLB and push when a Taiwanese player takes the plate or the mound. `--dry-run` and `--once` as above |
 | `mlb-live` | List the MLB games in the current window, with who is batting and pitching in each |
 | `mlb-players` | List the Taiwanese players MLB currently has on its books, and where each Chinese name comes from |
+| `npb` | Watch NPB and push when a Taiwanese player takes the plate or the mound. `--dry-run` and `--once` as above |
+| `npb-live` | List today's NPB games (JST), with who is batting and pitching in each |
+| `npb-players` | List the Taiwanese players NPB alerts fire for |
+| `npb-probe` | Check the page-reading rules against a real npb.jp page, rule by rule. **Run this once before trusting `npb`** — see [NPB](#npb) |
 
 Tuning against a game you actually watched is the fastest way to find your
 threshold:
@@ -149,14 +169,18 @@ Set `CPBL_ALERT_CONFIG` to use a config file at a different path:
 | `telegram_chat_id` | `TELEGRAM_CHAT_ID` | — | Where to send |
 | `telegram_chat_id_cpbl` | `TELEGRAM_CHAT_ID_CPBL` | — | CPBL's own chat, overriding the above for `run` |
 | `telegram_chat_id_mlb` | `TELEGRAM_CHAT_ID_MLB` | — | MLB's own chat, overriding the above for `mlb` |
+| `telegram_chat_id_npb` | `TELEGRAM_CHAT_ID_NPB` | — | NPB's own chat, overriding the above for `npb` |
 | `discord_webhook` | `DISCORD_WEBHOOK` | — | Webhook URL; the URL *is* the channel |
 | `discord_webhook_cpbl` | `DISCORD_WEBHOOK_CPBL` | — | CPBL's own channel, overriding the above for `run` |
 | `discord_webhook_mlb` | `DISCORD_WEBHOOK_MLB` | — | MLB's own channel, overriding the above for `mlb` |
+| `discord_webhook_npb` | `DISCORD_WEBHOOK_NPB` | — | NPB's own channel, overriding the above for `npb` |
 | `threshold` | `CPBL_THRESHOLD` | `55` | 心跳指數 that triggers an alert |
 | `poll_seconds` | — | `15` | Seconds between polls (floored at 10) |
 | `teams` | `CPBL_TEAMS` | `[]` | Only alert on these teams; empty means all |
 | `mlb_players` | `MLB_PLAYERS` | `[]` | Extra MLB players to treat as Taiwanese, as ids or full names. Nationality otherwise comes from the API, so this is only for someone it does not record as Taiwan-born |
 | `mlb_poll_seconds` | — | `20` | Seconds between MLB polls (floored at 10) |
+| `npb_players` | `NPB_PLAYERS` | `[]` | Extra NPB players to alert on, by name in either orthography. npb.jp publishes no nationality, so unlike the MLB key this is the supported way to add a new signing rather than an escape hatch |
+| `npb_poll_seconds` | — | `30` | Seconds between NPB polls (floored at 15) |
 
 Telegram and Discord are independent: configure either, or both, and both get
 the alert — one dead channel does not silence the other. Without credentials it
@@ -289,10 +313,59 @@ the linescore reads `outs: 3` while still naming a batter and a pitcher, but
 they are the pair from the half that just ended mixed with the one about to
 start, so that state is skipped rather than read.
 
+### NPB
+
+Same question as MLB — *is a Taiwanese player the one out there right now* —
+and the same four lines on the phone, sharing the trigger in
+`cpbl_alert/stage.py`. Almost nothing else is shared, because Japan gives you
+none of the three things that made the MLB side easy.
+
+- **There is no API.** npb.jp publishes HTML for people to read, so this side
+  scrapes, and a tick costs the day's scoreboard plus one request per *live*
+  game. That is why the default poll is 30s rather than 20s, and why a game the
+  scoreboard already calls 試合終了 or 中止 is remembered and never fetched
+  again — a finished game does not restart, and re-reading it every half minute
+  until midnight is pure load on a site nobody is paying to serve it.
+- **There is no nationality field.** `birthCountry` is what let the MLB module
+  treat membership as a lookup and keep its name table as a mere backstop. Here
+  the table *is* the detector, which inverts the failure mode: MLB's risk is a
+  wrong Chinese name on a real alert, NPB's is no alert at all. Hence
+  `npb_players` in the config — not an escape hatch so much as the supported way
+  to add this year's signing without waiting for a release.
+- **The names are written in Japanese.** 吳念庭 appears as 呉念庭 and 王彥程 as
+  王彦程 — shinjitai forms of characters the player himself writes the
+  traditional way. Comparing the string npb.jp prints against the string a
+  Taiwanese reader would type therefore fails on precisely the players this tool
+  exists for, so both sides go through a folding step first and the alert prints
+  the traditional form back. The folding table holds only pairs that are
+  unambiguously the same character; a wrong rule there costs a match.
+
+Teams come off the letter code in npb.jp's own URLs (`f-l-01` is Fighters at
+Lions) rather than off the printed name, for the same reason MLB teams come off
+the id: a sponsor rename moves the name and leaves the URL alone, which is
+exactly what happened when 横浜ベイスターズ became 横浜DeNAベイスターズ.
+
+**On the scraping, and what is not yet verified.** Every assumption about
+npb.jp's markup is confined to one block in `cpbl_alert/npb.py`, and every rule
+in it is anchored on the page's own Japanese labels — 打者, 投手, 回表, アウト
+— rather than on class names or element ids. A label is content: it is on the
+page because a reader needs it, so it survives a redesign that renames every
+div.
+
+That is the more durable anchor, but it is not a verified one. **These rules
+were written without network access to npb.jp**, so unlike the CPBL and MLB
+clients — which were built against real captured payloads — they are reasoned
+from the page's vocabulary rather than measured against its HTML. `npb-probe`
+exists for exactly this: it fetches a real page, prints what each rule matched
+and what it did not, and `--text` dumps the page so a replacement rule can be
+written from it. Run it once against a live game before trusting `npb` to be
+silent for the right reason; if something comes back `-- no rule matched`, the
+fix is one edit to `FIELD_PATTERNS`.
+
 ## Development
 
 ```bash
-.venv/Scripts/python.exe -m pytest tests/ -q     # 162 tests
+.venv/Scripts/python.exe -m pytest tests/ -q     # 219 tests
 python scripts/replay.py --all                   # offline, against the fixture
 ```
 
@@ -312,18 +385,34 @@ silent. The sequences a capture cannot give you — the same pitcher still out
 there a poll later, a batter coming up again two innings on — are built by
 hand.
 
+The NPB fixtures are **not** captures, and that is a real difference.
+`npb_live.html` and `npb_scoreboard.html` are hand-built, so they encode what
+the page-reading rules *assume* npb.jp looks like rather than what it does.
+Read what those tests prove accordingly: everything downstream of `NpbGame` —
+membership, the name folding, the trigger, the four lines that reach the phone
+— is proved outright, because none of it depends on the markup; everything
+upstream of it is proved only against the assumption, and `npb-probe` is how
+the assumption gets checked against the site.
+
 ## Known limits
 
-- **Two leagues, two commands.** `run` watches CPBL, `mlb` watches MLB; they are
-  separate processes and neither knows about the other — which is also why
-  splitting them across two channels is a config key rather than a router. The package and CLI are
-  still called `cpbl_alert` / `cpbl-alert`, which is now half a lie — but a
-  rename would break every existing invocation to fix a name nobody types twice.
-- **MLB alerts are about people, not situations.** 心跳指數 is not applied
-  there, so a Taiwanese hitter leading off a 10–0 game buzzes exactly as loudly
-  as one batting with the bases loaded in the 9th. That is the feature: you
-  asked to be told when he is up.
-- **Restarting the MLB watcher re-announces whoever is on stage.** The tracker
+- **Three leagues, three commands.** `run` watches CPBL, `mlb` watches MLB,
+  `npb` watches NPB; they are separate processes and none knows about the
+  others. The package and CLI are still called `cpbl_alert` / `cpbl-alert`,
+  which is now two thirds of a lie — but a rename would break every existing
+  invocation to fix a name nobody types twice. It is also why sending each
+  league to its own channel is a config key rather than a router.
+- **The NPB page rules are unverified against the live site.** They were
+  written without network access to npb.jp, so a wrong rule shows up as silence
+  rather than as an error. `npb-probe` is the check, and it takes a minute.
+- **NPB membership is a hand-kept table, and it is the whole detector.** A
+  player missing from it gets no alert at all, not merely a Japanese name on
+  one. `npb_players` covers a new signing until the table catches up.
+- **Alerts are about people, not situations.** 心跳指數 is not applied
+  in MLB or NPB, so a Taiwanese hitter leading off a 10–0 game buzzes exactly
+  as loudly as one batting with the bases loaded in the 9th. That is the
+  feature: you asked to be told when he is up.
+- **Restarting either on-stage watcher re-announces whoever is on stage.** The tracker
   lives in memory, and "he is on the mound right now" is the present tense, so
   the first look at a game is deliberately not silent.
 - **Chinese names for MLB players are a hand-kept table.** Anyone not in it

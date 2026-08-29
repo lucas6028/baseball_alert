@@ -4,9 +4,12 @@
   "discord_webhook": "",
   "discord_webhook_cpbl": "",
   "discord_webhook_mlb": "",
+  "discord_webhook_npb": "",
   "threshold": 55,
   "poll_seconds": 15,
   "teams": [],
   "mlb_players": [],
-  "mlb_poll_seconds": 20
+  "mlb_poll_seconds": 20,
+  "npb_players": [],
+  "npb_poll_seconds": 30
 }

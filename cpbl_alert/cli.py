@@ -24,6 +24,7 @@ from .notifier import (
     format_alert,
     ruler_text,
 )
+from .terminal import GREEN, RED, paint, supports_color
 from .watcher import Watcher, today_tw
 
 STATUS_LABELS = {0: "?", 1: "pending", 2: "LIVE", 3: "final",
@@ -132,12 +133,21 @@ def cmd_test(args, cfg) -> int:
     for leagues, notifier in channels_to_test(cfg, args.league):
         sent = (_send_ruler(notifier) if args.ruler
                 else notifier.send(setup_message(leagues)))
-        print(f"{'/'.join(leagues)}: {notifier.label} -- "
-              f"{'sent' if sent else 'failed'}")
+        names = " / ".join(LEAGUE_LABELS.get(lg, lg.upper()) for lg in leagues)
+        mark = "✓" if sent else "✗"
+        colored_mark = paint(mark, GREEN if sent else RED, enabled=supports_color())
+        print(f"  {colored_mark} {names:<16} → {notifier.label} "
+              f"({'sent' if sent else 'failed'})")
         ok = ok and sent
     if args.ruler and ok:
         print(RULER_HELP)
     return 0 if ok else 1
+
+
+def cmd_init(args, cfg) -> int:
+    """Create or update the config interactively, then test delivery."""
+    from .setup_wizard import run
+    return run(args.config or config_mod.CONFIG_PATH)
 
 
 # What a channel is for, in the words the alerts themselves use.
@@ -490,11 +500,16 @@ def main(argv=None) -> int:
                         "lines your phone actually shows")
     t.set_defaults(func=cmd_test)
 
+    i = sub.add_parser("init", help="interactively configure and test notifications")
+    i.set_defaults(func=cmd_init)
+
     args = p.parse_args(argv)
     if getattr(args, "year", None) is None and args.cmd == "check":
         args.year = today_tw()[:4]
     _setup_logging(args.verbose)
-    cfg = config_mod.load(args.config)
+    # The initializer reads the raw file itself. Loading first would apply
+    # environment secrets and could accidentally persist them to config.json.
+    cfg = {} if args.cmd == "init" else config_mod.load(args.config)
     return args.func(args, cfg)
 
 

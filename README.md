@@ -49,10 +49,7 @@ Requires Python 3.10 or newer.
 ```bash
 python -m venv .venv
 .venv/Scripts/python.exe -m pip install -r requirements.txt
-Copy-Item config.example.json config.json
-
-.venv/Scripts/python.exe -m cpbl_alert.cli chat-id   # find your chat id
-.venv/Scripts/python.exe -m cpbl_alert.cli test      # send a test message
+.venv/Scripts/python.exe init.py                      # configure + test notifications
 .venv/Scripts/python.exe -m cpbl_alert.cli run       # watch CPBL
 .venv/Scripts/python.exe -m cpbl_alert.cli mlb       # watch MLB (in another terminal)
 .venv/Scripts/python.exe -m cpbl_alert.cli npb       # watch NPB (in another again)
@@ -63,18 +60,29 @@ Copy-Item config.example.json config.json
 ```bash
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
-cp config.example.json config.json
-
-.venv/bin/python -m cpbl_alert.cli chat-id
-.venv/bin/python -m cpbl_alert.cli test
+.venv/bin/python init.py                       # configure + test notifications
 .venv/bin/python -m cpbl_alert.cli run
 .venv/bin/python -m cpbl_alert.cli mlb       # in another terminal
 .venv/bin/python -m cpbl_alert.cli npb       # in another again
 ```
 
-Before running `chat-id`, fill in `telegram_token` in `config.json` (or set
-`TELEGRAM_TOKEN`). Prefer Discord? Skip `chat-id` entirely and put a webhook
-URL in `discord_webhook` instead — or set both, and every alert goes to both.
+The initializer prompts for Telegram, Discord, league-specific routing, and
+alert preferences, writes `config.json`, then offers to send test messages.
+Press Enter to keep an existing value when rerunning it; enter `-` to clear an
+optional value. Secrets are hidden while you type. You can also launch the
+same wizard with `python -m cpbl_alert.cli init`.
+The wizard uses color in interactive terminals, honors the `NO_COLOR`
+convention, and emits plain text when its output is redirected.
+
+The prompts include where to obtain every credential: Telegram bot tokens
+come from [@BotFather](https://t.me/BotFather), `chat-id` discovers the chat ID
+after you message the bot, and Discord webhook URLs come from **Server Settings
+→ Integrations → Webhooks**.
+
+If you use Telegram, send your new bot any message first. If you do not know
+the chat id yet, finish setup without testing, run `chat-id`, then rerun the
+initializer to enter the id. Prefer Discord? Leave the Telegram fields empty.
+Set both, and every alert goes to both.
 The three watchers are separate processes; run whichever of them you want to
 follow.
 
@@ -137,6 +145,7 @@ python -m cpbl_alert.cli test --league npb  # just the NPB one
 
 | Command | What it does |
 |---|---|
+| `init` | Interactively create/update the configuration and send test notifications |
 | `run` | Watch today's live games and push alerts. `--dry-run` prints instead, `--once` does a single pass |
 | `live` | List today's games with real status (pending / LIVE / final) |
 | `check <gameSno>` | Replay a real game through the model and show what *would* have fired — the way to tune your threshold |

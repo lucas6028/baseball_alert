@@ -1,7 +1,7 @@
 # 快轉台
 
 <p align="center">
-  <img src="assets/logo.png" alt="快轉台 logo" width="720">
+  <img src="assets/icon-v2.png" alt="快轉台壘包圖示" width="240">
 </p>
 
 > 有機會了，別錯過。
@@ -23,8 +23,6 @@
 心跳指數 89　♥♥♥♥♥♥♥♥♥♡
 ```
 
-## 大聯盟：台灣選手上場
-
 ```
 洋基 3-4 巨人　七上・兩出局
 　◆　　打者 Judge
@@ -32,30 +30,46 @@
 台灣投手登板　今日 1.2局・3K・失1
 ```
 
-```bash
-python -m cpbl_alert.cli mlb-players     # 這季大聯盟有誰
-python -m cpbl_alert.cli mlb-live        # 現在哪幾場在打、誰在場上
-python -m cpbl_alert.cli mlb --dry-run   # 開始盯
-```
-
 ## Quick start
+
+Requires Python 3.10 or newer.
+
+### Windows (PowerShell)
 
 ```bash
 python -m venv .venv
-.venv/Scripts/python.exe -m pip install -r requirements.txt   # Linux/mac: .venv/bin/python
+.venv/Scripts/python.exe -m pip install -r requirements.txt
+Copy-Item config.example.json config.json
 
-cp config.example.json config.json      # then fill in your bot token
 .venv/Scripts/python.exe -m cpbl_alert.cli chat-id   # find your chat id
 .venv/Scripts/python.exe -m cpbl_alert.cli test      # send a test message
-.venv/Scripts/python.exe -m cpbl_alert.cli run       # start watching
+.venv/Scripts/python.exe -m cpbl_alert.cli run       # watch CPBL
+.venv/Scripts/python.exe -m cpbl_alert.cli mlb       # watch MLB (in another terminal)
 ```
+
+### Linux / macOS
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+cp config.example.json config.json
+
+.venv/bin/python -m cpbl_alert.cli chat-id
+.venv/bin/python -m cpbl_alert.cli test
+.venv/bin/python -m cpbl_alert.cli run
+.venv/bin/python -m cpbl_alert.cli mlb       # in another terminal
+```
+
+Before running `chat-id`, fill in `telegram_token` in `config.json` (or set
+`TELEGRAM_TOKEN`). The CPBL and MLB watchers are separate processes; run either
+one or both depending on what you want to follow.
 
 ### Getting a Telegram bot
 
 1. Message [@BotFather](https://t.me/BotFather) → `/newbot` → copy the token.
 2. Put the token in `config.json` (or set `TELEGRAM_TOKEN`).
 3. Send your new bot any message.
-4. Run `cpbl-alert chat-id` and copy the id into `config.json`.
+4. Run `python -m cpbl_alert.cli chat-id` and copy the id into `config.json`.
 
 ## Commands
 
@@ -80,7 +94,8 @@ python -m cpbl_alert.cli check 290 --all      # every pitch, with scores
 
 ## Configuration
 
-`config.json` (environment variables win, which keeps tokens out of files):
+`config.json` (environment variables win, which keeps tokens out of files).
+Set `CPBL_ALERT_CONFIG` to use a config file at a different path:
 
 | Key | Env | Default | Meaning |
 |---|---|---|---|

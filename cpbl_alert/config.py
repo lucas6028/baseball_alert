@@ -12,6 +12,11 @@ DEFAULTS = {
     "threshold": 55.0,
     "poll_seconds": 15,
     "teams": [],          # e.g. ["中信兄弟"] -- empty means all games
+    # MLB. Nationality comes from the API (birthCountry), so there is no list
+    # to keep here; this one is the escape hatch for a player MLB does not
+    # record as Taiwan-born, given as ids or as full names.
+    "mlb_players": [],
+    "mlb_poll_seconds": 20,
 }
 
 CONFIG_PATH = os.environ.get("CPBL_ALERT_CONFIG", "config.json")
@@ -32,4 +37,7 @@ def load(path: str | None = None) -> dict:
         cfg["threshold"] = float(os.environ["CPBL_THRESHOLD"])
     if os.environ.get("CPBL_TEAMS"):
         cfg["teams"] = [t.strip() for t in os.environ["CPBL_TEAMS"].split(",") if t.strip()]
+    if os.environ.get("MLB_PLAYERS"):
+        cfg["mlb_players"] = [p.strip() for p in os.environ["MLB_PLAYERS"].split(",")
+                              if p.strip()]
     return cfg

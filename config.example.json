@@ -3,5 +3,7 @@
   "telegram_chat_id": "987654321",
   "threshold": 55,
   "poll_seconds": 15,
-  "teams": []
+  "teams": [],
+  "mlb_players": [],
+  "mlb_poll_seconds": 20
 }

@@ -9,6 +9,7 @@ import sys
 import requests
 
 from . import config as config_mod
+from . import mlb
 from .client import CpblClient, CpblError
 from .dedupe import GameTracker
 from .leverage import assess
@@ -148,6 +149,86 @@ def _send_ruler(notifier) -> int:
     return 0
 
 
+def cmd_mlb(args, cfg) -> int:
+    """Watch MLB and push when a Taiwanese player is on stage."""
+    watcher = mlb.TaiwaneseWatcher(
+        client=mlb.MlbClient(),
+        notifier=build_notifier(cfg),
+        extra_players=cfg.get("mlb_players"),
+        poll_seconds=int(args.poll or cfg.get("mlb_poll_seconds") or 20),
+        dry_run=args.dry_run,
+    )
+    print(f"watching MLB for Taiwanese players (poll {watcher.poll_seconds}s)")
+    try:
+        watcher.run(once=args.once)
+    except KeyboardInterrupt:
+        print("\nstopped")
+    return 0
+
+
+def cmd_mlb_live(args, cfg) -> int:
+    """List MLB games in the current window, marking who is on stage.
+
+    The window is two US business dates wide -- a night game in the States is
+    the next morning in Taiwan -- so both of them are listed.
+    """
+    client = mlb.MlbClient()
+    start, end = mlb.window()
+    games = client.schedule(start, end)
+    if not games:
+        print(f"no MLB games between {start} and {end}")
+        return 0
+    watcher = mlb.TaiwaneseWatcher(client, build_notifier(cfg),
+                                   extra_players=cfg.get("mlb_players"))
+    try:
+        watcher.roster = client.taiwanese_players(end[:4], end)
+    except (mlb.MlbError, requests.RequestException) as exc:
+        logging.debug("roster lookup failed: %s", exc)
+
+    print(f"MLB games {start} .. {end}:")
+    for game in games:
+        state = (game.get("status") or {}).get("abstractGameState", "?")
+        line = game.get("linescore") or {}
+        away, home = ((game.get("teams") or {}).get("away") or {},
+                      (game.get("teams") or {}).get("home") or {})
+        situation = ""
+        if state == "Live":
+            batter = (line.get("offense") or {}).get("batter") or {}
+            pitcher = (line.get("defense") or {}).get("pitcher") or {}
+            flag = " <-- 台灣選手" if (watcher.is_taiwanese(batter)
+                                        or watcher.is_taiwanese(pitcher)) else ""
+            situation = (f"  {line.get('currentInning', '?')}"
+                         f"{'top' if line.get('isTopInning') else 'bot'} "
+                         f"{line.get('outs', 0)}out  "
+                         f"B:{mlb.display_name(batter)} P:{mlb.display_name(pitcher)}"
+                         f"{flag}")
+        print(f"  #{game.get('gamePk')} [{state:<7}] "
+              f"{mlb.team_name(away)} {away.get('score', '')} - "
+              f"{home.get('score', '')} {mlb.team_name(home)}{situation}")
+    return 0
+
+
+def cmd_mlb_players(args, cfg) -> int:
+    """Who this thing would fire for, and where each name came from."""
+    client = mlb.MlbClient()
+    season = args.season or mlb.window()[1][:4]
+    try:
+        roster = client.taiwanese_players(season)
+    except (mlb.MlbError, requests.RequestException) as exc:
+        print(f"roster lookup failed: {exc}")
+        roster = {}
+    print(f"MLB {season}: {len(roster)} player(s) with birthCountry={mlb.TAIWAN}")
+    for pid, name in sorted(roster.items(), key=lambda kv: kv[1]):
+        zh = mlb.TAIWANESE_IDS.get(pid) or mlb.TAIWANESE_NAMES.get(name) or ""
+        print(f"  {pid:<8} {name:<24} {zh}")
+    extra = [p for p in (cfg.get("mlb_players") or [])]
+    if extra:
+        print(f"\nalso alerting on (from config): {', '.join(str(p) for p in extra)}")
+    print(f"\n{len(mlb.TAIWANESE_NAMES)} name(s) known offline, used as a backstop "
+          "when the roster lookup has not caught up with a call-up")
+    return 0
+
+
 def cmd_run(args, cfg) -> int:
     watcher = Watcher(
         client=CpblClient(),
@@ -169,7 +250,7 @@ def cmd_run(args, cfg) -> int:
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(
         prog="cpbl-alert",
-        description="快轉台 -- 中職關鍵時刻通知 (alert when a CPBL game gets tense)")
+        description="快轉台 -- 中職關鍵時刻、以及大聯盟台灣選手上場的通知")
     p.add_argument("-v", "--verbose", action="store_true")
     p.add_argument("--config", default=None)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -180,6 +261,20 @@ def main(argv=None) -> int:
     r.add_argument("--once", action="store_true", help="single pass, then exit")
     r.add_argument("--dry-run", action="store_true", help="print instead of pushing")
     r.set_defaults(func=cmd_run)
+
+    m = sub.add_parser("mlb", help="watch MLB and alert when a Taiwanese player is up")
+    m.add_argument("--poll", type=int, default=None)
+    m.add_argument("--once", action="store_true", help="single pass, then exit")
+    m.add_argument("--dry-run", action="store_true", help="print instead of pushing")
+    m.set_defaults(func=cmd_mlb)
+
+    ml = sub.add_parser("mlb-live", help="list MLB games and who is on stage")
+    ml.set_defaults(func=cmd_mlb_live)
+
+    mp = sub.add_parser("mlb-players",
+                        help="list the Taiwanese players MLB currently knows about")
+    mp.add_argument("--season", default=None, help="YYYY (default: this season)")
+    mp.set_defaults(func=cmd_mlb_players)
 
     lv = sub.add_parser("live", help="list today's games and their status")
     lv.add_argument("--date", default=None, help="YYYY-MM-DD (default: today in Taiwan)")

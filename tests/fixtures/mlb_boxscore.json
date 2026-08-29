@@ -1,0 +1,706 @@
+{
+ "teams": {
+  "away": {
+   "players": {
+    "ID666163": {
+     "person": {
+      "id": 666163,
+      "fullName": "Ben Rortvedt"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 0,
+       "hits": 0,
+       "atBats": 0,
+       "plateAppearances": 0,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID669373": {
+     "person": {
+      "id": 669373,
+      "fullName": "Tarik Skubal"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {
+       "homeRuns": 0,
+       "strikeOuts": 7,
+       "hits": 4,
+       "atBats": 19,
+       "inningsPitched": "5.0",
+       "earnedRuns": 1,
+       "battersFaced": 19,
+       "rbi": 1
+      }
+     }
+    },
+    "ID607192": {
+     "person": {
+      "id": 607192,
+      "fullName": "Tyler Glasnow"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID681911": {
+     "person": {
+      "id": 681911,
+      "fullName": "Alex Vesia"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID663656": {
+     "person": {
+      "id": 663656,
+      "fullName": "Kyle Tucker"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 0,
+       "hits": 1,
+       "atBats": 3,
+       "plateAppearances": 3,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID571771": {
+     "person": {
+      "id": 571771,
+      "fullName": "Enrique Hernández"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 0,
+       "hits": 1,
+       "atBats": 1,
+       "plateAppearances": 1,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID571970": {
+     "person": {
+      "id": 571970,
+      "fullName": "Max Muncy"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 1,
+       "hits": 0,
+       "atBats": 2,
+       "plateAppearances": 3,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID518692": {
+     "person": {
+      "id": 518692,
+      "fullName": "Freddie Freeman"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 2,
+       "hits": 0,
+       "atBats": 2,
+       "plateAppearances": 3,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID683618": {
+     "person": {
+      "id": 683618,
+      "fullName": "Edgardo Henriquez"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID641778": {
+     "person": {
+      "id": 641778,
+      "fullName": "Eric Lauer"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID656945": {
+     "person": {
+      "id": 656945,
+      "fullName": "Tanner Scott"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID676439": {
+     "person": {
+      "id": 676439,
+      "fullName": "Hunter Feduccia"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 0,
+       "hits": 0,
+       "atBats": 1,
+       "plateAppearances": 2,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID669242": {
+     "person": {
+      "id": 669242,
+      "fullName": "Tommy Edman"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 1,
+       "hits": 1,
+       "atBats": 3,
+       "plateAppearances": 3,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID669165": {
+     "person": {
+      "id": 669165,
+      "fullName": "Kyle Hurt"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID660271": {
+     "person": {
+      "id": 660271,
+      "fullName": "Shohei Ohtani"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 2,
+       "hits": 0,
+       "atBats": 3,
+       "plateAppearances": 4,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID606192": {
+     "person": {
+      "id": 606192,
+      "fullName": "Teoscar Hernández"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 1,
+       "hits": 1,
+       "atBats": 2,
+       "plateAppearances": 3,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID623465": {
+     "person": {
+      "id": 623465,
+      "fullName": "Evan Phillips"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID605141": {
+     "person": {
+      "id": 605141,
+      "fullName": "Mookie Betts"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 1,
+       "hits": 1,
+       "atBats": 2,
+       "plateAppearances": 3,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID669743": {
+     "person": {
+      "id": 669743,
+      "fullName": "Alex Call"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID605483": {
+     "person": {
+      "id": 605483,
+      "fullName": "Blake Snell"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID592779": {
+     "person": {
+      "id": 592779,
+      "fullName": "Brock Stewart"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID500743": {
+     "person": {
+      "id": 500743,
+      "fullName": "Miguel Rojas"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 0,
+       "hits": 1,
+       "atBats": 1,
+       "plateAppearances": 1,
+       "rbi": 1
+      },
+      "pitching": {}
+     }
+    },
+    "ID676263": {
+     "person": {
+      "id": 676263,
+      "fullName": "Jack Dreyer"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID678020": {
+     "person": {
+      "id": 678020,
+      "fullName": "Seth Halvorsen"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID677950": {
+     "person": {
+      "id": 677950,
+      "fullName": "Alek Thomas"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 0,
+       "hits": 0,
+       "atBats": 2,
+       "plateAppearances": 2,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID808967": {
+     "person": {
+      "id": 808967,
+      "fullName": "Yoshinobu Yamamoto"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    }
+   }
+  },
+  "home": {
+   "players": {
+    "ID667452": {
+     "person": {
+      "id": 667452,
+      "fullName": "Corey Julks"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID664285": {
+     "person": {
+      "id": 664285,
+      "fullName": "Framber Valdez"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID814430": {
+     "person": {
+      "id": 814430,
+      "fullName": "Brett Callahan"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID656716": {
+     "person": {
+      "id": 656716,
+      "fullName": "Zach McKinstry"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID701678": {
+     "person": {
+      "id": 701678,
+      "fullName": "Hao-Yu Lee"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 1,
+       "hits": 0,
+       "atBats": 2,
+       "plateAppearances": 2,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID623454": {
+     "person": {
+      "id": 623454,
+      "fullName": "Drew Anderson"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {
+       "homeRuns": 0,
+       "strikeOuts": 5,
+       "hits": 4,
+       "atBats": 16,
+       "inningsPitched": "4.2",
+       "earnedRuns": 0,
+       "battersFaced": 21,
+       "rbi": 0
+      }
+     }
+    },
+    "ID680664": {
+     "person": {
+      "id": 680664,
+      "fullName": "Eduardo Valencia"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 1,
+       "hits": 1,
+       "atBats": 2,
+       "plateAppearances": 2,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID595879": {
+     "person": {
+      "id": 595879,
+      "fullName": "Javier Báez"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 1,
+       "hits": 0,
+       "atBats": 2,
+       "plateAppearances": 2,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID621097": {
+     "person": {
+      "id": 621097,
+      "fullName": "Jacob Waguespack"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID663432": {
+     "person": {
+      "id": 663432,
+      "fullName": "Tanner Rainey"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID663947": {
+     "person": {
+      "id": 663947,
+      "fullName": "Tyler Holton"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID805808": {
+     "person": {
+      "id": 805808,
+      "fullName": "Kevin McGonigle"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 1,
+       "hits": 0,
+       "atBats": 2,
+       "plateAppearances": 2,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID640448": {
+     "person": {
+      "id": 640448,
+      "fullName": "Kyle Finnegan"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID445276": {
+     "person": {
+      "id": 445276,
+      "fullName": "Kenley Jansen"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID679529": {
+     "person": {
+      "id": 679529,
+      "fullName": "Spencer Torkelson"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 1,
+       "hits": 0,
+       "atBats": 2,
+       "plateAppearances": 2,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID805427": {
+     "person": {
+      "id": 805427,
+      "fullName": "Drew Sommers"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {
+       "homeRuns": 0,
+       "strikeOuts": 3,
+       "hits": 2,
+       "atBats": 6,
+       "inningsPitched": "1.1",
+       "earnedRuns": 1,
+       "battersFaced": 7,
+       "rbi": 1
+      }
+     }
+    },
+    "ID672456": {
+     "person": {
+      "id": 672456,
+      "fullName": "Keider Montero"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID701162": {
+     "person": {
+      "id": 701162,
+      "fullName": "Ben Malgeri"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 0,
+       "hits": 0,
+       "atBats": 2,
+       "plateAppearances": 2,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID650402": {
+     "person": {
+      "id": 650402,
+      "fullName": "Gleyber Torres"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 1,
+       "hits": 2,
+       "atBats": 3,
+       "plateAppearances": 3,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID641755": {
+     "person": {
+      "id": 641755,
+      "fullName": "Tyler Kinley"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID703601": {
+     "person": {
+      "id": 703601,
+      "fullName": "Max Clark"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 1,
+       "hits": 1,
+       "atBats": 2,
+       "plateAppearances": 2,
+       "rbi": 1
+      },
+      "pitching": {}
+     }
+    },
+    "ID693307": {
+     "person": {
+      "id": 693307,
+      "fullName": "Dillon Dingler"
+     },
+     "stats": {
+      "batting": {
+       "homeRuns": 0,
+       "strikeOuts": 0,
+       "hits": 0,
+       "atBats": 2,
+       "plateAppearances": 2,
+       "rbi": 0
+      },
+      "pitching": {}
+     }
+    },
+    "ID695549": {
+     "person": {
+      "id": 695549,
+      "fullName": "Jackson Jobe"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID690993": {
+     "person": {
+      "id": 690993,
+      "fullName": "Colt Keith"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID808825": {
+     "person": {
+      "id": 808825,
+      "fullName": "Andrew Sears"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    },
+    "ID675512": {
+     "person": {
+      "id": 675512,
+      "fullName": "Troy Melton"
+     },
+     "stats": {
+      "batting": {},
+      "pitching": {}
+     }
+    }
+   }
+  }
+ }
+}

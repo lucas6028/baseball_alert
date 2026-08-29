@@ -222,6 +222,56 @@ def format_alert(state: GameState, assessment: Assessment) -> str:
     ))
 
 
+class OnStage(Protocol):
+    """Who an MLB alert is about. See :class:`cpbl_alert.mlb.Spotlight`.
+
+    Structural rather than imported: ``mlb`` imports this module, and the
+    dependency only runs that way -- the notifier knows how to lay out a
+    baseball situation and stays ignorant of which league produced it.
+    """
+
+    role: str
+    name: str
+    detail: str
+
+
+# What line four says, by whose arrival triggered the alert. 登板 rather than
+# 上場 for a pitcher because that is the word for taking the mound, and the
+# verb is the only place a four-line alert can afford to be specific.
+STAGE_LABELS = {
+    "batter": "台灣打者上場",
+    "pitcher": "台灣投手登板",
+    "duel": "台灣內戰",
+}
+
+
+def format_mlb_alert(state: GameState, spot: OnStage) -> str:
+    """The MLB alert: same four lines, different reason for sending them.
+
+    Lines one to three are the CPBL alert's, unchanged -- a baseball
+    situation reads the same in either league, and the diamond was measured
+    once. Only line four differs, because the reason differs: 心跳指數 says
+    *how much* this moment matters, and here the answer to that is beside
+    the point. You asked to be told when he is up. So line four says that,
+    and spends whatever is left on how his day has gone.
+
+    Which of lines two and three he is takes no marking: line four names the
+    role, and only one of the two can hold it. The one case where that would
+    be ambiguous -- a Taiwanese pitcher facing a Taiwanese batter -- is the
+    one case that gets its own label, and its own single notification rather
+    than two.
+    """
+    top, bottom = diamond_rows(state)
+    reason = STAGE_LABELS.get(spot.role, STAGE_LABELS["batter"])
+    detail = getattr(spot, "detail", "")
+    return "\n".join((
+        f"{headline(state)}{BREAK}{situation(state)}",
+        f"{top}打者 {state.batter}",
+        f"{bottom}投手 {state.pitcher}",
+        f"<b>{reason}</b>" + (f"{BREAK}{detail}" if detail else ""),
+    ))
+
+
 class Notifier(Protocol):
     def send(self, text: str) -> bool: ...
 

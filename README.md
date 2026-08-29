@@ -1,9 +1,16 @@
 # 快轉台
 
+<p align="center">
+  <img src="assets/logo.png" alt="快轉台 logo" width="720">
+</p>
+
 > 有機會了，別錯過。
 
 盯著中華職棒的實況，在比賽真正緊張的時候推一則 Telegram 給你——九局滿壘、
 一分差的追平分上壘、八局撕破平手——大比分落後和無聊的半局則完全安靜。
+
+也盯大聯盟，但盯的是另一件事：**台灣選手上場的那一刻**——鄧愷威登板、李灝宇站
+上打擊區。同一支 bot、同樣四行，[往下看](#大聯盟台灣選手上場)。
 
 通知的標題就是產品名——Telegram 用聊天室名稱當標題，而那就是 bot 的顯示名稱
 **快轉台**。所以正文裡不再寫一次：那會用掉最稀有的一行，去講一個螢幕上已經有
@@ -16,41 +23,20 @@
 心跳指數 89　♥♥♥♥♥♥♥♥♥♡
 ```
 
-**四行是量出來的，不是猜的。** 手機到底顯示幾行不能查表：iOS 鎖定畫面大約四
-行，原生 Android 一行，三星 One UI 通常兩行，而且都會隨系統版本和字級設定跑
-掉。所以 `cpbl-alert test --ruler` 會推一把有編號的尺到你自己的手機上，你看得
-到的最後一個數字就是行數預算，行尾的 `┤` 沒被擠到下一行就代表寬度還夠。這份
-排版是照量到的結果（四行、38 半形欄）做的，量出別的數字就改別的數字。
+## 大聯盟：台灣選手上場
 
-四行的順序，是讓你**每多看一行都更清楚一點**，因為疊在一起的通知會顯示得比單
-獨一則少：先是哪一場、比數多少，再來是為什麼是現在，然後是誰對決誰，最後才是
-它有多重要。
+```
+洋基 3-4 巨人　七上・兩出局
+　◆　　打者 Judge
+◇　◇　投手 鄧愷威
+台灣投手登板　今日 1.2局・3K・失1
+```
 
-用字刻意平鋪直敘：講 **台鋼** 不講「台鋼雄鷹」，因為短名才塞得進一行。對不上
-的隊名（季後賽、明星賽、改名）原樣輸出，不會變成空字串。
-
-**壘包畫成真的壘包圖，這件事也是量出來的。** 圖只有在**對齊**的時候才讀得懂，
-而鎖定畫面會把用來保證對齊的等寬格式吃掉，所以這個形狀是先推到真手機上確認過
-才拿來用的。它站得住是因為每一格都是一個在中文環境下寬度剛好一格的字元
-（`◆`、`◇`、全形空白都是），不需要靠補空格喬位置。位置能表示意思，是線性排一
-排菱形做不到的：`◆◆◇` 沒有標籤就講不出是哪兩個壘包。
-
-也因為對齊只取決於每行**開頭**那四格，右邊還能掛東西——打者和投手就掛在那裡，
-不用自己佔一行。這是兩者都塞得進預算的唯一原因。
-
-被吃掉之後還活著的只有標點和形狀，所以每個記號都在做事：全形空白 `　` 是**大
-斷點**，每段文字至多一個，而且一定隔開兩種不同的東西（它同時也是壘包圖的格子，
-但那是結構不是標點）；`・` 把同一類的事實黏成一句；`♥♡` 是十格量表，所以那條
-就是百分比。
-
-粗體只是進 app 之後的加分：鎖定畫面的預覽會把格式吃掉，所以節奏必須在純文字
-下就成立——這也是為什麼工作交給記號，`<b>` 只負責補強。
-
-另外提醒：把 bot 在 BotFather 裡的顯示名稱設成 **快轉台**，通知的標題才會是它。
-
-**命名**：產品名就是 **快轉台**，沒有英文對應名——它不需要一個。
-Package 與 CLI 用純描述性的 `cpbl_alert`，讓陌生人一眼看懂這是什麼、也搜得到。
-分數叫 **心跳指數**。
+```bash
+python -m cpbl_alert.cli mlb-players     # 這季大聯盟有誰
+python -m cpbl_alert.cli mlb-live        # 現在哪幾場在打、誰在場上
+python -m cpbl_alert.cli mlb --dry-run   # 開始盯
+```
 
 ## Quick start
 
@@ -80,6 +66,9 @@ cp config.example.json config.json      # then fill in your bot token
 | `check <gameSno>` | Replay a real game through the model and show what *would* have fired — the way to tune your threshold |
 | `test` | Send a test notification. `--ruler` sends a numbered ruler instead, so you can see how many lines your phone shows before it truncates |
 | `chat-id` | Look up your Telegram chat id |
+| `mlb` | Watch MLB and push when a Taiwanese player takes the plate or the mound. `--dry-run` and `--once` as above |
+| `mlb-live` | List the MLB games in the current window, with who is batting and pitching in each |
+| `mlb-players` | List the Taiwanese players MLB currently has on its books, and where each Chinese name comes from |
 
 Tuning against a game you actually watched is the fastest way to find your
 threshold:
@@ -100,6 +89,8 @@ python -m cpbl_alert.cli check 290 --all      # every pitch, with scores
 | `threshold` | `CPBL_THRESHOLD` | `55` | 心跳指數 that triggers an alert |
 | `poll_seconds` | — | `15` | Seconds between polls (floored at 10) |
 | `teams` | `CPBL_TEAMS` | `[]` | Only alert on these teams; empty means all |
+| `mlb_players` | `MLB_PLAYERS` | `[]` | Extra MLB players to treat as Taiwanese, as ids or full names. Nationality otherwise comes from the API, so this is only for someone it does not record as Taiwan-born |
+| `mlb_poll_seconds` | — | `20` | Seconds between MLB polls (floored at 10) |
 
 Without credentials it falls back to printing alerts to the console, so you can
 try it before setting up a bot.
@@ -145,7 +136,9 @@ half-inning the game is actually in may reach your phone: a rally that both
 started and ended between two polls is over, and telling you to turn the TV on
 for it would be a lie.
 
-## Data source
+## Data sources
+
+### CPBL
 
 There is no public CPBL API. This calls the same endpoints the official site's
 own front-end uses. Three things about them are worth knowing, all handled in
@@ -197,10 +190,41 @@ created by a hit becomes visible one pitch later. The official CPBL site's own
 scoreboard widget has exactly the same lag. Getting this backwards would put
 every threshold off by one pitch.
 
+### MLB
+
+MLB, unlike CPBL, has a real public JSON API, so `cpbl_alert/mlb.py` has no
+scraping, no anti-forgery tokens and no CDN challenge in it. Three things about
+it shaped the poller:
+
+- **One request covers the whole league.**
+  `/schedule?sportId=1&hydrate=linescore` returns *every* game's current batter,
+  pitcher, bases, outs, count and score in one ~50KB payload (10KB gzipped). So
+  a tick is a single request no matter how many games are on, which is what
+  makes watching all fifteen affordable. Per-game `feed/live` would be 500KB
+  apiece. The boxscore behind line four is a second request, made only when
+  something is actually being sent.
+- **Nationality is in the data.** `/sports/1/players` carries `birthCountry`,
+  and MLB spells Taiwan `Taiwan`, so membership is a lookup rather than a
+  hand-kept list — one request, cached for the game-day. The built-in name
+  table is a *backstop* (a call-up the roster endpoint has not caught up with)
+  and the source of Chinese names, which the API does not have at all.
+- **`dates` is keyed on the US business date, and there are always two of
+  them.** A 20:15 ET game on Aug 28 is filed under `2026-08-28` even though it
+  starts at 00:15 UTC on the 29th — and 08:15 the next morning in Taiwan, which
+  is when you would be watching it. So the window is two days wide and every
+  `dates` entry is flattened together; reading `dates[0]` drops half the night.
+
+Two smaller traps, both of which would put a wrong name on the phone:
+`linescore.offense.pitcher` exists and is the *batting* team's pitcher of record
+— the man on the mound is `linescore.defense.pitcher`. And between half-innings
+the linescore reads `outs: 3` while still naming a batter and a pitcher, but
+they are the pair from the half that just ended mixed with the one about to
+start, so that state is skipped rather than read.
+
 ## Development
 
 ```bash
-.venv/Scripts/python.exe -m pytest tests/ -q     # 94 tests
+.venv/Scripts/python.exe -m pytest tests/ -q     # 132 tests
 python scripts/replay.py --all                   # offline, against the fixture
 ```
 
@@ -208,10 +232,33 @@ python scripts/replay.py --all                   # offline, against the fixture
 4–5 富邦悍將 on 2026-08-26) — the tests run against real data, including the
 9th-inning bases-loaded rally.
 
+The MLB fixtures are real captures too. `mlb_schedule.json` is a two-day
+window (32 games — finals, games in progress, games not yet started), because
+the shape of that payload is the one thing this side cannot control.
+`mlb_taiwanese_on_stage.json` and `mlb_boxscore.json` are the moment the
+feature exists for, caught by polling the live API until it happened: 李灝宇 at
+the plate against Tarik Skubal, 六下 no outs, runner on first, 1–1, 0 for 2 on
+the day. One test carries that payload all the way to the four lines that
+would have reached the phone, with the thirteen other games in it staying
+silent. The sequences a capture cannot give you — the same pitcher still out
+there a poll later, a batter coming up again two innings on — are built by
+hand.
+
 ## Known limits
 
-- **CPBL only.** Adding a league means a new client; the model and notifier are
-  league-agnostic.
+- **Two leagues, two commands.** `run` watches CPBL, `mlb` watches MLB; they are
+  separate processes and neither knows about the other. The package and CLI are
+  still called `cpbl_alert` / `cpbl-alert`, which is now half a lie — but a
+  rename would break every existing invocation to fix a name nobody types twice.
+- **MLB alerts are about people, not situations.** 心跳指數 is not applied
+  there, so a Taiwanese hitter leading off a 10–0 game buzzes exactly as loudly
+  as one batting with the bases loaded in the 9th. That is the feature: you
+  asked to be told when he is up.
+- **Restarting the MLB watcher re-announces whoever is on stage.** The tracker
+  lives in memory, and "he is on the mound right now" is the present tense, so
+  the first look at a game is deliberately not silent.
+- **Chinese names for MLB players are a hand-kept table.** Anyone not in it
+  shows up under the English name the API gave; the alert still fires.
 - **No win-probability model.** 心跳指數 is a transparent heuristic built from
   public run-expectancy tables, not a trained CPBL win-probability model. It has
   no notion of who is pitching, who is due up, or bullpen state.

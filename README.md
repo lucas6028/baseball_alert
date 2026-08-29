@@ -1,7 +1,7 @@
 # 快轉台
 
 <p align="center">
-  <img src="assets/icon-v2.png" alt="快轉台壘包圖示" width="240">
+  <img src="assets/readme-hero.png" alt="夜色球場中滿壘亮起，心跳訊號連向即時通知" width="100%">
 </p>
 
 > 有機會了，別錯過。

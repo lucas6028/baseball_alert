@@ -6,15 +6,16 @@
 
 > 有機會了，別錯過。
 
-盯著中華職棒的實況，在比賽真正緊張的時候推一則 Telegram 給你——九局滿壘、
-一分差的追平分上壘、八局撕破平手——大比分落後和無聊的半局則完全安靜。
+盯著中華職棒的實況，在比賽真正緊張的時候推一則 Telegram 或 Discord 給你——
+九局滿壘、一分差的追平分上壘、八局撕破平手——大比分落後和無聊的半局則完全安靜。
 
 也盯大聯盟，但盯的是另一件事：**台灣選手上場的那一刻**——鄧愷威登板、李灝宇站
-上打擊區。同一支 bot、同樣四行，[往下看](#大聯盟台灣選手上場)。
+上打擊區。同一支 bot、同樣四行，[往下看](#大聯盟台灣選手上場)。兩個聯盟可以
+推到**不同的頻道**——中職進中職台，大聯盟進大聯盟台，[往下看](#兩個聯盟兩個頻道)。
 
 通知的標題就是產品名——Telegram 用聊天室名稱當標題，而那就是 bot 的顯示名稱
-**快轉台**。所以正文裡不再寫一次：那會用掉最稀有的一行，去講一個螢幕上已經有
-的詞。
+**快轉台**；Discord 則是 webhook 的名字。所以正文裡不再寫一次：那會用掉最稀有
+的一行，去講一個螢幕上已經有的詞。
 
 ```
 台鋼 4-5 富邦　九上・一出局
@@ -61,8 +62,10 @@ cp config.example.json config.json
 ```
 
 Before running `chat-id`, fill in `telegram_token` in `config.json` (or set
-`TELEGRAM_TOKEN`). The CPBL and MLB watchers are separate processes; run either
-one or both depending on what you want to follow.
+`TELEGRAM_TOKEN`). Prefer Discord? Skip `chat-id` entirely and put a webhook
+URL in `discord_webhook` instead — or set both, and every alert goes to both.
+The CPBL and MLB watchers are separate processes; run either one or both
+depending on what you want to follow.
 
 ### Getting a Telegram bot
 
@@ -71,6 +74,49 @@ one or both depending on what you want to follow.
 3. Send your new bot any message.
 4. Run `python -m cpbl_alert.cli chat-id` and copy the id into `config.json`.
 
+### Getting a Discord webhook
+
+1. Server Settings → Integrations → Webhooks → **New Webhook**.
+2. Pick the channel it posts to, and name it 快轉台 — that name is what
+   Discord prints above every alert, which is why the four lines don't spend
+   one saying it.
+3. **Copy Webhook URL**, and paste it into `discord_webhook` in `config.json`
+   (or set `DISCORD_WEBHOOK`).
+4. `python -m cpbl_alert.cli test` — the message should land in that channel.
+
+The URL is a credential: anyone holding it can post to the channel. Keeping it
+in the environment rather than in a file is why `DISCORD_WEBHOOK` exists.
+
+### 兩個聯盟，兩個頻道
+
+A webhook URL *is* a channel, so putting CPBL and MLB in different places is a
+matter of making two webhooks and naming which is which. Any channel key can
+take a `_cpbl` or `_mlb` suffix, and the suffixed one wins for that league:
+
+```json
+{
+  "discord_webhook_cpbl": "https://discord.com/api/webhooks/111.../aaa...",
+  "discord_webhook_mlb":  "https://discord.com/api/webhooks/222.../bbb..."
+}
+```
+
+One webhook made in your 中職 channel, one made in your 大聯盟 channel.
+
+Leave the suffixed keys out and both leagues share `discord_webhook`, which is
+what most setups want to start with. Set only one of them and the other league
+has nowhere to go — it falls back to `discord_webhook`, or to the console if
+that is empty too. Telegram splits the same way with `telegram_chat_id_cpbl`
+and `telegram_chat_id_mlb`, so 中職 can go to a group chat while 大聯盟 goes
+to a channel.
+
+`test` sends to every channel you configured, once each, naming the league it
+is testing — which is the thing worth checking once the two are split up:
+
+```bash
+python -m cpbl_alert.cli test               # both channels
+python -m cpbl_alert.cli test --league mlb  # just the MLB one
+```
+
 ## Commands
 
 | Command | What it does |
@@ -78,7 +124,7 @@ one or both depending on what you want to follow.
 | `run` | Watch today's live games and push alerts. `--dry-run` prints instead, `--once` does a single pass |
 | `live` | List today's games with real status (pending / LIVE / final) |
 | `check <gameSno>` | Replay a real game through the model and show what *would* have fired — the way to tune your threshold |
-| `test` | Send a test notification. `--ruler` sends a numbered ruler instead, so you can see how many lines your phone shows before it truncates |
+| `test` | Send a test notification to every channel configured, one per channel. `--league cpbl\|mlb` tests just that league's; `--ruler` sends a numbered ruler instead, so you can see how many lines your phone shows before it truncates |
 | `chat-id` | Look up your Telegram chat id |
 | `mlb` | Watch MLB and push when a Taiwanese player takes the plate or the mound. `--dry-run` and `--once` as above |
 | `mlb-live` | List the MLB games in the current window, with who is batting and pitching in each |
@@ -101,14 +147,21 @@ Set `CPBL_ALERT_CONFIG` to use a config file at a different path:
 |---|---|---|---|
 | `telegram_token` | `TELEGRAM_TOKEN` | — | Bot token from BotFather |
 | `telegram_chat_id` | `TELEGRAM_CHAT_ID` | — | Where to send |
+| `telegram_chat_id_cpbl` | `TELEGRAM_CHAT_ID_CPBL` | — | CPBL's own chat, overriding the above for `run` |
+| `telegram_chat_id_mlb` | `TELEGRAM_CHAT_ID_MLB` | — | MLB's own chat, overriding the above for `mlb` |
+| `discord_webhook` | `DISCORD_WEBHOOK` | — | Webhook URL; the URL *is* the channel |
+| `discord_webhook_cpbl` | `DISCORD_WEBHOOK_CPBL` | — | CPBL's own channel, overriding the above for `run` |
+| `discord_webhook_mlb` | `DISCORD_WEBHOOK_MLB` | — | MLB's own channel, overriding the above for `mlb` |
 | `threshold` | `CPBL_THRESHOLD` | `55` | 心跳指數 that triggers an alert |
 | `poll_seconds` | — | `15` | Seconds between polls (floored at 10) |
 | `teams` | `CPBL_TEAMS` | `[]` | Only alert on these teams; empty means all |
 | `mlb_players` | `MLB_PLAYERS` | `[]` | Extra MLB players to treat as Taiwanese, as ids or full names. Nationality otherwise comes from the API, so this is only for someone it does not record as Taiwan-born |
 | `mlb_poll_seconds` | — | `20` | Seconds between MLB polls (floored at 10) |
 
-Without credentials it falls back to printing alerts to the console, so you can
-try it before setting up a bot.
+Telegram and Discord are independent: configure either, or both, and both get
+the alert — one dead channel does not silence the other. Without credentials it
+falls back to printing alerts to the console, so you can try it before setting
+up a bot.
 
 ## How a situation is scored
 
@@ -239,7 +292,7 @@ start, so that state is skipped rather than read.
 ## Development
 
 ```bash
-.venv/Scripts/python.exe -m pytest tests/ -q     # 132 tests
+.venv/Scripts/python.exe -m pytest tests/ -q     # 162 tests
 python scripts/replay.py --all                   # offline, against the fixture
 ```
 
@@ -262,7 +315,8 @@ hand.
 ## Known limits
 
 - **Two leagues, two commands.** `run` watches CPBL, `mlb` watches MLB; they are
-  separate processes and neither knows about the other. The package and CLI are
+  separate processes and neither knows about the other — which is also why
+  splitting them across two channels is a config key rather than a router. The package and CLI are
   still called `cpbl_alert` / `cpbl-alert`, which is now half a lie — but a
   rename would break every existing invocation to fix a name nobody types twice.
 - **MLB alerts are about people, not situations.** 心跳指數 is not applied
@@ -280,6 +334,10 @@ hand.
 - **Run-expectancy tables are MLB-derived.** CPBL's run environment differs;
   only the relative ordering is used, which is stable, but the absolute numbers
   aren't CPBL-calibrated.
+- **Discord alerts are plain messages, not embeds.** The four lines were
+  measured against a phone's lock screen and they read the same in a channel;
+  an embed would buy colour and cost the shape. `<b>` becomes `**`, and that
+  is the whole difference between what the two services are sent.
 - **One-pitch lag**, as described above.
 - **Regular season (`kindCode=A`) by default.** Postseason uses different codes.
 - **Unofficial endpoints** — if CPBL changes its site, this breaks.

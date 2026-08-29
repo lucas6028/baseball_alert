@@ -1,6 +1,9 @@
 {
   "telegram_token": "123456:ABC-your-bot-token-from-BotFather",
   "telegram_chat_id": "987654321",
+  "discord_webhook": "",
+  "discord_webhook_cpbl": "",
+  "discord_webhook_mlb": "",
   "threshold": 55,
   "poll_seconds": 15,
   "teams": [],

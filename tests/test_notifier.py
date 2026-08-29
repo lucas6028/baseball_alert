@@ -9,6 +9,7 @@ from cpbl_alert.leverage import assess
 from cpbl_alert.models import GameState, state_from_row
 from cpbl_alert.notifier import (
     BREAK,
+    DISCORD_MAX_RETRY_WAIT,
     HEARTS,
     JOIN,
     LINE_BUDGET,
@@ -16,13 +17,19 @@ from cpbl_alert.notifier import (
     RULER_LINES,
     RULER_WIDTH,
     ConsoleNotifier,
+    DiscordNotifier,
+    FanOutNotifier,
+    TelegramNotifier,
     build_notifier,
+    channel_for,
     cn_number,
     columns,
     diamond_rows,
+    discord_markdown,
     format_alert,
     inning_label,
     outs_label,
+    plain_text,
     ruler_text,
     situation,
     team,
@@ -241,11 +248,191 @@ def test_ruler_carries_no_markup():
 
 
 # -- delivery --------------------------------------------------------------
+WEBHOOK = "https://discord.com/api/webhooks/111/tok"
+
+
+class _Response:
+    """Just enough of a requests response for the notifiers to read."""
+
+    def __init__(self, status_code, payload=None, text=""):
+        self.status_code = status_code
+        self.headers = {}
+        self.text = text
+        self._payload = payload
+
+    def json(self):
+        if self._payload is None:
+            raise ValueError("no json")
+        return self._payload
+
+
+class _Sink:
+    """A notifier that reports whatever it was told to."""
+
+    key = ("sink",)
+    label = "sink"
+
+    def __init__(self, ok):
+        self.ok = ok
+        self.sent = []
+
+    def send(self, text):
+        self.sent.append(text)
+        return self.ok
+
+
 def test_falls_back_to_console_without_credentials():
     assert isinstance(build_notifier({}), ConsoleNotifier)
 
 
 def test_telegram_used_when_configured():
-    from cpbl_alert.notifier import TelegramNotifier
     n = build_notifier({"telegram_token": "t", "telegram_chat_id": "1"})
     assert isinstance(n, TelegramNotifier)
+
+
+def test_discord_used_when_configured():
+    n = build_notifier({"discord_webhook": WEBHOOK})
+    assert isinstance(n, DiscordNotifier)
+
+
+def test_both_get_the_alert_when_both_are_configured():
+    """Telegram and Discord are not alternatives -- you can want both."""
+    n = build_notifier({"telegram_token": "t", "telegram_chat_id": "1",
+                        "discord_webhook": WEBHOOK})
+    assert isinstance(n, FanOutNotifier)
+    assert [type(s) for s in n.sinks] == [TelegramNotifier, DiscordNotifier]
+
+
+# -- one league, one channel ----------------------------------------------
+def test_a_league_channel_beats_the_common_one():
+    """The whole point: 中職 in one channel, 大聯盟 in another."""
+    cfg = {"discord_webhook": WEBHOOK,
+           "discord_webhook_mlb": WEBHOOK.replace("111", "222")}
+    assert build_notifier(cfg, "cpbl").webhook_url == WEBHOOK
+    assert build_notifier(cfg, "mlb").webhook_url.endswith("/222/tok")
+
+
+def test_leagues_share_the_common_channel_when_they_have_no_own():
+    """The setup everyone starts with: one channel, both leagues."""
+    cfg = {"discord_webhook": WEBHOOK}
+    assert build_notifier(cfg, "cpbl").key == build_notifier(cfg, "mlb").key
+
+
+def test_a_league_channel_is_invisible_to_the_other_league():
+    """Configuring only MLB's channel must not leave CPBL shouting into it."""
+    cfg = {"discord_webhook_mlb": WEBHOOK}
+    assert isinstance(build_notifier(cfg, "cpbl"), ConsoleNotifier)
+    assert isinstance(build_notifier(cfg, "mlb"), DiscordNotifier)
+
+
+def test_telegram_chats_split_by_league_too():
+    """A chat is a channel; the same routing has to reach it."""
+    cfg = {"telegram_token": "t", "telegram_chat_id": "1",
+           "telegram_chat_id_cpbl": "2"}
+    assert build_notifier(cfg, "cpbl").chat_id == "2"
+    assert build_notifier(cfg, "mlb").chat_id == "1"
+
+
+def test_no_league_asked_means_the_common_channel():
+    """Commands that watch no particular league get the shared setup."""
+    cfg = {"discord_webhook": WEBHOOK, "discord_webhook_mlb": "x"}
+    assert build_notifier(cfg).webhook_url == WEBHOOK
+    assert channel_for(cfg, "discord_webhook", None) == WEBHOOK
+
+
+def test_a_blank_league_channel_falls_through():
+    """An untouched key from config.example.json is not a channel."""
+    cfg = {"discord_webhook": WEBHOOK, "discord_webhook_cpbl": "   "}
+    assert build_notifier(cfg, "cpbl").webhook_url == WEBHOOK
+
+
+# -- what Discord is sent --------------------------------------------------
+def test_discord_gets_markdown_not_html():
+    assert discord_markdown("台鋼 <b>4-5</b> 富邦") == "台鋼 **4-5** 富邦"
+
+
+def test_unbalanced_markup_is_stripped_rather_than_rewritten():
+    """A dangling ** would swallow the rest of the message."""
+    assert discord_markdown("台鋼 <b>4-5 富邦") == "台鋼 4-5 富邦"
+
+
+def test_the_alert_survives_the_rewrite_line_for_line(game290):
+    """The layout is the product; only the markup may differ by channel."""
+    st = state_from_row(game290["rows"][-1], game290["meta"])
+    text = format_alert(st, assess(st))
+    assert plain_text(discord_markdown(text)).replace("**", "") == plain_text(text)
+    assert len(discord_markdown(text).split("\n")) == LINE_BUDGET
+
+
+def test_discord_alert_carries_no_html():
+    st = _state(inning=9, outs=2, first=True, visiting_score=4, home_score=5,
+                batter="魔鷹", pitcher="曾峻岳")
+    assert "<b>" not in discord_markdown(format_alert(st, assess(st)))
+
+
+def test_discord_never_pings_the_room(monkeypatch):
+    """A player name must not be able to notify everyone in the channel."""
+    posted = {}
+
+    def fake_post(url, json=None, timeout=None):
+        posted["url"], posted["json"] = url, json
+        return _Response(204)
+
+    monkeypatch.setattr("cpbl_alert.notifier.requests.post", fake_post)
+    assert DiscordNotifier(WEBHOOK).send("@everyone <b>x</b>") is True
+    assert posted["url"] == WEBHOOK
+    assert posted["json"]["allowed_mentions"] == {"parse": []}
+    assert posted["json"]["content"] == "@everyone **x**"
+
+
+def test_discord_reports_a_rejected_webhook(monkeypatch):
+    monkeypatch.setattr("cpbl_alert.notifier.requests.post",
+                        lambda *a, **kw: _Response(404, text="Unknown Webhook"))
+    assert DiscordNotifier(WEBHOOK).send("x") is False
+
+
+def test_discord_waits_out_a_rate_limit_and_retries(monkeypatch):
+    """A rally fires alerts seconds apart; one 429 must not drop one."""
+    replies = [_Response(429, payload={"retry_after": 0.2}), _Response(204)]
+    slept = []
+    monkeypatch.setattr("cpbl_alert.notifier.requests.post",
+                        lambda *a, **kw: replies.pop(0))
+    monkeypatch.setattr("cpbl_alert.notifier.time.sleep", slept.append)
+    assert DiscordNotifier(WEBHOOK).send("x") is True
+    assert slept == [0.2] and not replies
+
+
+def test_a_rate_limit_wait_is_capped(monkeypatch):
+    """An alert that lands a minute late is about a moment already gone."""
+    replies = [_Response(429, payload={"retry_after": 600}), _Response(204)]
+    slept = []
+    monkeypatch.setattr("cpbl_alert.notifier.requests.post",
+                        lambda *a, **kw: replies.pop(0))
+    monkeypatch.setattr("cpbl_alert.notifier.time.sleep", slept.append)
+    DiscordNotifier(WEBHOOK).send("x")
+    assert slept == [DISCORD_MAX_RETRY_WAIT]
+
+
+def test_webhook_token_stays_out_of_the_label():
+    """The label goes into logs and onto a terminal; the token lets you post."""
+    label = DiscordNotifier(WEBHOOK).label
+    assert "111" in label and "tok" not in label
+
+
+# -- fanning out -----------------------------------------------------------
+def test_one_dead_channel_does_not_silence_the_other():
+    good, bad = _Sink(True), _Sink(False)
+    assert FanOutNotifier([bad, good]).send("x") is True
+    assert good.sent == ["x"] and bad.sent == ["x"]
+
+
+def test_a_fan_out_with_nothing_delivered_is_a_failure():
+    assert FanOutNotifier([_Sink(False), _Sink(False)]).send("x") is False
+
+
+def test_the_same_channel_twice_is_the_same_key():
+    """``test`` uses this to send one message per channel, not per league."""
+    cfg = {"discord_webhook": WEBHOOK}
+    assert build_notifier(cfg, "cpbl").key == build_notifier(cfg, "mlb").key
+    assert build_notifier({"discord_webhook": "other"}, "cpbl").key != \
+        build_notifier(cfg, "cpbl").key

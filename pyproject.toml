@@ -1,0 +1,15 @@
+[project]
+name = "cpbl-alert"
+version = "0.1.0"
+description = "Live CPBL leverage alerts and Taiwanese-player alerts for MLB and NPB"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+

@@ -205,7 +205,7 @@ def configure(
     output("             the token BotFather gives you.")
     output("  Chat ID    Send your new bot a message. If you do not know the ID,")
     output("             leave it blank, finish setup, then run:")
-    output("             python -m cpbl_alert.cli chat-id")
+    output("             uv run python -m cpbl_alert.cli chat-id")
     output("             Rerun init.py and enter the reported chat_id value.\n")
     cfg["telegram_token"] = ask(
         "Telegram bot token", cfg["telegram_token"],
@@ -302,7 +302,7 @@ def run(path: str | os.PathLike[str] = CONFIG_PATH) -> int:
         return 1
     if not should_test:
         print(paint("\n  ℹ Saved without testing.", CYAN, enabled=use_color))
-        print(paint("    Run `python -m cpbl_alert.cli test` whenever you are ready.",
+        print(paint("    Run `uv run python -m cpbl_alert.cli test` whenever you are ready.",
                     DIM, enabled=use_color))
         return 0
 

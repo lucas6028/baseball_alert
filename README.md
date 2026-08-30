@@ -42,35 +42,33 @@
 
 ## Quick start
 
-Requires Python 3.10 or newer.
+Requires Python 3.10 or newer and [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ### Windows (PowerShell)
 
 ```bash
-python -m venv .venv
-.venv/Scripts/python.exe -m pip install -r requirements.txt
-.venv/Scripts/python.exe init.py                      # configure + test notifications
-.venv/Scripts/python.exe -m cpbl_alert.cli run       # watch CPBL
-.venv/Scripts/python.exe -m cpbl_alert.cli mlb       # watch MLB (in another terminal)
-.venv/Scripts/python.exe -m cpbl_alert.cli npb       # watch NPB (in another again)
+uv sync
+uv run python init.py                       # configure + test notifications
+uv run python -m cpbl_alert.cli run         # watch CPBL
+uv run python -m cpbl_alert.cli mlb         # watch MLB (in another terminal)
+uv run python -m cpbl_alert.cli npb         # watch NPB (in another again)
 ```
 
 ### Linux / macOS
 
 ```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python init.py                       # configure + test notifications
-.venv/bin/python -m cpbl_alert.cli run
-.venv/bin/python -m cpbl_alert.cli mlb       # in another terminal
-.venv/bin/python -m cpbl_alert.cli npb       # in another again
+uv sync
+uv run python init.py                       # configure + test notifications
+uv run python -m cpbl_alert.cli run
+uv run python -m cpbl_alert.cli mlb         # in another terminal
+uv run python -m cpbl_alert.cli npb         # in another again
 ```
 
 The initializer prompts for Telegram, Discord, league-specific routing, and
 alert preferences, writes `config.json`, then offers to send test messages.
 Press Enter to keep an existing value when rerunning it; enter `-` to clear an
 optional value. Secrets are hidden while you type. You can also launch the
-same wizard with `python -m cpbl_alert.cli init`.
+same wizard with `uv run python -m cpbl_alert.cli init`.
 The wizard uses color in interactive terminals, honors the `NO_COLOR`
 convention, and emits plain text when its output is redirected.
 
@@ -91,7 +89,7 @@ follow.
 1. Message [@BotFather](https://t.me/BotFather) → `/newbot` → copy the token.
 2. Put the token in `config.json` (or set `TELEGRAM_TOKEN`).
 3. Send your new bot any message.
-4. Run `python -m cpbl_alert.cli chat-id` and copy the id into `config.json`.
+4. Run `uv run python -m cpbl_alert.cli chat-id` and copy the id into `config.json`.
 
 ### Getting a Discord webhook
 
@@ -101,7 +99,7 @@ follow.
    one saying it.
 3. **Copy Webhook URL**, and paste it into `discord_webhook` in `config.json`
    (or set `DISCORD_WEBHOOK`).
-4. `python -m cpbl_alert.cli test` — the message should land in that channel.
+4. `uv run python -m cpbl_alert.cli test` — the message should land in that channel.
 
 The URL is a credential: anyone holding it can post to the channel. Keeping it
 in the environment rather than in a file is why `DISCORD_WEBHOOK` exists.
@@ -137,8 +135,8 @@ sharing a webhook is one message, naming both — and each message says which
 league it is testing, which is the thing worth checking once they are split:
 
 ```bash
-python -m cpbl_alert.cli test               # every channel configured
-python -m cpbl_alert.cli test --league npb  # just the NPB one
+uv run python -m cpbl_alert.cli test               # every channel configured
+uv run python -m cpbl_alert.cli test --league npb  # just the NPB one
 ```
 
 ## Commands
@@ -163,8 +161,8 @@ Tuning against a game you actually watched is the fastest way to find your
 threshold:
 
 ```bash
-python -m cpbl_alert.cli check 290 --threshold 50
-python -m cpbl_alert.cli check 290 --all      # every pitch, with scores
+uv run python -m cpbl_alert.cli check 290 --threshold 50
+uv run python -m cpbl_alert.cli check 290 --all      # every pitch, with scores
 ```
 
 ## Configuration
@@ -374,8 +372,8 @@ fix is one edit to `FIELD_PATTERNS`.
 ## Development
 
 ```bash
-.venv/Scripts/python.exe -m pytest tests/ -q     # 219 tests
-python scripts/replay.py --all                   # offline, against the fixture
+uv run python -m pytest tests/ -q        # 224 tests
+uv run python scripts/replay.py --all    # offline, against the fixture
 ```
 
 `tests/fixtures/game290.json` is a real captured game (324 pitches, 台鋼雄鷹

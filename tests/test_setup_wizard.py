@@ -103,7 +103,7 @@ def test_setup_explains_where_credentials_come_from(tmp_path):
 
     screen = "\n".join(messages)
     assert "https://t.me/BotFather" in screen
-    assert "python -m cpbl_alert.cli chat-id" in screen
+    assert "uv run python -m cpbl_alert.cli chat-id" in screen
     assert "Server Settings → Integrations → Webhooks" in screen
     assert "SAVE & TEST" in screen
 

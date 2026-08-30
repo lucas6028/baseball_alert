@@ -4,7 +4,7 @@ For tuning thresholds against a saved fixture. To replay a real game straight
 from the CPBL site instead, use ``cpbl-alert check <gameSno>``.
 
 Usage:
-    python scripts/replay.py [fixture.json] [--threshold=N] [--all]
+    uv run python scripts/replay.py [fixture.json] [--threshold=N] [--all]
 """
 
 import argparse

@@ -245,8 +245,8 @@ def configure(
     output(paint("  Keep the defaults if you are unsure; you can rerun this anytime.\n",
                  DIM, enabled=use_color))
     cfg["threshold"] = ask(
-        "CPBL heartbeat threshold (0-100)", cfg["threshold"],
-        parse=float, validate=_number(0, 100),
+        "CPBL Leverage Index threshold (1.0 = average)", cfg["threshold"],
+        parse=float, validate=_number(0, 30),
         allow_clear=False,
     )
     if isinstance(cfg["threshold"], float) and cfg["threshold"].is_integer():

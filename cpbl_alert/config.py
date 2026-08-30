@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import io
 import json
+import logging
 import os
+
+log = logging.getLogger(__name__)
 
 # The leagues this thing watches, which are also the three things it can route
 # separately. A league name is a config-key suffix (``discord_webhook_npb``)
@@ -30,7 +33,7 @@ DEFAULTS = {
     "discord_webhook_mlb": "",
     "discord_webhook_npb": "",
     # -- what fires --------------------------------------------------------
-    "threshold": 55.0,
+    "threshold": 2.0,
     "poll_seconds": 15,
     "teams": [],          # e.g. ["中信兄弟"] -- empty means all games
     # MLB. Nationality comes from the API (birthCountry), so there is no list
@@ -80,4 +83,14 @@ def load(path: str | None = None) -> dict:
     if os.environ.get("NPB_PLAYERS"):
         cfg["npb_players"] = [p.strip() for p in os.environ["NPB_PLAYERS"].split(",")
                               if p.strip()]
+    # Versions before LI used a 0-100 heartbeat threshold (55 by default).
+    # Such a value would silence the unbounded-but-normally-single-digit LI
+    # scale, so migrate it rather than making an existing installation inert.
+    try:
+        if float(cfg["threshold"]) > 30:
+            log.warning("migrating legacy heartbeat threshold %s to LI %.1f",
+                        cfg["threshold"], DEFAULTS["threshold"])
+            cfg["threshold"] = DEFAULTS["threshold"]
+    except (TypeError, ValueError):
+        pass
     return cfg

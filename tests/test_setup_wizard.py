@@ -15,7 +15,7 @@ def test_setup_writes_configuration_and_can_skip_test(tmp_path):
     normal = _answers([
         "-100123",  # Telegram chat
         "n",        # no per-league overrides
-        "60",       # threshold
+        "2.5",      # LI threshold
         "台鋼雄鷹, 富邦悍將",
         "673548",   # MLB extras
         "王彥程",   # NPB extras
@@ -34,7 +34,7 @@ def test_setup_writes_configuration_and_can_skip_test(tmp_path):
     assert should_test is False
     assert cfg["telegram_token"] == "123456:ABC_token"
     assert cfg["telegram_chat_id"] == "-100123"
-    assert cfg["threshold"] == 60
+    assert cfg["threshold"] == 2.5
     assert cfg["teams"] == ["台鋼雄鷹", "富邦悍將"]
     assert cfg["mlb_players"] == ["673548"]
     assert cfg["npb_players"] == ["王彥程"]
@@ -67,7 +67,7 @@ def test_invalid_values_are_prompted_again(tmp_path):
     normal = _answers([
         "bad chat", "42",
         "n",
-        "101", "55",
+        "31", "2.5",
         "", "", "",
         "9", "10",
         "10",
@@ -85,7 +85,7 @@ def test_invalid_values_are_prompted_again(tmp_path):
     )
 
     assert cfg["telegram_chat_id"] == "42"
-    assert cfg["threshold"] == 55
+    assert cfg["threshold"] == 2.5
     assert cfg["poll_seconds"] == 10
     assert cfg["npb_poll_seconds"] == 15
     assert any("Invalid" in message or "Enter" in message for message in messages)

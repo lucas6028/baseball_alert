@@ -11,7 +11,6 @@ from cpbl_alert.models import GameState, state_from_row
 from cpbl_alert.notifier import (
     BREAK,
     DISCORD_MAX_RETRY_WAIT,
-    HEARTS,
     JOIN,
     LINE_BUDGET,
     MAX_COLUMNS,
@@ -34,7 +33,6 @@ from cpbl_alert.notifier import (
     ruler_text,
     situation,
     team,
-    tension_gauge,
 )
 
 
@@ -97,21 +95,6 @@ def test_diamond_rows_are_the_same_width_whatever_is_on_base():
         assert columns(top) == columns(bottom) == 8, "four full-width cells"
 
 
-@pytest.mark.parametrize("tension,expected", [
-    (0, "♡♡♡♡♡♡♡♡♡♡"),
-    (89, "♥♥♥♥♥♥♥♥♥♡"),
-    (100, "♥♥♥♥♥♥♥♥♥♥"),
-])
-def test_tension_gauge_reads_as_a_percentage(tension, expected):
-    assert tension_gauge(tension) == expected
-
-
-def test_tension_gauge_fills_from_the_left():
-    gauge = tension_gauge(50)
-    assert len(gauge) == HEARTS
-    assert gauge == "".join(sorted(gauge, key=lambda c: c == "♡"))
-
-
 # -- the notification ------------------------------------------------------
 def test_alert_fits_the_measured_line_budget(game290):
     """Measured on a real phone with `test --ruler`, not guessed at."""
@@ -142,7 +125,8 @@ def test_alert_text_contains_the_essentials(game290):
     assert "九上" in text and "兩出局" in text
     assert "◆◆" not in text, "bases are a diamond, not a run of glyphs"
     assert text.count("◆") == 3, "bases loaded"
-    assert "心跳指數" in text
+    assert "關鍵度 LI" in text
+    assert "平均=1.00" in text
     assert st.batter in text and st.pitcher in text
 
 
@@ -191,7 +175,7 @@ def test_plain_text_still_reads_when_formatting_is_stripped(game290):
     assert plain == ("台鋼 4-5 富邦　九上・兩出局\n"
                      "　◆　　打者 藍寅倫\n"
                      "◆　◆　投手 曾峻岳\n"
-                     "心跳指數 42　♥♥♥♥♡♡♡♡♡♡")
+                     "關鍵度 LI 9.11　平均=1.00")
 
 
 def test_alert_leads_with_the_scoreboard(game290):

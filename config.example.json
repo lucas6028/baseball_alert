@@ -5,7 +5,7 @@
   "discord_webhook_cpbl": "",
   "discord_webhook_mlb": "",
   "discord_webhook_npb": "",
-  "threshold": 55,
+  "threshold": 2.0,
   "poll_seconds": 15,
   "teams": [],
   "mlb_players": [],

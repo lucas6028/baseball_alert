@@ -23,7 +23,7 @@
 台鋼 4-5 富邦　九上・一出局
 　◆　　打者 魔鷹
 ◆　◆　投手 曾峻岳
-心跳指數 89　♥♥♥♥♥♥♥♥♥♡
+關鍵度 LI 7.82　平均=1.00
 ```
 
 ```
@@ -161,7 +161,7 @@ Tuning against a game you actually watched is the fastest way to find your
 threshold:
 
 ```bash
-uv run python -m cpbl_alert.cli check 290 --threshold 50
+uv run python -m cpbl_alert.cli check 290 --threshold 2.5
 uv run python -m cpbl_alert.cli check 290 --all      # every pitch, with scores
 ```
 
@@ -181,13 +181,16 @@ Set `CPBL_ALERT_CONFIG` to use a config file at a different path:
 | `discord_webhook_cpbl` | `DISCORD_WEBHOOK_CPBL` | — | CPBL's own channel, overriding the above for `run` |
 | `discord_webhook_mlb` | `DISCORD_WEBHOOK_MLB` | — | MLB's own channel, overriding the above for `mlb` |
 | `discord_webhook_npb` | `DISCORD_WEBHOOK_NPB` | — | NPB's own channel, overriding the above for `npb` |
-| `threshold` | `CPBL_THRESHOLD` | `55` | 心跳指數 that triggers an alert |
+| `threshold` | `CPBL_THRESHOLD` | `2.0` | Leverage Index that triggers an alert; `1.0` is average |
 | `poll_seconds` | — | `15` | Seconds between polls (floored at 10) |
 | `teams` | `CPBL_TEAMS` | `[]` | Only alert on these teams; empty means all |
 | `mlb_players` | `MLB_PLAYERS` | `[]` | Extra MLB players to treat as Taiwanese, as ids or full names. Nationality otherwise comes from the API, so this is only for someone it does not record as Taiwan-born |
 | `mlb_poll_seconds` | — | `20` | Seconds between MLB polls (floored at 10) |
 | `npb_players` | `NPB_PLAYERS` | `[]` | Extra NPB players to alert on, by name in either orthography. npb.jp publishes no nationality, so unlike the MLB key this is the supported way to add a new signing rather than an escape hatch |
 | `npb_poll_seconds` | — | `30` | Seconds between NPB polls (floored at 15) |
+
+Configurations from the former 0–100 heartbeat scale are migrated
+automatically: a legacy threshold such as `55` becomes the LI default `2.0`.
 
 Telegram and Discord are independent: configure either, or both, and both get
 the alert — one dead channel does not silence the other. Without credentials it
@@ -196,39 +199,35 @@ up a bot.
 
 ## How a situation is scored
 
-Every pitch produces a **心跳指數** (heartbeat index) from 0–100, the product
-of three factors:
+Every pitch is assigned a **Leverage Index (LI)** for the plate appearance it
+belongs to. LI measures the expected absolute movement in win probability from
+the current game state and normalizes it against the league-wide average:
 
-**1. Situation** — how dangerous the base/out state is. This blends two
-standard tables: expected runs (RE24) and the probability of scoring *at least
-one* run. The blend matters. Late in a tight game you don't need runs plural,
-you need one, and those two curves disagree sharply — a runner on third with
-one out is mediocre by expected runs and enormous by "will he score". Weighting
-only by expected runs misses exactly the moments people care about most.
+- `LI 1.00` is an average plate appearance.
+- `LI 2.00` has twice the average potential impact and is the default alert
+  threshold.
+- `LI 7.82` is an extreme situation, such as one out and bases loaded in the
+  ninth while trailing by one.
 
-**2. Urgency** — a multiplier that rises through the game, from 0.55 in the
-1st to 1.15 in the 9th. Extra innings inherit the 9th-inning weight.
+The lookup uses batting side, inning, outs, base occupancy and score
+differential. It comes from Greg Stoll's open-source leverage model over
+Retrosheet play-by-play, not from hand-selected inning or closeness
+multipliers. The compact table is bundled in `cpbl_alert/li_table.py`, and
+`scripts/build_li_table.py` reproduces the import from its upstream source.
 
-**3. Closeness** — the score-margin gate, built around the *tying run*. With
-R runners on base, the batter is potential run R+1, so trailing by ≤R means the
-tying run is already on base (full weight); trailing by R+1 puts it at the
-plate; further back decays toward a floor. Leading decays with the size of the
-lead. This is what keeps a runner on second in a 9-run blowout off your phone
-while the identical situation in a one-run game lights it up.
+The threshold is a notification preference, not part of the statistic. Raise
+it for fewer interruptions; `check <gameSno> --all` prints the native LI for
+every recorded pitch so it can be tuned against a game you watched.
 
 ### Alert volume
 
-Replaying a full day of real CPBL baseball (three games, 886 pitches):
-
-| Game | Result | Alerts |
-|---|---|---|
-| #288 樂天桃猿 0–2 中信兄弟 | scoreless into the 8th | 1 |
-| #289 味全龍 0–1 統一7-ELEVEn獅 | pitchers' duel | 1 |
-| #290 台鋼雄鷹 4–5 富邦悍將 | 7th-inning rally, 9th-inning comeback attempt | 4 |
+In the recorded 324-pitch game #290, 72 pitch rows meet the default `LI 2.00`
+threshold. Rally deduplication collapses those repeated states to 12
+notifications across the whole game.
 
 Alerts fire on *changes*, not pitches. Within a half-inning you get one alert
 when it crosses the threshold and another only if it materially escalates
-(+10 心跳指數). A momentary dip — an out mid-rally — does not re-arm it; only a
+(+1.00 LI). A momentary dip — an out mid-rally — does not re-arm it; only a
 new half-inning does. Starting mid-game primes on existing pitches first, so
 attaching in the 7th never replays the whole game at you. And only the
 half-inning the game is actually in may reach your phone: a rally that both
@@ -236,6 +235,18 @@ started and ended between two polls is over, and telling you to turn the TV on
 for it would be a lie.
 
 ## Data sources
+
+### Leverage Index
+
+The bundled LI table is derived from Retrosheet play-by-play by
+[Greg Stoll's open-source baseballstats model](https://github.com/gregstoll/baseballstats/blob/master/processleveragefromcumulative.py).
+It calculates the mean absolute win-expectancy swing across context-neutral
+home-run, hit and out outcomes, then divides by the average swing across all
+historical situations. That is what makes `1.00` the neutral baseline.
+
+Only regulation innings and batting-team score differences from -8 through +8
+are bundled. Wider margins return `0.00` so sparse historical outliers cannot
+produce a false phone alert, and extra innings use the ninth-inning table.
 
 ### CPBL
 
@@ -372,7 +383,7 @@ fix is one edit to `FIELD_PATTERNS`.
 ## Development
 
 ```bash
-uv run python -m pytest tests/ -q        # 224 tests
+uv run python -m pytest tests/ -q        # 218 tests
 uv run python scripts/replay.py --all    # offline, against the fixture
 ```
 
@@ -415,7 +426,7 @@ the assumption gets checked against the site.
 - **NPB membership is a hand-kept table, and it is the whole detector.** A
   player missing from it gets no alert at all, not merely a Japanese name on
   one. `npb_players` covers a new signing until the table catches up.
-- **Alerts are about people, not situations.** 心跳指數 is not applied
+- **Alerts are about people, not situations.** LI is not applied
   in MLB or NPB, so a Taiwanese hitter leading off a 10–0 game buzzes exactly
   as loudly as one batting with the bases loaded in the 9th. That is the
   feature: you asked to be told when he is up.
@@ -424,12 +435,11 @@ the assumption gets checked against the site.
   the first look at a game is deliberately not silent.
 - **Chinese names for MLB players are a hand-kept table.** Anyone not in it
   shows up under the English name the API gave; the alert still fires.
-- **No win-probability model.** 心跳指數 is a transparent heuristic built from
-  public run-expectancy tables, not a trained CPBL win-probability model. It has
-  no notion of who is pitching, who is due up, or bullpen state.
-- **Run-expectancy tables are MLB-derived.** CPBL's run environment differs;
-  only the relative ordering is used, which is stable, but the absolute numbers
-  aren't CPBL-calibrated.
+- **LI is MLB-derived, not CPBL-calibrated.** The Retrosheet model is empirical
+  and reproducible, but CPBL has a different run environment. It also has no
+  notion of batter, pitcher, team strength, park or bullpen state. A future
+  CPBL historical state table can replace the bundled values without changing
+  the alerting interface.
 - **Discord alerts are plain messages, not embeds.** The four lines were
   measured against a phone's lock screen and they read the same in a channel;
   an embed would buy colour and cost the shape. `<b>` becomes `**`, and that

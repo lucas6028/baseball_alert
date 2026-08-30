@@ -90,7 +90,7 @@ def cmd_check(args, cfg) -> int:
             fired += 1
         if hit or args.all:
             mark = "FIRE " if hit else f"{a.tier:<5}"
-            print(f"  [{a.tension:5.1f}] {mark} {st.describe():<32} "
+            print(f"  [LI {a.leverage:4.2f}] {mark} {st.describe():<32} "
                   f"{st.batter[:5]:<6} | {' / '.join(a.reasons)}")
     print(f"\nwould have sent {fired} notification(s) at threshold {threshold}")
     return 0

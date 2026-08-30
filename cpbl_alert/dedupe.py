@@ -4,10 +4,10 @@ The live log emits one row per pitch, so a single rally re-states the same
 situation four or five times. We alert on *changes*, not on pitches:
 
   * fire when a game first crosses into the ``alert`` tier;
-  * re-fire only when the situation materially escalates (tension climbs by
+  * re-fire only when the situation materially escalates (LI climbs by
     ``escalation_step``);
   * re-arm only when the half-inning changes, not on a momentary dip -- an
-    out mid-rally drops tension below the alert tier, and without this
+    out mid-rally drops LI below the alert tier, and without this
     hysteresis a single inning would buzz three times as the rally rebuilt;
   * never fire twice for the same pitch (``GameState.pitch_id`` watermark),
     which also means a row the official scorer edits later will not re-alert.
@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from .leverage import Assessment
 from .models import GameState
 
-ESCALATION_STEP = 10.0
+ESCALATION_STEP = 1.0
 
 
 @dataclass
@@ -32,7 +32,7 @@ class GameTracker:
 
     escalation_step: float = ESCALATION_STEP
     seen_pitches: set[str] = field(default_factory=set)
-    last_alert_tension: float | None = None
+    last_alert_leverage: float | None = None
     last_alert_key: tuple | None = None
     rally_half: tuple | None = None
 
@@ -57,7 +57,7 @@ class GameTracker:
         if self.rally_half is not None and half != self.rally_half:
             # New half-inning: forget the previous rally entirely.
             self.rally_half = None
-            self.last_alert_tension = None
+            self.last_alert_leverage = None
             self.last_alert_key = None
 
         if not assessment.should_alert:
@@ -66,7 +66,7 @@ class GameTracker:
         key = self._key(state)
         if self.rally_half is None:
             self.rally_half = half
-            self.last_alert_tension = assessment.tension
+            self.last_alert_leverage = assessment.leverage
             self.last_alert_key = key
             return True
 
@@ -74,9 +74,9 @@ class GameTracker:
         # another buzz.
         if key == self.last_alert_key:
             return False
-        if (self.last_alert_tension is not None
-                and assessment.tension >= self.last_alert_tension + self.escalation_step):
-            self.last_alert_tension = assessment.tension
+        if (self.last_alert_leverage is not None
+                and assessment.leverage >= self.last_alert_leverage + self.escalation_step):
+            self.last_alert_leverage = assessment.leverage
             self.last_alert_key = key
             return True
 

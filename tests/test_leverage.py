@@ -1,8 +1,8 @@
-"""The leverage model, including the score-margin gate."""
+"""The empirical Leverage Index lookup and alert classification."""
 
 import pytest
 
-from cpbl_alert.leverage import RUN_EXPECTANCY, assess
+from cpbl_alert.leverage import DEFAULT_THRESHOLD, assess, leverage_index
 from cpbl_alert.models import GameState
 
 
@@ -17,113 +17,86 @@ def s(**kw):
     return GameState(**base)
 
 
-def test_run_expectancy_is_monotonic_in_outs():
-    for code, values in RUN_EXPECTANCY.items():
-        assert values[0] > values[1] > values[2], f"{code} not decreasing in outs"
+def test_game_start_is_close_to_the_normalized_average():
+    assert leverage_index(s()) == pytest.approx(0.86)
 
 
-def test_more_runners_is_more_dangerous():
-    for outs in range(3):
-        assert RUN_EXPECTANCY["---"][outs] < RUN_EXPECTANCY["1--"][outs]
-        assert RUN_EXPECTANCY["1--"][outs] < RUN_EXPECTANCY["-2-"][outs]
-        assert RUN_EXPECTANCY["12-"][outs] < RUN_EXPECTANCY["123"][outs]
+def test_default_threshold_is_twice_average():
+    assert DEFAULT_THRESHOLD == 2.0
 
 
-# -- the user's explicit requirement ---------------------------------------
+def test_threshold_classifies_but_does_not_change_li():
+    state = s(inning=8, second=True)
+    normal = assess(state)
+    strict = assess(state, threshold=4.0)
+    assert normal.leverage == strict.leverage == pytest.approx(2.89)
+    assert normal.should_alert
+    assert not strict.should_alert
 
-def test_blowout_suppresses_scoring_position():
-    """RISP in a blowout must NOT alert; the same situation in a close game must."""
-    close = assess(s(inning=8, second=True, third=True, visiting_score=3, home_score=4))
-    blowout = assess(s(inning=8, second=True, third=True, visiting_score=1, home_score=11))
+
+def test_blowout_is_quiet_while_the_close_state_is_high_leverage():
+    close = assess(s(inning=8, second=True, third=True,
+                     visiting_score=3, home_score=4))
+    blowout = assess(s(inning=8, second=True, third=True,
+                       visiting_score=1, home_score=11))
     assert close.should_alert
+    assert blowout.leverage == 0.0
     assert not blowout.should_alert
-    assert blowout.tension < close.tension / 2
 
 
-def test_tension_decreases_monotonically_as_deficit_grows():
-    tensions = [
-        assess(s(inning=8, second=True, visiting_score=5 - d, home_score=5)).tension
-        for d in range(0, 8)
-    ]
-    assert tensions == sorted(tensions, reverse=True), tensions
-
-
-def test_tying_run_on_base_beats_tying_run_on_deck():
-    on_base = assess(s(inning=9, first=True, second=True, visiting_score=3, home_score=5))
-    on_deck = assess(s(inning=9, first=True, second=True, visiting_score=1, home_score=5))
-    assert on_base.tension > on_deck.tension
-    assert "追平分已在壘上" in " ".join(on_base.reasons)
-
-
-def test_big_lead_damps_but_never_zero():
-    a = assess(s(inning=7, second=True, visiting_score=12, home_score=0))
-    assert 0 < a.tension < 30
-    assert not a.should_alert
-
-
-# -- inning / situation behaviour ------------------------------------------
-
-def test_late_innings_amplify():
-    early = assess(s(inning=2, second=True, third=True))
-    late = assess(s(inning=9, second=True, third=True))
-    assert late.tension > early.tension
-
-
-def test_bases_loaded_late_and_close_is_top_tier():
+def test_bases_loaded_ninth_inning_comeback_is_extreme():
     a = assess(s(inning=9, first=True, second=True, third=True, outs=1,
                  visiting_score=4, home_score=5))
-    assert a.should_alert and a.tension > 80
+    assert a.leverage == pytest.approx(7.82)
+    assert a.should_alert
     assert "滿壘" in a.reasons
+    assert "落後1分" in a.reasons
 
 
 def test_empty_bases_early_is_quiet():
-    a = assess(s(inning=1))
+    a = assess(s())
     assert a.tier == "quiet" and not a.should_alert
 
 
-def test_two_outs_reduces_tension():
-    assert (assess(s(inning=8, second=True, outs=0)).tension
-            > assess(s(inning=8, second=True, outs=2)).tension)
+def test_late_close_situation_has_more_leverage_than_early_equivalent():
+    early = assess(s(inning=1, second=True, third=True))
+    late = assess(s(inning=9, second=True, third=True))
+    assert late.leverage > early.leverage
 
 
-@pytest.mark.parametrize("inning", [1, 5, 9, 12])
-def test_tension_always_bounded(inning):
-    for code in RUN_EXPECTANCY:
-        a = assess(s(inning=inning, first="1" in code, second="2" in code, third="3" in code))
-        assert 0.0 <= a.tension <= 100.0
+def test_walkoff_context_is_side_aware():
+    top = assess(s(inning=9, is_top=True, second=True))
+    bottom = assess(s(inning=9, is_top=False, second=True))
+    assert top.leverage != bottom.leverage
+    assert bottom.leverage == pytest.approx(3.12)
 
 
-def test_extra_innings_treated_as_ninth():
-    assert (assess(s(inning=12, second=True)).tension
-            == assess(s(inning=9, second=True)).tension)
+def test_extra_innings_use_the_stable_ninth_inning_table():
+    assert (assess(s(inning=12, is_top=False, second=True)).leverage
+            == assess(s(inning=9, is_top=False, second=True)).leverage)
 
 
-# -- the one-run blend ------------------------------------------------------
-
-def test_late_tie_game_with_runner_on_second_alerts():
-    """Regression: a 0-0 game in the 8th with the winning run on 2nd and
-    nobody out scored 53.7 under a pure expected-runs model and was missed.
-    Real game #288 (樂天桃猿 0-2 中信兄弟) turned on exactly this situation."""
-    a = assess(s(inning=8, is_top=False, second=True, outs=0,
-                 visiting_score=0, home_score=0))
-    assert a.should_alert, f"tie-game 8th-inning RISP must alert (got {a.tension})"
+@pytest.mark.parametrize("margin", [-20, -9, 9, 20])
+def test_wide_margins_do_not_generate_sparse_table_false_positives(margin):
+    visiting, home = (margin, 0) if margin >= 0 else (0, -margin)
+    a = assess(s(inning=9, first=True, second=True, third=True,
+                 visiting_score=visiting, home_score=home))
+    assert a.leverage == 0.0
+    assert not a.should_alert
 
 
-def test_one_run_table_favours_runner_on_third_late():
-    """Runner on 3rd with 1 out is modest by expected runs but huge for
-    scoring a single run -- late and close, it should outrank a runner on 2nd."""
-    third = assess(s(inning=9, third=True, outs=1, visiting_score=4, home_score=5))
-    second = assess(s(inning=9, second=True, outs=1, visiting_score=4, home_score=5))
-    assert third.tension > second.tension
+@pytest.mark.parametrize("margin", [-5, 5])
+def test_five_run_margins_keep_the_empirical_value_but_stay_quiet(margin):
+    visiting, home = (margin, 0) if margin >= 0 else (0, -margin)
+    a = assess(s(inning=9, first=True, second=True, third=True,
+                 visiting_score=visiting, home_score=home))
+    assert 0.0 < a.leverage < DEFAULT_THRESHOLD
+    assert not a.should_alert
 
 
-def test_blowout_ignores_the_one_run_blend():
-    """A wide margin must not get the late-and-close treatment."""
-    a = assess(s(inning=9, third=True, outs=1, visiting_score=0, home_score=9))
-    assert not a.should_alert and a.tension < 25
-
-
-def test_early_innings_use_expected_runs_not_one_run():
-    early = assess(s(inning=1, third=True, outs=1))
-    late = assess(s(inning=9, third=True, outs=1))
-    assert late.tension > early.tension * 1.5
+def test_runner_on_third_is_more_important_than_second_in_late_one_run_game():
+    third = assess(s(inning=9, third=True, outs=1,
+                     visiting_score=4, home_score=5))
+    second = assess(s(inning=9, second=True, outs=1,
+                      visiting_score=4, home_score=5))
+    assert third.leverage > second.leverage

@@ -37,7 +37,8 @@ load-bearing rather than ornamental:
 * ``◆◇`` is position carrying the meaning -- no linear run of glyphs can say
   *which* base without a label, which is exactly why the diamond is worth two
   lines when the word was worth two characters.
-* ``♥♡`` is the one gauge: filled out of ten, so the bar reads as a percent.
+* ``LI`` is left on its native scale: 1.0 is an average plate appearance, so
+  the number remains comparable to published baseball leverage metrics.
 
 Bold is in-app polish only: a lock-screen preview strips formatting, so the
 rhythm has to survive as plain text. It does -- which is why the marks do the
@@ -51,7 +52,7 @@ name, Discord from the webhook's -- so the four lines stay four lines
 either way.
 
 Which channel an alert lands in is a per-league question, because CPBL
-tension and 台灣選手上場 are different subscriptions, and 大聯盟 and 日職 are
+leverage and 台灣選手上場 are different subscriptions, and 大聯盟 and 日職 are
 different again -- they run at different hours and interest different people.
 Someone who wants every 九局滿壘 may want the NPB alerts somewhere quieter,
 or shared with people who only care about that one. So
@@ -77,7 +78,7 @@ log = logging.getLogger(__name__)
 # No BRAND constant here on purpose: the product name belongs in the bot's
 # Telegram display name, which is what titles the notification. See the module
 # docstring -- printing it in the body too would cost a line to say it twice.
-SCORE_LABEL = "心跳指數"
+SCORE_LABEL = "關鍵度 LI"
 
 # The major break within a line, and the join between facts. See the module
 # docstring: at most one BREAK per line.
@@ -99,8 +100,6 @@ LINE_BUDGET = 4
 MAX_COLUMNS = 2 + RULER_WIDTH * 2 + 2
 
 _BASE_FILLED, _BASE_EMPTY = "◆", "◇"
-_HEART_FILLED, _HEART_EMPTY = "♥", "♡"
-HEARTS = 10             # one heart per 10 心跳指數, so the bar reads as a %
 
 
 def columns(text: str) -> int:
@@ -163,12 +162,6 @@ def headline(state: GameState) -> str:
             f"{team(state.home_team)}")
 
 
-def tension_gauge(tension: float) -> str:
-    """'♥♥♥♥♥♥♥♥♥♡' -- how much it matters, as a shape rather than a number."""
-    filled = min(max(int(round(tension / 100 * HEARTS)), 0), HEARTS)
-    return _HEART_FILLED * filled + _HEART_EMPTY * (HEARTS - filled)
-
-
 def situation(state: GameState) -> str:
     """'九上・一出局' -- one moment, so one joined phrase.
 
@@ -222,7 +215,7 @@ def format_alert(state: GameState, assessment: Assessment) -> str:
 
     1. which game, what the score is, and where in the game we are
     2-3. what the situation looks like, and who it comes down to
-    4. how much it matters, as a number and as a bar
+    4. how much it matters on the normalized LI scale
 
     Lines two and three carry two things each. The diamond occupies a fixed
     grid on the left so it stays a diamond, and the matchup rides along on
@@ -234,8 +227,8 @@ def format_alert(state: GameState, assessment: Assessment) -> str:
         f"{headline(state)}{BREAK}{situation(state)}",
         f"{top}打者 {state.batter}",
         f"{bottom}投手 {state.pitcher}",
-        f"{SCORE_LABEL} <b>{assessment.tension:.0f}</b>"
-        f"{BREAK}{tension_gauge(assessment.tension)}",
+        f"{SCORE_LABEL} <b>{assessment.leverage:.2f}</b>"
+        f"{BREAK}平均=1.00",
     ))
 
 
@@ -269,7 +262,7 @@ def format_stage_alert(state: GameState, spot: OnStage) -> str:
 
     Lines one to three are the CPBL alert's, unchanged -- a baseball
     situation reads the same in any league, and the diamond was measured
-    once. Only line four differs, because the reason differs: 心跳指數 says
+    once. Only line four differs, because the reason differs: LI says
     *how much* this moment matters, and here the answer to that is beside
     the point. You asked to be told when he is up. So line four says that,
     and spends whatever is left on how his day has gone.

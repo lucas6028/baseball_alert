@@ -1,6 +1,6 @@
 """MLB: buzz when a Taiwanese player is the one on stage.
 
-The trigger here is not tension, it is *identity*. 心跳指數 answers "is this
+The trigger here is not leverage, it is *identity*. LI answers "is this
 worth turning the TV on for"; this answers a different question -- "is he up
 right now" -- and the answer is binary, so there is no score to compute and
 no threshold to tune. What the two share is the phone: the same four-line

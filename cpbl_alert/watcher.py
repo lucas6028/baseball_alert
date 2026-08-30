@@ -109,8 +109,8 @@ class Watcher:
                           game_sno, state.describe(), live_half)
                 continue
             text = format_alert(state, assessment)
-            log.info("ALERT game %s | %s | tension=%s",
-                     game_sno, state.describe(), assessment.tension)
+            log.info("ALERT game %s | %s | LI=%.2f",
+                     game_sno, state.describe(), assessment.leverage)
             if self.dry_run:
                 print(text)
             else:

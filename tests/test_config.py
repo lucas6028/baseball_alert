@@ -69,6 +69,10 @@ def test_a_missing_config_file_is_just_defaults(tmp_path):
     assert config.load(str(tmp_path / "nope.json")) == config.DEFAULTS
 
 
+def test_legacy_heartbeat_threshold_migrates_to_li(cfg_file):
+    assert config.load(cfg_file(threshold=55))["threshold"] == 2.0
+
+
 # -- what `test` sends to ---------------------------------------------------
 def test_one_shared_channel_is_tested_once():
     """Two leagues in one channel is one message, listing both."""

@@ -5,7 +5,7 @@ from cpbl_alert.leverage import assess
 from cpbl_alert.models import state_from_row
 
 
-def _fire_sequence(game290, threshold=55.0):
+def _fire_sequence(game290, threshold=2.0):
     meta, rows = game290["meta"], game290["rows"]
     tracker = GameTracker()
     fired = []
@@ -24,7 +24,7 @@ def test_real_game_produces_few_alerts_not_one_per_pitch(game290):
         if assess(state_from_row(r, game290["meta"])).should_alert
     )
     assert alert_pitches > 10, "fixture should contain a real rally"
-    assert 1 <= len(fired) <= 6, f"expected a handful of alerts, got {len(fired)}"
+    assert 1 <= len(fired) <= 15, f"expected selective alerts, got {len(fired)}"
     assert len(fired) < alert_pitches / 3, "dedupe is not collapsing repeated pitches"
 
 
@@ -33,7 +33,7 @@ def test_alerts_cover_the_ninth_inning_climax(game290):
     ninth = [(st, a) for st, a in fired if st.inning == 9]
     assert ninth, "the bases-loaded 9th-inning rally must alert"
     st, a = ninth[-1]
-    assert st.loaded and a.tension > 80
+    assert st.loaded and a.leverage > 8
 
 
 def test_replaying_the_same_rows_fires_nothing_new(game290):
@@ -82,7 +82,7 @@ def test_escalation_within_a_rally_fires_again():
         return GameState(**base)
 
     tracker = GameTracker()
-    a = st(second=True, event_no="p1")
+    a = st(event_no="p1")
     b = st(first=True, second=True, third=True, event_no="p2")   # escalates to loaded
     assert tracker.should_fire(a, assess(a))
     assert tracker.should_fire(b, assess(b))
@@ -99,23 +99,25 @@ def _st(**kw):
 
 
 def test_dip_within_a_half_inning_does_not_rearm():
-    """An out mid-rally drops tension below the alert tier. Rebuilding the
+    """An out mid-rally drops LI below the alert tier. Rebuilding the
     same rally must not buzz again -- only a real escalation should."""
     tracker = GameTracker()
-    start = _st(first=True, second=True, outs=0, event_no="p1")
+    start = _st(inning=8, first=True, second=True, outs=0, event_no="p1")
     assert tracker.should_fire(start, assess(start))
 
-    dip = _st(first=True, outs=2, event_no="p2")          # rally stalls
+    dip = _st(inning=8, outs=2, event_no="p2")            # rally stalls
     assert not assess(dip).should_alert
     tracker.should_fire(dip, assess(dip))
 
-    rebuild = _st(first=True, second=True, outs=2, event_no="p3")
+    rebuild = _st(inning=8, first=True, second=True, outs=2, event_no="p3")
     assert not tracker.should_fire(rebuild, assess(rebuild)), "dip must not re-arm"
 
 
 def test_new_half_inning_rearms():
     tracker = GameTracker()
-    a = _st(inning=8, is_top=True, first=True, second=True, third=True, event_no="p1")
+    a = _st(inning=8, is_top=True, first=True, second=True, third=True,
+            visiting_score=4, home_score=4, event_no="p1")
     assert tracker.should_fire(a, assess(a))
-    b = _st(inning=8, is_top=False, first=True, second=True, third=True, event_no="p2")
+    b = _st(inning=8, is_top=False, first=True, second=True, third=True,
+            visiting_score=4, home_score=4, event_no="p2")
     assert tracker.should_fire(b, assess(b)), "a new half-inning is a new rally"

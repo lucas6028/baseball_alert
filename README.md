@@ -49,9 +49,7 @@ Requires Python 3.10 or newer and [uv](https://docs.astral.sh/uv/getting-started
 ```bash
 uv sync
 uv run python init.py                       # configure + test notifications
-uv run python -m cpbl_alert.cli run         # watch CPBL
-uv run python -m cpbl_alert.cli mlb         # watch MLB (in another terminal)
-uv run python -m cpbl_alert.cli npb         # watch NPB (in another again)
+uv run python -m cpbl_alert.cli all         # watch all three leagues
 ```
 
 ### Linux / macOS
@@ -59,9 +57,7 @@ uv run python -m cpbl_alert.cli npb         # watch NPB (in another again)
 ```bash
 uv sync
 uv run python init.py                       # configure + test notifications
-uv run python -m cpbl_alert.cli run
-uv run python -m cpbl_alert.cli mlb         # in another terminal
-uv run python -m cpbl_alert.cli npb         # in another again
+uv run python -m cpbl_alert.cli all         # watch all three leagues
 ```
 
 The initializer prompts for Telegram, Discord, league-specific routing, and
@@ -145,6 +141,7 @@ uv run python -m cpbl_alert.cli test --league npb  # just the NPB one
 |---|---|
 | `init` | Interactively create/update the configuration and send test notifications |
 | `run` | Watch today's live games and push alerts. `--dry-run` prints instead, `--once` does a single pass |
+| `all` | Watch all three leagues from one process, a thread each. `--league cpbl\|mlb\|npb` narrows it (repeat the flag for two); `--dry-run` and `--once` as above. Each league keeps its own poll rate and its own idle schedule, so a league with nothing on costs one request every five minutes |
 | `live` | List today's games with real status (pending / LIVE / final) |
 | `check <gameSno>` | Replay a real game through the model and show what *would* have fired — the way to tune your threshold |
 | `test` | Send a test notification to every channel configured, one per channel. `--league cpbl\|mlb\|npb` tests just that league's; `--ruler` sends a numbered ruler instead, so you can see how many lines your phone shows before it truncates |

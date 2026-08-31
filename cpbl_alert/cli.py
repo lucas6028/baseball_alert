@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
+import threading
 
 import requests
 
@@ -210,17 +211,62 @@ def _destination(watcher) -> str:
     return "dry-run" if watcher.dry_run else watcher.notifier.label
 
 
+def build_watcher(league: str, cfg, *, poll=None, threshold=None,
+                  dry_run: bool = False):
+    """The watcher for one league, built from config with CLI overrides.
+
+    Pulled out of the three single-league commands so that ``all`` builds the
+    same objects they do rather than a second, drifting copy of the wiring.
+    Each league keeps its own poll default -- 15s against the CPBL API, 20s
+    against MLB's, 30s against npb.jp, which is a web page and not an API --
+    and that is why there is no shared poll setting for ``all`` to flatten
+    them with.
+    """
+    notifier = build_notifier(cfg, league)
+    if league == "cpbl":
+        return Watcher(
+            client=CpblClient(),
+            notifier=notifier,
+            threshold=float(threshold if threshold is not None else cfg["threshold"]),
+            poll_seconds=int(poll or cfg["poll_seconds"]),
+            teams=cfg.get("teams"),
+            dry_run=dry_run,
+        )
+    if league == "mlb":
+        return mlb.TaiwaneseWatcher(
+            client=mlb.MlbClient(),
+            notifier=notifier,
+            extra_players=cfg.get("mlb_players"),
+            poll_seconds=int(poll or cfg.get("mlb_poll_seconds") or 20),
+            dry_run=dry_run,
+        )
+    if league == "npb":
+        return npb.TaiwaneseWatcher(
+            feed=npb.NpbClient(),
+            notifier=notifier,
+            extra_players=cfg.get("npb_players"),
+            poll_seconds=int(poll or cfg.get("npb_poll_seconds")
+                             or npb.DEFAULT_POLL_SECONDS),
+            dry_run=dry_run,
+        )
+    raise ValueError(f"unknown league: {league}")
+
+
+def watcher_summary(league: str, watcher) -> str:
+    """The line a watcher prints on start: what it watches, where it lands."""
+    if league == "cpbl":
+        return (f"watching CPBL (threshold {watcher.threshold}, "
+                f"poll {watcher.poll_seconds}s"
+                + (f", teams {watcher.teams}" if watcher.teams else "") + ")"
+                + f" -> {_destination(watcher)}")
+    return (f"watching {league.upper()} for Taiwanese players "
+            f"(poll {watcher.poll_seconds}s) -> {_destination(watcher)}")
+
+
 def cmd_mlb(args, cfg) -> int:
     """Watch MLB and push when a Taiwanese player is on stage."""
-    watcher = mlb.TaiwaneseWatcher(
-        client=mlb.MlbClient(),
-        notifier=build_notifier(cfg, "mlb"),
-        extra_players=cfg.get("mlb_players"),
-        poll_seconds=int(args.poll or cfg.get("mlb_poll_seconds") or 20),
-        dry_run=args.dry_run,
-    )
-    print(f"watching MLB for Taiwanese players (poll {watcher.poll_seconds}s)"
-          f" -> {_destination(watcher)}")
+    watcher = build_watcher("mlb", cfg, poll=args.poll, dry_run=args.dry_run)
+    print(watcher_summary("mlb", watcher))
     try:
         watcher.run(once=args.once)
     except KeyboardInterrupt:
@@ -293,16 +339,8 @@ def cmd_mlb_players(args, cfg) -> int:
 
 def cmd_npb(args, cfg) -> int:
     """Watch NPB and push when a Taiwanese player is on stage."""
-    watcher = npb.TaiwaneseWatcher(
-        feed=npb.NpbClient(),
-        notifier=build_notifier(cfg, "npb"),
-        extra_players=cfg.get("npb_players"),
-        poll_seconds=int(args.poll or cfg.get("npb_poll_seconds")
-                         or npb.DEFAULT_POLL_SECONDS),
-        dry_run=args.dry_run,
-    )
-    print(f"watching NPB for Taiwanese players (poll {watcher.poll_seconds}s)"
-          f" -> {_destination(watcher)}")
+    watcher = build_watcher("npb", cfg, poll=args.poll, dry_run=args.dry_run)
+    print(watcher_summary("npb", watcher))
     try:
         watcher.run(once=args.once)
     except KeyboardInterrupt:
@@ -405,22 +443,90 @@ def cmd_npb_probe(args, cfg) -> int:
 
 
 def cmd_run(args, cfg) -> int:
-    watcher = Watcher(
-        client=CpblClient(),
-        notifier=build_notifier(cfg, "cpbl"),
-        threshold=float(args.threshold if args.threshold is not None else cfg["threshold"]),
-        poll_seconds=int(args.poll or cfg["poll_seconds"]),
-        teams=cfg.get("teams"),
-        dry_run=args.dry_run,
-    )
-    print(f"watching CPBL (threshold {watcher.threshold}, poll {watcher.poll_seconds}s"
-          + (f", teams {watcher.teams}" if watcher.teams else "") + ")"
-          + f" -> {_destination(watcher)}")
+    watcher = build_watcher("cpbl", cfg, poll=args.poll,
+                            threshold=args.threshold, dry_run=args.dry_run)
+    print(watcher_summary("cpbl", watcher))
     try:
         watcher.run(once=args.once)
     except KeyboardInterrupt:
         print("\nstopped")
     return 0
+
+
+def _lane(league: str, watcher, once: bool = False,
+          failed: set | None = None) -> None:
+    """One league's loop, walled off so a crash in it cannot take the others.
+
+    Each watcher guards its own network calls but not the processing that
+    follows them, and in a three-league process an unhandled raise would
+    otherwise be one lane going quiet while the other two carry on -- silence
+    that looks exactly like a night with no games.
+
+    Recorded in ``failed`` as well as logged, because a lane that ended by
+    crashing must still be visible at exit: swallowing it here and returning 0
+    would tell a supervisor this was a clean shutdown and leave it unrestarted.
+    """
+    try:
+        watcher.run(once=once)
+    except Exception as exc:  # noqa: BLE001 - one lane dying must not be silent
+        logging.exception("%s watcher stopped: %s", league.upper(), exc)
+        if failed is not None:
+            failed.add(league)
+
+
+def cmd_all(args, cfg) -> int:
+    """Watch every league from one process, one thread per league.
+
+    A thread each rather than one loop taking turns, because the three
+    watchers do not share a clock and must not: they poll at different rates
+    against three different sources, and the CPBL watcher in particular keeps
+    per-game priming state inside its own ``run`` loop that a turn-taking
+    scheduler would reset on every pass.
+
+    "Only when there is a game" needs nothing new here -- it is already in
+    each watcher's own pacing, and running them together inherits all of it:
+    CPBL idles outside 16:00-24:00 Taiwan time, MLB polls when a game is live
+    or first pitch is within half an hour, NPB when a game is live or pending
+    inside 13:00-24:00 Japan time. Everywhere else all three sleep long.
+    That beats a hardcoded window per league, so there is no window to set.
+    """
+    leagues = list(dict.fromkeys(args.league or LEAGUES))
+    watchers = [(lg, build_watcher(lg, cfg, dry_run=args.dry_run))
+                for lg in leagues]
+    for league, watcher in watchers:
+        print(watcher_summary(league, watcher))
+
+    # A lane that ended by crashing is the exit code, whichever path ran.
+    # Ctrl-C is not: that is the user ending it, and it exits clean.
+    failed: set[str] = set()
+
+    # One pass is a wiring check, and a wiring check reads better in order
+    # than interleaved, so --once stays on this thread.
+    if args.once:
+        try:
+            for league, watcher in watchers:
+                _lane(league, watcher, once=True, failed=failed)
+        except KeyboardInterrupt:
+            print("\nstopped")
+            return 0
+        return 1 if failed else 0
+
+    threads = [threading.Thread(target=_lane, args=(league, watcher),
+                                kwargs={"failed": failed},
+                                name=f"watch-{league}", daemon=True)
+               for league, watcher in watchers]
+    for thread in threads:
+        thread.start()
+    try:
+        # Daemon threads plus a timed join: a bare join() would park the main
+        # thread uninterruptibly, and Ctrl-C is delivered only there.
+        while any(thread.is_alive() for thread in threads):
+            for thread in threads:
+                thread.join(timeout=0.5)
+    except KeyboardInterrupt:
+        print("\nstopped")
+        return 0
+    return 1 if failed else 0
 
 
 def main(argv=None) -> int:
@@ -437,6 +543,13 @@ def main(argv=None) -> int:
     r.add_argument("--once", action="store_true", help="single pass, then exit")
     r.add_argument("--dry-run", action="store_true", help="print instead of pushing")
     r.set_defaults(func=cmd_run)
+
+    a = sub.add_parser("all", help="watch all three leagues in one process")
+    a.add_argument("--league", action="append", choices=LEAGUES, default=None,
+                   help="watch only this league (repeatable; default: all three)")
+    a.add_argument("--once", action="store_true", help="single pass, then exit")
+    a.add_argument("--dry-run", action="store_true", help="print instead of pushing")
+    a.set_defaults(func=cmd_all)
 
     m = sub.add_parser("mlb", help="watch MLB and alert when a Taiwanese player is up")
     m.add_argument("--poll", type=int, default=None)

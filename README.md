@@ -9,8 +9,16 @@
 盯著中華職棒的實況，在比賽真正緊張的時候推一則 Telegram 或 Discord 給你——
 九局滿壘、一分差的追平分上壘、八局撕破平手——大比分落後和無聊的半局則完全安靜。
 
-也盯大聯盟和日職，但盯的是另一件事：**台灣選手上場的那一刻**——鄧愷威登板、
-李灝宇站上打擊區、古林睿煬在西武的主場踏上投手丘。同一支 bot、同樣四行。
+也盯大聯盟和日職，但盯的是另一件事：**台灣選手上場**——鄧愷威登板、李灝宇站上
+打擊區、古林睿煬在西武的主場踏上投手丘。同一支 bot、同樣四行。
+
+打者的通知會**早一棒**送出。一個打席兩三分鐘就結束，等他站進打擊區才通知，開了
+電視也只看到別人打擊；所以看的是「打擊區＋下一棒」兩格，他一進到這兩格就推。
+
+投手沒有這個問題——中繼上來的當下就會被點名，那時他連熱身球都還沒投完，接著至少
+要面對一名打者；先發更是好幾局的事。牛棚有沒有人在熱身兩邊都不公開，所以也沒有更
+早的東西可以搬。能再早的只有**先發**：兩邊都在賽前就公告先發投手，所以多一則賽前
+通知。
 
 三個聯盟可以推到**不同的頻道**——中職進中職台，大聯盟、日職各進各的，
 [往下看](#一個聯盟一個頻道)。
@@ -34,10 +42,28 @@
 ```
 
 ```
-火腿 3-2 西武　七上・一出局
-　◆　　打者 外崎
-◇　◇　投手 古林睿煬
-台灣投手登板　投 87球
+道奇 1-1 老虎　六下・無人出局
+　◇　　打者 McGonigle
+◇　◆　投手 Skubal
+台灣打者下一棒 李灝宇　今日 0-2
+```
+
+```
+西武 0-1 羅德　二上・兩出局
+　◇　　打者 外崎
+◇　◇　投手 高野脩
+台灣打者下一棒 林安可　第七棒
+```
+
+下一棒那兩則，第二行寫的是**現在**站在打擊區的人——那是真的，也正是它告訴你還
+有多少時間的方式。所以第四行改成把人名寫出來：他還不在上面兩行裡。
+
+先發的賽前通知只有兩行，因為賽前也只有兩行是真的——比分、局數、壘包、打者都還不
+存在。時間換算成台灣時間，因為那才是你會看的那個鐘。
+
+```
+洋基 @ 巨人　08:05 開賽
+台灣投手先發 鄧愷威
 ```
 
 ## Quick start
@@ -152,7 +178,7 @@ uv run python -m cpbl_alert.cli test --league npb  # just the NPB one
 | `npb` | Watch NPB and push when a Taiwanese player takes the plate or the mound. `--dry-run` and `--once` as above |
 | `npb-live` | List today's NPB games (JST), with who is batting and pitching in each |
 | `npb-players` | List the Taiwanese players NPB alerts fire for |
-| `npb-probe` | Check the page-reading rules against a real npb.jp page, rule by rule. **Run this once before trusting `npb`** — see [NPB](#npb) |
+| `npb-probe` | Show every step of how a real npb.jp page becomes an alert — the header slice, the line score, both batting orders, the last event logged and who it says is up. **Run this once before trusting `npb`** — see [NPB](#npb) |
 
 Tuning against a game you actually watched is the fastest way to find your
 threshold:
@@ -355,32 +381,53 @@ none of the three things that made the MLB side easy.
   the traditional form back. The folding table holds only pairs that are
   unambiguously the same character; a wrong rule there costs a match.
 
-Teams come off the letter code in npb.jp's own URLs (`f-l-01` is Fighters at
-Lions) rather than off the printed name, for the same reason MLB teams come off
-the id: a sponsor rename moves the name and leaves the URL alone, which is
-exactly what happened when 横浜ベイスターズ became 横浜DeNAベイスターズ.
+Teams come off the letter code in the line score's own `flag_<code>_<year>`
+class rather than off the printed name, for the same reason MLB teams come off
+the id: a sponsor rename moves the name and leaves the code alone, which is
+exactly what happened when 横浜ベイスターズ became 横浜DeNAベイスターズ. The
+URL slug is only a fallback, and note that it names the **home** side first —
+`f-h-21` is Hawks *at* Fighters, which is the opposite of what it looks like.
 
-**On the scraping, and what is not yet verified.** Every assumption about
-npb.jp's markup is confined to one block in `cpbl_alert/npb.py`, and every rule
-in it is anchored on the page's own Japanese labels — 打者, 投手, 回表, アウト
-— rather than on class names or element ids. A label is content: it is on the
-page because a reader needs it, so it survives a redesign that renames every
-div.
+**npb.jp never says who is at the plate.** This is the one thing that makes
+the NPB side different in kind from the other two. 最新経過 is a log of
+*finished* plate appearances — no row ever appears without a result — and the
+試合経過 tab is the same table. There is no next-batter panel, no count, no
+runner display for the at-bat actually in progress.
 
-That is the more durable anchor, but it is not a verified one. **These rules
-were written without network access to npb.jp**, so unlike the CPBL and MLB
-clients — which were built against real captured payloads — they are reasoned
-from the page's vocabulary rather than measured against its HTML. `npb-probe`
-exists for exactly this: it fetches a real page, prints what each rule matched
-and what it did not, and `--text` dumps the page so a replacement rule can be
-written from it. Run it once against a live game before trusting `npb` to be
-silent for the right reason; if something comes back `-- no rule matched`, the
-fix is one edit to `FIELD_PATTERNS`.
+So the batter is not read, he is derived: **the next man in 最新のオーダー
+after the last one to finish**, matched by the person id both tables carry so
+that a pinch hitter does not break it. One slot further on is the on-deck
+alert. That derivation is checkable the only way it can be — does the man it
+names turn out to be the man who finishes the *next* plate appearance logged?
+Against a capture of six games through one live evening: 106 times out of 106.
+
+The out count is carried across the play that just ended from the words in the
+result (三振 is one, ショートゴロ併殺打 is two, フォアボール is none): 478
+consecutive pairs of rows, right on all of them. The runners cannot always be
+carried, because a scorecard line does not say how far a runner went — 64 of
+71 transitions right, one wrong, six with no rule at all, and where there is no
+rule the last published bases stand rather than an invented set. The diamond
+is context; who is up is not guessed.
+
+**The fixtures come off the month page too**, and off two different parts of
+it. The *day rows* list every game of the month — both clubs, the ballpark,
+the start time and, on the day, the 予告先発 — and carry no links at all. The
+*header strip* is the six-game carousel on every npb.jp page, and it links a
+game once it is under way. So the rows are how a game is known before it
+starts and the strip is how it is found once it has; the two are paired by the
+team code in the slug.
+
+`npb-probe` prints every step of that: the day's fixtures and their 先発, what
+survived the header slice, what the line score said, both batting orders, the
+last event logged, what it carries forward, and who it concludes is up. An
+empty `order` line or a `NO RULE` on the carry means the page has moved under
+the rules; an empty `先発` before first pitch means the NPB starter notice will
+stay quiet.
 
 ## Development
 
 ```bash
-uv run python -m pytest tests/ -q        # 218 tests
+uv run python -m pytest tests/ -q        # 285 tests
 uv run python scripts/replay.py --all    # offline, against the fixture
 ```
 
@@ -400,14 +447,19 @@ silent. The sequences a capture cannot give you — the same pitcher still out
 there a poll later, a batter coming up again two innings on — are built by
 hand.
 
-The NPB fixtures are **not** captures, and that is a real difference.
-`npb_live.html` and `npb_scoreboard.html` are hand-built, so they encode what
-the page-reading rules *assume* npb.jp looks like rather than what it does.
-Read what those tests prove accordingly: everything downstream of `NpbGame` —
-membership, the name folding, the trigger, the four lines that reach the phone
-— is proved outright, because none of it depends on the markup; everything
-upstream of it is proved only against the assumption, and `npb-probe` is how
-the assumption gets checked against the site.
+The NPB fixtures used to be hand-built, and they encoded a page that does not
+exist — a `打者: 外崎` label beside a live count and a runner list. npb.jp
+publishes none of that, and the parser written against the imagined page read
+the word `カウント` as the batter's name. They are captures now: whole pages,
+header carousel and all. `npb_live.html` is 西武 at ロッテ with two out in the
+second, 外崎 at the plate and 林安可 — Taiwanese, batting seventh — on deck;
+`npb_live_change_of_innings.html` is the same game with the side just retired
+on a double play, which is where the leadoff man of the next half comes from;
+`npb_final.html` is a game that has ended and publishes no log at all. Only
+`npb_live_at_bat.html` is touched, and only by swapping one name in the order
+table for 呉念庭 so that the at-the-plate path has an end-to-end fixture too —
+real markup, planted name. Both live pages keep the six-game header strip,
+which is what keeps the page-slicing honest.
 
 ## Known limits
 
@@ -417,9 +469,40 @@ the assumption gets checked against the site.
   which is now two thirds of a lie — but a rename would break every existing
   invocation to fix a name nobody types twice. It is also why sending each
   league to its own channel is a config key rather than a router.
-- **The NPB page rules are unverified against the live site.** They were
-  written without network access to npb.jp, so a wrong rule shows up as silence
-  rather than as an error. `npb-probe` is the check, and it takes a minute.
+- **The NPB diamond is derived, and it is right about nine times in ten.**
+  npb.jp publishes the situation a plate appearance *started* in, never the one
+  in progress, so the runners have to be carried across the play that just
+  ended — and a scorecard line does not say how far a runner went on a single.
+  The out count and who is up are exact; the bases can be one play stale.
+- **NPB alerts carry no stat line.** A batter's average and a pitcher's pitch
+  count are on the 投打成績 tab, not the game page, so line four falls back to
+  where he bats in the order. Fetching that tab when an alert fires — the way
+  MLB fetches its boxscore — is the obvious next step.
+- **NPB can lose a side for one at-bat.** 最新経過 keeps only the last two
+  half-innings, so if a side's previous turn has scrolled off the page there is
+  nothing to carry the order forward from, and that game stays quiet until one
+  of its men finishes an at-bat. The ordinary change of innings is covered —
+  the watcher rolls forward across it, which is exact: nobody on, nobody out,
+  and the order carrying on.
+- **An NPB game is found up to two minutes after it starts.** npb.jp will not
+  serve a day index — `/scores/<year>/<mmdd>/` answers 403 to every client —
+  so the fixtures come off the month page, which links a game only once it is
+  under way. That page is 220KB, so it is read every two minutes rather than
+  every poll, and not at all once every game of the evening has started.
+- **NPB's 予告先発 may not be published before first pitch.** It is certainly
+  on the month page once a game is under way; whether it is there beforehand
+  could not be confirmed when this was written, and the whole NPB half of the
+  starter notice depends on it. It fails as silence rather than as a wrong
+  name — `npb-probe` prints the day's fixtures and their 先発, which settles
+  it in one command on any morning.
+- **A reliever gets no head start at all.** Nobody publishes a bullpen warming
+  up, so on-the-mound is as early as a relief appearance can be known. It is
+  early enough: he is named at the change, before his warmup pitches, and then
+  faces at least one batter.
+- **An NPB on-deck alert can be followed by a second one.** He is on deck with
+  two out, the side is retired, and he leads off when his team bats again —
+  two notifications about one trip to the plate. They are the right two: the
+  first said he was next and the inning ended instead.
 - **NPB membership is a hand-kept table, and it is the whole detector.** A
   player missing from it gets no alert at all, not merely a Japanese name on
   one. `npb_players` covers a new signing until the table catches up.

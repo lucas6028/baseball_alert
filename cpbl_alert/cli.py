@@ -355,7 +355,7 @@ def cmd_npb_live(args, cfg) -> int:
     try:
         games = client.games(day)
     except (npb.NpbError, requests.RequestException) as exc:
-        print(f"scoreboard lookup failed: {exc}")
+        print(f"fixture lookup failed: {exc}")
         return 1
     if not games:
         print(f"no NPB games on {day} (JST)")
@@ -396,10 +396,21 @@ def cmd_npb_players(args, cfg) -> int:
 def cmd_npb_probe(args, cfg) -> int:
     """Show what the page rules matched on a real NPB page, rule by rule.
 
-    The parsing in ``npb.py`` is anchored on the page's Japanese labels rather
-    than its markup, which makes it durable but not self-verifying. This is
-    how you verify it: point it at a live game, read what each rule found, and
-    fix ``FIELD_PATTERNS`` if a line comes back empty that should not be.
+    npb.jp publishes no live situation at all -- no current batter, no count,
+    no runners -- so ``npb.py`` derives all of it from 最新のオーダー and the
+    log of finished plate appearances. That derivation is testable but not
+    self-evident, and this prints every step of it: what survived the header
+    slice, what the line score said, both batting orders, the last event
+    logged, what that event carries forward, and who it concludes is up.
+
+    An empty ``order`` line or a ``NO RULE`` on the carry is the thing to
+    look for -- either one means the page has changed under the rules.
+
+    It also prints the day's fixtures and their 予告先発, which is the one
+    thing about this side that could not be measured when it was written:
+    npb.jp certainly names the starters of a game already under way, and
+    whether it names them *before* first pitch decides whether the starter
+    notice ever fires. Run this in the morning and the 先発 column answers it.
     """
     client = npb.NpbClient()
     day = args.date or npb.today_jst()
@@ -409,11 +420,31 @@ def cmd_npb_probe(args, cfg) -> int:
                         else f"{day[:4]}/{day[5:7]}{day[8:10]}/{args.game}"]
         else:
             game_ids = client.game_ids(day)
-            print(f"scoreboard {day} -> {len(game_ids)} game link(s): "
+            print(f"fixtures {day} -> {len(game_ids)} game link(s): "
                   f"{', '.join(game_ids) or '(none)'}\n")
     except requests.RequestException as exc:
         print(f"fetch failed: {exc}")
         return 1
+
+    try:
+        # The whole day's links, not the one game asked for: whether a
+        # fixture has started is a fact about the day, not about the argument.
+        fixtures, started = client.fixtures(day), client.game_ids(day)
+    except (npb.NpbError, requests.RequestException) as exc:
+        print(f"fixture list failed: {exc}\n")
+        fixtures, started = [], []
+    if fixtures:
+        print(f"the day's fixtures -- an empty 先発 before first pitch is the "
+              f"open question:")
+        for fixture in fixtures:
+            when = (fixture.starts_at.strftime("%H:%M JST")
+                    if fixture.starts_at else "--:--")
+            note = "" if fixture.under_way(started) else "   (not started)"
+            print(f"  {fixture.slug:<6} {fixture.away_team} at "
+                  f"{fixture.home_team:<5} {when}  先発 "
+                  f"{fixture.away_starter or '--'} / "
+                  f"{fixture.home_starter or '--'}{note}")
+        print()
 
     for game_id in game_ids:
         try:
@@ -421,23 +452,42 @@ def cmd_npb_probe(args, cfg) -> int:
         except requests.RequestException as exc:
             print(f"{game_id}: fetch failed: {exc}")
             continue
-        text = npb.strip_tags(page)
+        block = npb.main_block(page)
         game = npb.parse_game_page(page, game_id)
-        print(f"== {game_id} ==  ({len(page)} bytes of HTML)")
-        print(f"  slug teams  {game.away_team or '?'} (away) vs "
-              f"{game.home_team or '?'} (home)")
-        print(f"  status      {game.status}")
-        for name in ("inning", "outs", "balls", "strikes", "batter",
-                     "pitcher", "batting_order", "average", "pitch_count"):
-            hit = npb.match_rule(text, name)
-            print(f"  {name:<12}{hit.group(0).strip() if hit else '-- no rule matched'}")
-        print(f"  bases       {game.first}/{game.second}/{game.third}")
-        print(f"  score       {game.away_score}-{game.home_score}")
+        status, banner_inning, banner_top = npb.parse_status(block)
+        away_code, home_code, away_runs, home_runs = npb.parse_linescore(block)
+        halves = npb.parse_progress(block)
+        away_lineup, home_lineup = npb.parse_order(block)
+
+        print(f"== {game_id} ==  ({len(page)} bytes, {len(block)} after the "
+              f"six-game header is cut away)")
+        print(f"  banner      {status} "
+              f"{banner_inning}{'表' if banner_top else '裏'}")
+        print(f"  line score  {away_code or '?'} {away_runs} - {home_runs} "
+              f"{home_code or '?'}  -> {game.away_team} at {game.home_team}")
+        for side, lineup in (("away", away_lineup), ("home", home_lineup)):
+            filled = "".join(f"{n}{lineup.slots[n].name} " for n in sorted(lineup.slots))
+            print(f"  order {side}  {filled or '-- nothing matched'}"
+                  f"| 投 {lineup.pitcher.name if lineup.pitcher else '--'}")
+        print(f"  最新経過    {len(halves)} half-inning(s) logged")
+        if halves and halves[-1].plays:
+            last = halves[-1].plays[-1]
+            made = npb.outs_made(last.result)
+            print(f"    last      {halves[-1].inning}"
+                  f"{'表' if halves[-1].is_top else '裏'} "
+                  f"{last.outs}out {last.bases} "
+                  f"{last.batter.name if last.batter else '(baserunning)'} "
+                  f"-> {last.result!r}")
+            print(f"    carries   +{made if made is not None else '?? NO RULE'} out(s), "
+                  f"bases {npb.bases_after(last.bases, last.result)}")
+        print(f"  inferred    打者 {game.batter or '-- could not place the order'} "
+              f"(第{game.batting_order or '?'}棒)  次 {game.on_deck or '--'}  "
+              f"投手 {game.pitcher or '--'}")
         state = npb.state_from_npb_game(game)
         print(f"  -> state    {state.describe() if state else '(not live)'}")
         if args.text:
             print("\n--- page text ---")
-            print("\n".join(ln for ln in text.splitlines() if ln.strip()))
+            print(npb.strip_tags(block))
         print()
     return 0
 

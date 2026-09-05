@@ -62,6 +62,7 @@ before falling back to the common one.
 
 from __future__ import annotations
 
+import datetime as dt
 import logging
 import re
 import time
@@ -262,11 +263,25 @@ class OnStage(Protocol):
 # and a person reads the same in Anaheim and in Fukuoka. 登板 rather than
 # 上場 for a pitcher because that is the word for taking the mound, and the
 # verb is the only place a four-line alert can afford to be specific.
+# Where the reader is. Both leagues publish a start time in their own zone --
+# MLB in UTC, npb.jp in JST -- and neither is the one the reader will be
+# looking at a clock in.
+TAIPEI = dt.timezone(dt.timedelta(hours=8))
+
+STARTER_LABEL = "台灣投手先發"
+
 STAGE_LABELS = {
     "batter": "台灣打者上場",
+    "on_deck": "台灣打者下一棒",
     "pitcher": "台灣投手登板",
     "duel": "台灣內戰",
 }
+
+# The one role whose alert has to name its own subject. 上場 and 登板 describe
+# the man on line two or line three, so the name is already on the screen;
+# 下一棒 describes somebody who is on neither, because the batter shown is the
+# one he is waiting behind.
+NAMED_ROLES = frozenset({"on_deck"})
 
 
 def format_stage_alert(state: GameState, spot: OnStage) -> str:
@@ -284,16 +299,73 @@ def format_stage_alert(state: GameState, spot: OnStage) -> str:
     be ambiguous -- a Taiwanese pitcher facing a Taiwanese batter -- is the
     one case that gets its own label, and its own single notification rather
     than two.
+
+    The exception is 下一棒, which is the alert sent *before* he steps in. He
+    is on neither line two nor line three -- the batter shown is the man he is
+    waiting behind -- so that role, alone, spends part of line four naming
+    him. Lines one to three stay a truthful reading of the field as it is
+    right now, which is the point: they are what tells you how much time you
+    have.
     """
     top, bottom = diamond_rows(state)
     reason = STAGE_LABELS.get(spot.role, STAGE_LABELS["batter"])
-    detail = getattr(spot, "detail", "")
+    name = getattr(spot, "name", "")
+    if spot.role in NAMED_ROLES and name:
+        reason = f"{reason} {name}"
     return "\n".join((
         f"{headline(state)}{BREAK}{situation(state)}",
         f"{top}打者 {state.batter}",
         f"{bottom}投手 {state.pitcher}",
-        f"<b>{reason}</b>" + (f"{BREAK}{detail}" if detail else ""),
+        with_detail(f"<b>{reason}</b>", getattr(spot, "detail", "")),
     ))
+
+
+def with_detail(head: str, detail: str) -> str:
+    """``head`` plus ``detail``, unless the two together would wrap.
+
+    Every other line of the alert is bounded by what it can contain -- a team
+    name, a surname, an inning. Line four is not: a named role spends the
+    width of a player's name before the stat line even starts, and a romanized
+    surname is twice the width of a Chinese one. So the detail is the piece
+    that gives way. It is the least of the four things on screen, and losing
+    it costs a stat line; keeping it past the budget would cost the sentence
+    that says why the phone buzzed.
+    """
+    if not detail:
+        return head
+    line = f"{head}{BREAK}{detail}"
+    return line if columns(plain_text(line)) <= MAX_COLUMNS else head
+
+
+def format_starter_alert(game) -> str:
+    """The pre-game notice: two lines, because two is all there is.
+
+    Everything the four-line alert spends its budget on -- the score, the
+    inning, the diamond, the man at the plate -- is a fact about a game in
+    progress, and this is sent before one starts. So it says the only three
+    things that are true yet: who is playing, when, and who is starting.
+
+    ``@`` rather than a score between the clubs, because that is what a
+    fixture looks like and because there is no score to print. The time is
+    the reader's own: MLB dates its games in UTC and npb.jp in JST, and a
+    start time is only useful in the zone the reader will check a clock in.
+
+    See :class:`cpbl_alert.stage.Upcoming` for why the pitcher gets this and
+    the batter does not.
+    """
+    fixture = f"{team(game.away_team)} @ {team(game.home_team)}"
+    when = local_clock(getattr(game, "starts_at", None))
+    return "\n".join((
+        f"{fixture}{BREAK}{when} 開賽" if when else fixture,
+        f"<b>{STARTER_LABEL} {game.name}</b>",
+    ))
+
+
+def local_clock(moment) -> str:
+    """'08:05' in Taipei, from an aware datetime in any zone. '' if unknown."""
+    if not isinstance(moment, dt.datetime) or moment.tzinfo is None:
+        return ""
+    return moment.astimezone(TAIPEI).strftime("%H:%M")
 
 
 # The name this shipped under, from when MLB was the only league that had an

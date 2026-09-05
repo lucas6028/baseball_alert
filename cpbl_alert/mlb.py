@@ -42,8 +42,13 @@ import urllib.parse
 import requests
 
 from .models import GameState
-from .notifier import Notifier, cn_number, format_stage_alert
-from .stage import Spotlight, Stage, arrivals
+from .notifier import (
+    Notifier,
+    cn_number,
+    format_stage_alert,
+    format_starter_alert,
+)
+from .stage import Spotlight, Stage, Upcoming, arrivals, changed
 
 log = logging.getLogger(__name__)
 
@@ -57,6 +62,11 @@ MIN_POLL_SECONDS = 10
 IDLE_SLEEP = 300
 # How close to first pitch we stop idling and start polling properly.
 WARMUP_MINUTES = 30
+# How far ahead of first pitch a Taiwanese starter is announced. Separate
+# from WARMUP_MINUTES on purpose -- that one paces the poller, this one is a
+# promise to the reader -- but it must not be the larger of the two, or the
+# poll that should carry the notice is still an hour away when it is due.
+STARTER_LEAD_MINUTES = 30
 
 # Chinese names for Taiwanese players, keyed by MLB person id where it has
 # been verified against the API, by ``fullName`` otherwise. This dict does
@@ -154,6 +164,19 @@ def _person_id(player: dict | None) -> int | None:
         return int((player or {}).get("id"))
     except (TypeError, ValueError):
         return None
+
+
+def _key(player: dict | None) -> object:
+    """What tells this player from the next one, for the stage's purposes.
+
+    The person id, which is what MLB is for -- falling back to the name for a
+    payload that somehow carries one without the other, because a stage key
+    of ``None`` for two different men would read as "same as last poll" and
+    swallow the second one's alert.
+    """
+    if not player:
+        return None
+    return _person_id(player) or str(player.get("fullName") or "") or None
 
 
 def state_from_mlb_game(game: dict) -> GameState | None:
@@ -258,7 +281,10 @@ class MlbClient:
             "sportId": MLB_SPORT_ID,
             "startDate": start,
             "endDate": end,
-            "hydrate": "linescore",
+            # ``probablePitcher`` is what makes the pre-game notice free: it
+            # rides along on the call the poller was making anyway, and it is
+            # the only place a starter is knowable before he throws.
+            "hydrate": "linescore,probablePitcher",
         })
         return [g for date in data.get("dates") or []
                 for g in date.get("games") or []]
@@ -273,6 +299,34 @@ class MlbClient:
         """
         return [g for g in games
                 if ((g.get("status") or {}).get("abstractGameState")) == "Live"]
+
+    @staticmethod
+    def upcoming(games: list[dict], within: int = STARTER_LEAD_MINUTES,
+                 now: dt.datetime | None = None) -> list[dict]:
+        """Games that have not started and are about to.
+
+        Both ends matter. A game two days out is not news yet, and a game
+        whose start time has passed is either under way -- in which case the
+        man on the mound speaks for himself -- or delayed, which a starter
+        notice would misreport as imminent.
+
+        The state has to be tested for what it *is* rather than for what it
+        is not. ``Preview`` is every way a game can not have started yet --
+        scheduled, pre-game, warmup, delayed start -- and "not Live" is not
+        the same set: a finished game is not Live either, and one of a
+        doubleheader's two can be finished while its ``gameDate`` still sits
+        in the future.
+        """
+        now = now or dt.datetime.now(dt.timezone.utc)
+        soon = now + dt.timedelta(minutes=within)
+        out = []
+        for game in games:
+            if ((game.get("status") or {}).get("abstractGameState")) != "Preview":
+                continue
+            starts_at = parse_game_time(game.get("gameDate"))
+            if starts_at is not None and now <= starts_at <= soon:
+                out.append(game)
+        return out
 
     def boxscore(self, game_pk: int | str) -> dict:
         """Today's stat lines for one game. Only fetched when an alert fires.
@@ -357,29 +411,47 @@ def detail_from_boxscore(box: dict, player_id: int, role: str) -> str:
     return ""
 
 
-def batting_order_detail(line: dict) -> str:
+def batting_order_detail(line: dict, ahead: int = 0) -> str:
     """'第八棒' -- the one useful thing to say before a batter's first at-bat.
 
     It answers the question the stat line would have: where he sits in the
     order, and so roughly when he is up again.
+
+    ``battingOrder`` is the slot of the man *at the plate*, so the on-deck
+    alert has to count ``ahead`` one place and wrap at nine. Printing the
+    number unmoved would put the wrong slot on the phone for the one role
+    whose whole subject is somebody other than the batter shown.
     """
     order = (line.get("offense") or {}).get("battingOrder")
     try:
         slot = int(order)
     except (TypeError, ValueError):
         return ""
-    return f"第{cn_number(slot)}棒" if 1 <= slot <= 9 else ""
+    if not 1 <= slot <= 9:
+        return ""
+    return f"第{cn_number((slot - 1 + ahead) % 9 + 1)}棒"
 
 
 # -- the poller ------------------------------------------------------------
 class TaiwaneseWatcher:
-    """Poll MLB and push when a Taiwanese player takes the plate or the mound.
+    """Poll MLB and push when a Taiwanese player is about to take the plate,
+    or has taken the mound.
 
-    Alerts fire on a **transition**, which is what "on stage" means: the
-    batter or the pitcher becomes someone he was not a moment ago. That
-    gives exactly one buzz per plate appearance and one per relief
-    appearance, with no watermark to maintain and nothing to dedupe -- a
-    pitcher who works three innings is one alert, not fifty.
+    Alerts fire on a **transition**, which is what "on stage" means: someone
+    enters a place he was not in a moment ago. For the pitcher that place is
+    the mound. For the batter it is the two-slot window of
+    :mod:`cpbl_alert.stage` -- at the plate *and on deck* -- because a plate
+    appearance is over in two or three minutes and an alert that arrives as
+    it starts arrives too late to be worth turning a television on for.
+    Either way it is one buzz per appearance, with no watermark to maintain
+    and nothing to dedupe: a pitcher who works three innings is one alert,
+    not fifty, and a batter seen on deck and then at the plate is one alert,
+    not two.
+
+    The on-deck slot is free here. ``/schedule?hydrate=linescore`` already
+    carries ``offense.onDeck`` beside ``offense.batter``, so the warning
+    costs no extra request -- it was in the payload the poller was reading
+    all along.
 
     The first look at a game is deliberately *not* silent, unlike the CPBL
     watcher's ``prime``. There, replaying earlier rallies would be telling
@@ -412,6 +484,14 @@ class TaiwaneseWatcher:
             except (TypeError, ValueError):
                 self.extra_names.add(str(entry).strip())
         self.roster: dict[int, str] = {}
+        # Starters already announced before their game, as (date, person).
+        # A man announced at half past is not announced again at the hour
+        # when he walks out and throws the first pitch -- that is the same
+        # event, and the notice was the point of knowing it early. The date
+        # is in the key because these watchers run for weeks: a start that is
+        # rained off is never taken back off a set keyed on the man alone,
+        # and he would go unannounced every night after.
+        self.announced: set = set()
 
     # -- membership --------------------------------------------------------
     def is_taiwanese(self, player: dict | None) -> bool:
@@ -444,6 +524,11 @@ class TaiwaneseWatcher:
             self.stages.pop(gone, None)
 
         fired = 0
+        for game in self.client.upcoming(games):
+            try:
+                fired += self._process_upcoming(game)
+            except Exception as exc:  # noqa: BLE001 - one bad game, not the slate
+                log.warning("game %s failed: %s", game.get("gamePk"), exc)
         for game in live:
             try:
                 fired += self._process_game(game)
@@ -451,40 +536,114 @@ class TaiwaneseWatcher:
                 log.warning("game %s failed: %s", game.get("gamePk"), exc)
         return fired
 
+    def _process_upcoming(self, game: dict) -> int:
+        """Announce a Taiwanese starter before his game. Returns alerts fired.
+
+        Both probable starters are checked, because either club's could be
+        ours -- and if both are, that is two notices rather than a duel: they
+        are not facing each other, they are the two men on the mound tonight.
+        """
+        teams = game.get("teams") or {}
+        away, home = teams.get("away") or {}, teams.get("home") or {}
+        fired = 0
+        for side in (away, home):
+            starter = side.get("probablePitcher")
+            key = (gameday(game), _key(starter))
+            if key[1] is None or key in self.announced:
+                continue
+            if not self.is_taiwanese(starter):
+                continue
+            self.announced.add(key)
+            self._fire_starter(game, away, home, starter)
+            fired += 1
+        return fired
+
+    def _fire_starter(self, game: dict, away: dict, home: dict,
+                      starter: dict) -> None:
+        upcoming = Upcoming(away_team=team_name(away), home_team=team_name(home),
+                            starts_at=parse_game_time(game.get("gameDate")),
+                            name=display_name(starter))
+        text = format_starter_alert(upcoming)
+        log.info("MLB STARTER game %s | %s | %s at %s",
+                 game.get("gamePk"), upcoming.name,
+                 upcoming.away_team, upcoming.home_team)
+        if self.dry_run:
+            print(text)
+        else:
+            self.notifier.send(text)
+
     def _process_game(self, game: dict) -> int:
         line = game.get("linescore") or {}
         state = state_from_mlb_game(game)
         if state is None:
+            # The half-inning swap, and the one place the warning is thinnest:
+            # a man who was on deck at the third out leads off the next half,
+            # and the poll that would have caught him standing there sees
+            # ``outs == 3`` instead. He was already announced from the on-deck
+            # slot, though, and the stage is left untouched here rather than
+            # cleared, so he is not announced a second time for the same trip.
             return 0
 
         game_pk = int(game.get("gamePk") or 0)
-        batter = (line.get("offense") or {}).get("batter")
+        offense = line.get("offense") or {}
+        batter = offense.get("batter")
+        on_deck = offense.get("onDeck")
         pitcher = (line.get("defense") or {}).get("pitcher")
         previous = self.stages.get(game_pk)
-        self.stages[game_pk] = Stage(_person_id(batter), _person_id(pitcher))
 
-        roles = {"batter": batter, "pitcher": pitcher}
-        here = {role for role, player in roles.items() if self.is_taiwanese(player)}
-        # See :func:`cpbl_alert.stage.arrivals` -- a role that changed hands
-        # since the last poll, which is one event per plate appearance and
-        # one per relief appearance.
-        arrived = arrivals(here, previous,
-                           {role: _person_id(p) for role, p in roles.items()})
-        if not arrived:
-            return 0
+        # The batter window, nearest first. Only Taiwanese players go in: the
+        # stage records who has been *announced*, not who is standing there.
+        window = [(role, player)
+                  for role, player in (("batter", batter), ("on_deck", on_deck))
+                  if self.is_taiwanese(player)]
+        by_key = {_key(player): (role, player) for role, player in window}
+        pitcher_key = _key(pitcher) if self.is_taiwanese(pitcher) else None
+        announced = (gameday(game), pitcher_key)
+        if pitcher_key is not None and announced in self.announced:
+            # He was named before the game and this is him walking out to
+            # start it. One event, one notification -- and the early one was
+            # the useful one. Taken off the list so that a second stint
+            # tonight, or tomorrow's game, still speaks.
+            self.announced.discard(announced)
+            previous = Stage(batters=getattr(previous, "batters", frozenset()),
+                             pitcher=pitcher_key,
+                             duel=getattr(previous, "duel", None))
+        # A duel is the pair, not either half of it, so it is keyed on both --
+        # a new Taiwanese batter against the same Taiwanese pitcher is a new
+        # duel, and the same pair two polls running is not.
+        duel_key = ((_key(batter), pitcher_key)
+                    if pitcher_key is not None and self.is_taiwanese(batter)
+                    else None)
+        self.stages[game_pk] = Stage(batters=frozenset(by_key),
+                                     pitcher=pitcher_key, duel=duel_key)
 
         # Taiwanese pitcher against Taiwanese batter: one notification, not
         # two. Sending both would buzz twice for a single moment and make
         # each of them look like it was about someone else.
-        if len(here) == 2:
-            self._fire(state, game_pk, "duel", _person_id(roles["batter"]),
-                       roles["batter"], line, with_detail=False)
+        #
+        # Only when the pairing itself is the news, though. If the man on the
+        # mound is the one who just got there, the matchup is new whoever is
+        # batting; if he is not, and the batter was already announced from
+        # the on-deck slot, then the only thing that has happened is that he
+        # took the two steps into the box -- and repeating his alert under a
+        # different label would be the second buzz this exists to prevent.
+        duel_now = changed(duel_key, previous, "duel") and (
+            changed(pitcher_key, previous, "pitcher")
+            or _key(batter) not in getattr(previous, "batters", frozenset()))
+        if duel_now:
+            self._fire(state, game_pk, "duel", _person_id(batter), batter,
+                       line, with_detail=False)
             return 1
 
-        for role in sorted(arrived):
-            self._fire(state, game_pk, role, _person_id(roles[role]),
-                       roles[role], line)
-        return len(arrived)
+        fired = 0
+        for key in arrivals(by_key, previous):
+            role, player = by_key[key]
+            self._fire(state, game_pk, role, _person_id(player), player, line)
+            fired += 1
+        if changed(pitcher_key, previous, "pitcher"):
+            self._fire(state, game_pk, "pitcher", _person_id(pitcher), pitcher, line)
+            fired += 1
+        return fired
 
     def _fire(self, state: GameState, game_pk: int, role: str, pid: int | None,
               player: dict | None, line: dict, with_detail: bool = True) -> None:
@@ -497,8 +656,8 @@ class TaiwaneseWatcher:
                 detail = detail_from_boxscore(self.client.boxscore(game_pk), pid, role)
             except (MlbError, requests.RequestException) as exc:
                 log.debug("boxscore for game %s failed: %s", game_pk, exc)
-            if not detail and role == "batter":
-                detail = batting_order_detail(line)
+            if not detail and role in ("batter", "on_deck"):
+                detail = batting_order_detail(line, ahead=1 if role == "on_deck" else 0)
 
         spot = Spotlight(role=role, player_id=pid,
                          name=display_name(player), detail=detail)
@@ -544,6 +703,16 @@ class TaiwaneseWatcher:
             sleep = self._sleep_for(games, live)
             log.debug("%d live game(s); sleeping %ss", len(live), sleep)
             time.sleep(sleep)
+
+
+def gameday(game: dict) -> str:
+    """The US business date a game belongs to, which is what dates a start.
+
+    Keyed on rather than the clock because the watchers run for weeks, and a
+    start announced tonight and then rained off must not silence the same man
+    tomorrow.
+    """
+    return str(game.get("officialDate") or str(game.get("gameDate") or "")[:10])
 
 
 def parse_game_time(value: object) -> dt.datetime | None:

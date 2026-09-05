@@ -18,6 +18,7 @@ same pitcher still on the mound a poll later, a batter retiring and coming up
 again two innings on -- cannot be captured on demand.
 """
 
+import datetime as dt
 import io
 import json
 import os
@@ -37,11 +38,19 @@ FIXTURES = os.path.join(os.path.dirname(__file__), "fixtures")
 FIXTURE = os.path.join(FIXTURES, "mlb_schedule.json")
 ON_STAGE = os.path.join(FIXTURES, "mlb_taiwanese_on_stage.json")
 BOXSCORE = os.path.join(FIXTURES, "mlb_boxscore.json")
+PROBABLES = os.path.join(FIXTURES, "mlb_probable_starters.json")
 
 TENG = {"id": 678906, "fullName": "Kai-Wei Teng"}      # 鄧愷威, pitcher
 LEE = {"id": 701678, "fullName": "Hao-Yu Lee"}         # 李灝宇, infielder
 SKUBAL = {"id": 669373, "fullName": "Tarik Skubal"}
 EDMAN = {"id": 669242, "fullName": "Tommy Edman"}
+NOBODY = {"id": 999999, "fullName": "Some Body"}       # fills the on-deck slot
+
+
+def local_hhmm(minutes_ahead):
+    """What the alert should print for a game that far off, in Taipei."""
+    when = dt.datetime.now(dt.timezone.utc) + dt.timedelta(minutes=minutes_ahead)
+    return when.astimezone(dt.timezone(dt.timedelta(hours=8))).strftime("%H:%M")
 
 
 def _load(path):
@@ -68,17 +77,38 @@ def boxscore():
     return _load(BOXSCORE)
 
 
-def game(batter=EDMAN, pitcher=SKUBAL, *, pk=1, inning=6, top=True, outs=1,
-         bases=(), balls=0, strikes=0, away_runs=3, home_runs=2,
-         away_id=119, home_id=116, state="Live", order=None):
+@pytest.fixture(scope="session")
+def probables():
+    """A real slate captured with the hydrate the client now asks for."""
+    return _games(_load(PROBABLES))
+
+
+def upcoming(probable=TENG, *, minutes=12, pk=9, side="away"):
+    """A game that has not started, shaped the way MLB shapes one."""
+    starts = dt.datetime.now(dt.timezone.utc) + dt.timedelta(minutes=minutes)
+    teams = {"away": {"team": {"id": 147, "teamName": "Yankees"}, "score": 0},
+             "home": {"team": {"id": 137, "teamName": "Giants"}, "score": 0}}
+    if probable is not None:
+        teams[side]["probablePitcher"] = probable
+    return {"gamePk": pk, "gameDate": starts.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "officialDate": starts.strftime("%Y-%m-%d"),
+            "season": "2026", "status": {"abstractGameState": "Preview"},
+            "teams": teams, "linescore": {}}
+
+
+def game(batter=EDMAN, pitcher=SKUBAL, *, on_deck=None, pk=1, inning=6,
+         top=True, outs=1, bases=(), balls=0, strikes=0, away_runs=3,
+         home_runs=2, away_id=119, home_id=116, state="Live", order=None,
+         date="2026-08-28"):
     """A schedule game, shaped the way MLB shapes one."""
-    offense = {"batter": batter}
+    offense = {"batter": batter, "onDeck": on_deck or NOBODY}
     if order is not None:
         offense["battingOrder"] = order
     for base in bases:
         offense[base] = {"id": 1, "fullName": "A Runner"}
     return {
         "gamePk": pk,
+        "officialDate": date,
         "gameDate": "2026-08-28T22:40:00Z",
         "season": "2026",
         "status": {"abstractGameState": state},
@@ -272,6 +302,54 @@ def test_each_plate_appearance_is_one_alert():
     assert len(watch.notifier.sent) == 2
 
 
+def test_the_alert_comes_while_he_is_still_on_deck():
+    """The whole point of the change.
+
+    A plate appearance is over in two or three minutes, so an alert sent as
+    it starts arrives too late to turn a television on for. MLB puts
+    ``onDeck`` in the same payload as ``batter``, so the warning costs
+    nothing and buys a whole trip to the plate.
+    """
+    watch = watcher()
+    assert watch.process([game(batter=EDMAN, on_deck=LEE)]) == 1
+    assert "台灣打者下一棒 李灝宇" in watch.notifier.sent[0]
+    assert "打者 Edman" in watch.notifier.sent[0], "line two is still the truth"
+
+
+def test_stepping_in_is_not_a_second_alert():
+    """On deck and then at the plate is one appearance, so it is one buzz."""
+    watch = watcher()
+    assert watch.process([game(batter=EDMAN, on_deck=LEE)]) == 1
+    assert watch.process([game(batter=LEE, on_deck=EDMAN)]) == 0
+    assert watch.process([game(batter=LEE, strikes=2, on_deck=EDMAN)]) == 0
+    assert len(watch.notifier.sent) == 1
+
+
+def test_a_man_never_seen_on_deck_still_fires_at_the_plate():
+    """Late beats never: a poll can miss the on-deck slot entirely."""
+    watch = watcher()
+    watch.process([game(batter=EDMAN)])
+    assert watch.process([game(batter=LEE)]) == 1
+    assert "台灣打者上場" in watch.notifier.sent[-1]
+
+
+def test_leaving_the_window_and_coming_back_is_a_new_appearance():
+    watch = watcher()
+    assert watch.process([game(batter=EDMAN, on_deck=LEE)]) == 1
+    assert watch.process([game(batter=LEE)]) == 0            # his at-bat
+    assert watch.process([game(batter=EDMAN)]) == 0          # done, out of view
+    assert watch.process([game(batter=EDMAN, on_deck=LEE)]) == 1   # up again
+
+
+def test_on_deck_at_two_out_survives_the_change_of_innings():
+    """He was announced from the on-deck slot; leading off is not a repeat."""
+    watch = watcher()
+    assert watch.process([game(batter=EDMAN, on_deck=LEE, outs=2)]) == 1
+    assert watch.process([game(batter=LEE, outs=3)]) == 0     # the swap
+    assert watch.process([game(batter=LEE, outs=0)]) == 0     # leading off
+    assert len(watch.notifier.sent) == 1
+
+
 def test_the_first_look_at_a_game_is_not_silent():
     """Unlike the CPBL watcher's prime.
 
@@ -353,6 +431,35 @@ def test_a_duel_repeats_only_when_the_pairing_really_changes():
         "<b>台灣投手登板</b>", "<b>台灣內戰</b>", "<b>台灣內戰</b>"]
 
 
+def test_an_announced_batter_stepping_in_is_not_a_third_notification():
+    """The window trigger opened a path the duel rule has to close.
+
+    A Taiwanese pitcher takes the mound while a Taiwanese batter is on deck:
+    both are announced, because they are two men and neither is facing the
+    other yet. When he steps in, nothing new has happened -- and 台灣內戰
+    there would be a third buzz about the same two people.
+    """
+    watch = watcher()
+    fired = [watch.process([game(**kw)]) for kw in (
+        dict(batter=EDMAN, pitcher=SKUBAL, on_deck=LEE),   # he is next
+        dict(batter=EDMAN, pitcher=TENG, on_deck=LEE),     # our arm comes in
+        dict(batter=LEE, pitcher=TENG, on_deck=EDMAN),     # he steps in
+        dict(batter=LEE, pitcher=TENG, on_deck=EDMAN),     # nobody moved
+    )]
+    assert fired == [1, 1, 0, 0]
+    assert [t.splitlines()[3] for t in watch.notifier.sent] == [
+        "<b>台灣打者下一棒 李灝宇</b>", "<b>台灣投手登板</b>"]
+
+
+def test_a_new_arm_against_the_same_batter_is_still_a_duel():
+    """Even one already announced: the matchup is new, and it is the news."""
+    watch = watcher()
+    watch.process([game(batter=EDMAN, pitcher=SKUBAL, on_deck=LEE)])
+    watch.process([game(batter=LEE, pitcher=SKUBAL)])
+    assert watch.process([game(batter=LEE, pitcher=TENG)]) == 1
+    assert watch.notifier.sent[-1].splitlines()[3] == "<b>台灣內戰</b>"
+
+
 def test_a_duel_costs_no_boxscore_request():
     watch = watcher()
     watch.process([game(batter=LEE, pitcher=TENG)])
@@ -397,6 +504,15 @@ def test_detail_from_boxscore_picks_the_right_side_and_role():
     assert mlb.detail_from_boxscore(box, 1, "batter") == ""
 
 
+def test_the_on_deck_slot_is_one_place_on_from_the_batter():
+    """``battingOrder`` is the man at the plate's, and he is not the subject."""
+    line = {"offense": {"battingOrder": 8}}
+    assert mlb.batting_order_detail(line) == "第八棒"
+    assert mlb.batting_order_detail(line, ahead=1) == "第九棒"
+    assert mlb.batting_order_detail({"offense": {"battingOrder": 9}},
+                                    ahead=1) == "第一棒", "nine wraps to one"
+
+
 def test_a_batter_with_no_stats_yet_gets_his_slot_in_the_order():
     watch = watcher()
     watch.process([game(batter=EDMAN)])
@@ -418,14 +534,22 @@ def test_alert_fits_the_measured_budget():
     state = mlb.state_from_mlb_game(
         game(batter=LEE, pitcher={"id": 1, "fullName": "Michael Kopech-Longname"},
              bases=("first", "second", "third"), away_id=114, home_id=109))
-    for role, detail in (("batter", "今日 1-2・1轟"), ("pitcher", "今日 4.2局・7K・失3"),
-                         ("duel", ""), ("batter", "第八棒")):
-        text = format_mlb_alert(state, spotlight(role, detail))
-        lines = text.splitlines()
-        assert len(lines) == LINE_BUDGET
-        for line in lines:
-            stripped = line.replace("<b>", "").replace("</b>", "")
-            assert columns(stripped) <= MAX_COLUMNS, (stripped, columns(stripped))
+    # 下一棒 is the line that can overflow: it spends the label, a name and a
+    # stat line, where every other role spends two of the three. A romanized
+    # surname is twice the width of a Chinese one, which is the worst case.
+    cases = [("batter", "今日 1-2・1轟"), ("pitcher", "今日 4.2局・7K・失3"),
+             ("duel", ""), ("batter", "第八棒"),
+             ("on_deck", "今日 1-2・1轟"), ("on_deck", "第九棒")]
+    for role, detail in cases:
+        for name in ("李灝宇", "Mountcastle"):
+            spot = mlb.Spotlight(role=role, player_id=1, name=name,
+                                 detail=detail)
+            lines = format_mlb_alert(state, spot).splitlines()
+            assert len(lines) == LINE_BUDGET
+            for line in lines:
+                stripped = line.replace("<b>", "").replace("</b>", "")
+                assert columns(stripped) <= MAX_COLUMNS, (stripped,
+                                                          columns(stripped))
 
 
 def test_alert_says_which_role_and_how_his_day_has_gone():
@@ -454,6 +578,96 @@ def test_the_diamond_is_the_cpbl_diamond():
     top, bottom = diamond_rows(state)
     lines = format_mlb_alert(state, spotlight()).splitlines()
     assert lines[1].startswith(top) and lines[2].startswith(bottom)
+
+
+# -- the pre-game starter notice -------------------------------------------
+# The pitcher could not be given the batter's head start: nobody publishes a
+# bullpen warming up, and he does not need one -- a reliever is named at the
+# change and then faces at least one batter. A *starter* is the exception,
+# because he is knowable hours ahead.
+def test_the_payload_really_carries_a_probable_starter(probables):
+    """Captured with the hydrate the client asks for, not assumed."""
+    named = [g for g in probables
+             if (g["teams"]["away"].get("probablePitcher")
+                 or g["teams"]["home"].get("probablePitcher"))]
+    assert len(named) == len(probables) > 20
+    one = named[0]["teams"]["away"]["probablePitcher"]
+    assert one.get("id") and one.get("fullName")
+
+
+def test_upcoming_is_bounded_at_both_ends(probables):
+    """A game two days out is not news; one already started is not upcoming."""
+    now = dt.datetime(2026, 9, 1, 16, 0, tzinfo=dt.timezone.utc)
+    within = mlb.MlbClient.upcoming(probables, within=24 * 60, now=now)
+    assert within, "the captured slate has games ahead of that moment"
+    assert all(mlb.parse_game_time(g["gameDate"]) >= now for g in within)
+    assert mlb.MlbClient.upcoming(probables, within=0, now=now) == []
+
+
+def test_a_taiwanese_starter_is_announced_before_first_pitch():
+    watch = watcher()
+    assert watch.process([upcoming(TENG)]) == 1
+    assert watch.notifier.sent[0].splitlines() == [
+        "洋基 @ 巨人" + BREAK + local_hhmm(12) + " 開賽",
+        "<b>台灣投手先發 鄧愷威</b>",
+    ]
+    assert watch.process([upcoming(TENG)]) == 0, "said once"
+
+
+def test_somebody_else_starting_is_not_news():
+    watch = watcher()
+    assert watch.process([upcoming(SKUBAL)]) == 0
+    assert watch.process([upcoming(None)]) == 0
+
+
+def test_the_notice_replaces_his_on_the_mound_alert():
+    """Walking out to start the game he was announced for is the same event."""
+    watch = watcher()
+    tonight = upcoming(TENG)
+    day = mlb.gameday(tonight)
+    assert watch.process([tonight]) == 1
+    assert watch.process([game(pitcher=TENG, pk=9, inning=1, date=day)]) == 0
+    assert len(watch.notifier.sent) == 1
+
+
+def test_it_only_replaces_that_one_appearance():
+    watch = watcher()
+    tonight = upcoming(TENG)
+    day = mlb.gameday(tonight)
+    watch.process([tonight])
+    watch.process([game(pitcher=TENG, pk=9, inning=1, date=day)])
+    watch.process([game(pitcher=SKUBAL, pk=9, inning=5, date=day)])   # pulled
+    assert watch.process([game(pitcher=TENG, pk=9, inning=6, date=day)]) == 1
+    assert watch.notifier.sent[-1].splitlines()[3] == "<b>台灣投手登板</b>"
+
+
+def test_a_start_that_never_happens_does_not_silence_tomorrow():
+    """Rained off, so the discard never runs -- and he starts again next day."""
+    watch = watcher()
+    assert watch.process([upcoming(TENG, minutes=12)]) == 1
+    tomorrow = upcoming(TENG, minutes=12 + 24 * 60)
+    tomorrow["status"]["abstractGameState"] = "Preview"
+    assert watch.client.upcoming([tomorrow], within=24 * 60 + 30)
+    assert watch.process([tomorrow]) == 0, "not due for another day"
+    assert watch._process_upcoming(tomorrow) == 1, "and then it speaks"
+
+
+def test_a_finished_game_is_not_upcoming_whatever_its_start_time_says():
+    """A doubleheader's first game is Final while the second is still ahead."""
+    done = upcoming(TENG)
+    done["status"]["abstractGameState"] = "Final"
+    assert mlb.MlbClient.upcoming([done]) == []
+    watch = watcher()
+    assert watch.process([done]) == 0
+
+
+def test_both_clubs_probable_starters_are_read():
+    """Either side's could be ours, and if both are that is two men."""
+    other = {"id": 691907, "fullName": "Tsung-Che Cheng"}
+    both = upcoming(TENG, side="away")
+    both["teams"]["home"]["probablePitcher"] = other
+    watch = watcher()
+    assert watch.process([both]) == 2
 
 
 # -- the polling window ----------------------------------------------------

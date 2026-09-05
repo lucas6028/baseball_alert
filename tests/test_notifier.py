@@ -102,6 +102,35 @@ def test_alert_fits_the_measured_line_budget(game290):
     assert len(format_alert(st, assess(st)).split("\n")) == LINE_BUDGET
 
 
+def test_the_starter_notice_is_two_lines_and_fits():
+    """It is sent before a game starts, so there is no score and no diamond."""
+    import datetime as dt
+
+    from cpbl_alert.notifier import format_starter_alert
+    from cpbl_alert.stage import Upcoming
+
+    first_pitch = dt.datetime(2026, 9, 2, 0, 5, tzinfo=dt.timezone.utc)
+    for name in ("鄧愷威", "Mountcastle"):
+        text = format_starter_alert(
+            Upcoming("洋基", "巨人", first_pitch, name))
+        lines = text.splitlines()
+        assert len(lines) == 2 <= LINE_BUDGET
+        for line in lines:
+            assert columns(re.sub(r"</?b>", "", line)) <= MAX_COLUMNS
+    assert format_starter_alert(
+        Upcoming("洋基", "巨人", first_pitch, "鄧愷威")).splitlines()[0] == (
+            "洋基 @ 巨人\u300008:05 開賽"), "the reader's own clock, not UTC"
+
+
+def test_a_start_time_that_is_not_known_costs_the_time_not_the_line():
+    from cpbl_alert.notifier import format_starter_alert, local_clock
+    from cpbl_alert.stage import Upcoming
+
+    assert local_clock(None) == "" and local_clock("18:00") == ""
+    text = format_starter_alert(Upcoming("洋基", "巨人", None, "鄧愷威"))
+    assert text.splitlines()[0] == "洋基 @ 巨人"
+
+
 def test_no_line_is_wide_enough_to_wrap(game290):
     """A wrapped line costs the budget exactly like a written one.
 

@@ -181,6 +181,7 @@ Set `CPBL_ALERT_CONFIG` to use a config file at a different path:
 | `threshold` | `CPBL_THRESHOLD` | `2.0` | Leverage Index that triggers an alert; `1.0` is average |
 | `poll_seconds` | — | `15` | Seconds between polls (floored at 10) |
 | `teams` | `CPBL_TEAMS` | `[]` | Only alert on these teams; empty means all |
+| `cpbl_source` | `CPBL_SOURCE` | `playsport` | Where CPBL live *state* comes from. `playsport` is 33–119s ahead of the official log, which falls back per game; `cpbl` pins the original path. Anything else warns and reverts to the default |
 | `mlb_players` | `MLB_PLAYERS` | `[]` | Extra MLB players to treat as Taiwanese, as ids or full names. Nationality otherwise comes from the API, so this is only for someone it does not record as Taiwan-born |
 | `mlb_poll_seconds` | — | `20` | Seconds between MLB polls (floored at 10) |
 | `npb_players` | `NPB_PLAYERS` | `[]` | Extra NPB players to alert on, by name in either orthography. npb.jp publishes no nationality, so unlike the MLB key this is the supported way to add a new signing rather than an escape hatch |
@@ -296,6 +297,75 @@ So the newest row is the state going *into* the most recent pitch, and a chance
 created by a hit becomes visible one pitch later. The official CPBL site's own
 scoreboard widget has exactly the same lag. Getting this backwards would put
 every threshold off by one pitch.
+
+### playsport.cc — the faster CPBL source
+
+The official live log is not pushed, it is *rebuilt* server-side every 70–110
+seconds, so polling every 15s still shows a minute-old game. Measured against
+the same situations on 2026-09-04, playsport.cc published them **33–119 seconds
+earlier**. For a thing whose premise is "turn the TV on *now*", that is the
+difference between the at-bat and the replay — hence `cpbl_source=playsport`
+(`cpbl_alert/playsport.py`), with the official feed as the per-game fallback.
+
+The endpoint is `ls_json.php` on `ls6`/`ls7.playsport.cc` (`alliance=6` is
+CPBL), the one playsport's own livescore page calls: plain JSON, no auth, no
+tokens, no CDN challenge. It takes an id *list* and answers it in one round
+trip, so one poll is one request however many games are on. Game ids
+(`CPBL_20260904_DRAGONS@BRO_1835`) come from `data-oid` attributes on the
+livescore page, which lists only unfinished games — so the list genuinely
+changes during an evening and is re-scraped every 3 minutes, plus on demand
+whenever a game being watched has no id yet. `gs.pbp` is always empty for CPBL
+— it populates only for MLB — so there is no event id and no play text, and the
+situation itself has to identify the moment.
+
+A CPBL game is matched to a playsport one by **club name**, using the `aname` /
+`hname` the response carries (`雄鷹`, `兄弟`, `獅`) against CPBL's sponsored full
+names (`台鋼雄鷹`, `中信兄弟`, `統一7-ELEVEn獅`), containment either way and both
+clubs required. Not by the OID's club codes: those are sometimes bare numeric
+ids (`13342` is 台鋼雄鷹), which silently cost a third of one night's games their
+speedup. A game that still cannot be matched is logged at INFO, because the
+official-feed fallback means nothing looks wrong when this fails.
+
+Four things about the raw stream, each measured, each with a fixture in
+`tests/fixtures/playsport_live.json`:
+
+- **`gs.rs` is an enum index, not a bitmask.** `0`=空壘 `1`=一 `2`=二 `3`=三
+  `4`=一二 `5`=一三 `6`=二三 `7`=滿壘. Verified 91/94 against CPBL's own base
+  occupancy; reading it as a 1/2/4 bitmask scores 62/94, because the two
+  disagree exactly on 3 and 4 — i.e. it invents runners in scoring position.
+- **`ss == "Final"` carries a corrupt away score**, mirrored from the home
+  score. Game 308 truly ended 0–11; all 35 `Final` records said 11–11 or 11–0,
+  while all 250 `結束`/`比賽結束` records said 0–11. Believed, an 11-run
+  blowout alerts as a tie game in the 9th. Dropped — and dropped *before* the
+  ordering mark is updated, or 22 phantom runs would silence the game all night.
+- **`o >= 3` appears transiently.** CPBL never publishes 3 outs as a pre-pitch
+  state and the LI table clamps outs to 2, so such a record just duplicates the
+  2-out alert. Dropped.
+- **The stream goes backwards**, on 22 of 2337 samples (0.9%): two record
+  shapes are interleaved on one game and neither is systematically fresher, so
+  they leapfrog. Both must be consumed, so a per-game high-water mark on
+  (runs, inning, half, outs) fixes the order instead. The ball/strike count is
+  deliberately *not* in that tuple — it resets to 0-0 on every new batter, so
+  including it would rank the fresher record lower and throw it away. LI never
+  reads the count, so nothing is lost.
+
+Because playsport has no event id, one is minted from the situation itself —
+`inning|is_top|outs|bases|score` — and put in `event_no`, which `pitch_id`
+returns verbatim. That is exactly the key `dedupe.py` already tracks, so one
+rally is one alert rather than one per pitch, and it keeps balls/strikes and
+the batter's name *out* of the identity: the count resets on every batter and
+the names are published on only ~6% of records, so either in the watermark
+would re-announce a rally that has not moved. The names are then free to be
+shown when they exist; `format_alert` drops the `打者`/`投手` label rather than
+printing it with nothing after it, and the diamond keeps its two rows either
+way.
+
+The two feeds mint pitch ids in two different schemes, so a game is served by
+exactly one of them at a time, stickily. A game playsport does not carry, or a
+feed that errors three polls running, falls back to the official one and stays
+there; flapping between two id schemes is worse than losing a minute on one
+game. Any change of feed wipes that game's tracker and re-primes it in the new
+scheme, so the switch itself is silent.
 
 ### MLB
 
@@ -417,6 +487,16 @@ the assumption gets checked against the site.
   which is now two thirds of a lie — but a rename would break every existing
   invocation to fix a name nobody types twice. It is also why sending each
   league to its own channel is a config key rather than a router.
+- **playsport club-name matching is by containment, not by an id.** `雄鷹` is
+  taken to mean `台鋼雄鷹` because one contains the other, and both clubs of a
+  game must match. That is robust to sponsor changes and to playsport's numeric
+  club ids, but it is still a string rule: a future club whose short name is a
+  substring of another's would need a real mapping. An unmatched game logs at
+  INFO and keeps the official feed — it loses the lead time, nothing else.
+- **playsport's 打者/投手 are usually absent.** They populate on roughly 6% of
+  records, so most playsport alerts show the diamond and the score without the
+  matchup. The official feed has them on every pitch; this is the price of the
+  minute.
 - **The NPB page rules are unverified against the live site.** They were
   written without network access to npb.jp, so a wrong rule shows up as silence
   rather than as an error. `npb-probe` is the check, and it takes a minute.

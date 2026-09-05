@@ -16,6 +16,12 @@ log = logging.getLogger(__name__)
 # else -- the routing, the env overrides and ``test`` all read this tuple.
 LEAGUES = ("cpbl", "mlb", "npb")
 
+# Where CPBL's live *state* is read from. Two values, and the watcher treats
+# anything that is not "playsport" as "cpbl" -- so a typo would silently turn
+# the faster source off and look exactly like it working. Hence the check in
+# :func:`load`.
+CPBL_SOURCES = ("playsport", "cpbl")
+
 DEFAULTS = {
     # -- where alerts land -------------------------------------------------
     # Telegram and Discord are independent: configure either, or both, and
@@ -36,6 +42,12 @@ DEFAULTS = {
     "threshold": 2.0,
     "poll_seconds": 15,
     "teams": [],          # e.g. ["中信兄弟"] -- empty means all games
+    # Where CPBL's live *state* comes from. The official live log is rebuilt
+    # server-side only every 70-110 seconds, so it arrives 1-2 minutes late;
+    # playsport.cc publishes the same situation 33-119 seconds earlier
+    # (measured). "playsport" uses it with the official feed as the per-game
+    # fallback; "cpbl" pins the original path.
+    "cpbl_source": "playsport",
     # MLB. Nationality comes from the API (birthCountry), so there is no list
     # to keep here; this one is the escape hatch for a player MLB does not
     # record as Taiwan-born, given as ids or as full names.
@@ -75,6 +87,8 @@ def load(path: str | None = None) -> dict:
                 cfg[f"{key}_{league}"] = os.environ[env]
     if os.environ.get("CPBL_THRESHOLD"):
         cfg["threshold"] = float(os.environ["CPBL_THRESHOLD"])
+    if os.environ.get("CPBL_SOURCE"):
+        cfg["cpbl_source"] = os.environ["CPBL_SOURCE"].strip().lower()
     if os.environ.get("CPBL_TEAMS"):
         cfg["teams"] = [t.strip() for t in os.environ["CPBL_TEAMS"].split(",") if t.strip()]
     if os.environ.get("MLB_PLAYERS"):
@@ -83,6 +97,16 @@ def load(path: str | None = None) -> dict:
     if os.environ.get("NPB_PLAYERS"):
         cfg["npb_players"] = [p.strip() for p in os.environ["NPB_PLAYERS"].split(",")
                               if p.strip()]
+    # An unrecognised source is a typo, not a preference: "playsprot" would
+    # quietly fall through to the slower official feed and be indistinguishable
+    # from it working, which is the worst way for a setting to fail.
+    source = str(cfg.get("cpbl_source") or "").strip().lower()
+    if source not in CPBL_SOURCES:
+        log.warning("unknown cpbl_source %r; using %r (accepted: %s)",
+                    cfg.get("cpbl_source"), DEFAULTS["cpbl_source"],
+                    ", ".join(CPBL_SOURCES))
+        source = DEFAULTS["cpbl_source"]
+    cfg["cpbl_source"] = source
     # Versions before LI used a 0-100 heartbeat threshold (55 by default).
     # Such a value would silence the unbounded-but-normally-single-digit LI
     # scale, so migrate it rather than making an existing installation inert.

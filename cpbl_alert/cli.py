@@ -231,6 +231,7 @@ def build_watcher(league: str, cfg, *, poll=None, threshold=None,
             poll_seconds=int(poll or cfg["poll_seconds"]),
             teams=cfg.get("teams"),
             dry_run=dry_run,
+            cpbl_source=str(cfg.get("cpbl_source") or "cpbl"),
         )
     if league == "mlb":
         return mlb.TaiwaneseWatcher(

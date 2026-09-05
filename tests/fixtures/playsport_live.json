@@ -1,0 +1,282 @@
+{
+ "_source": "https://ls6.playsport.cc/ls_json.php?alliance=6&gamedate=YYYYMMDD&pbp=1&teamStat=1&oid=<OID>|ts,",
+ "_captured": "2026-09-04 live, games 307/308/309; truth: 13342@UNI finished 0-11, DRAGONS@BRO was 6-5 in 7下",
+ "records": [
+  {
+   "label": "live_typeA",
+   "t": "2026-09-04T21:10:36",
+   "oid": "CPBL_20260904_DRAGONS@BRO_1835",
+   "gs": {
+    "i": "7",
+    "s": "0",
+    "b": "0",
+    "o": "1",
+    "br": "",
+    "pr": "",
+    "ti": "Y",
+    "rs": 1,
+    "ss": null,
+    "isRainDelay": false,
+    "note_full": "",
+    "note": ""
+   },
+   "r": [
+    "4",
+    "5"
+   ]
+  },
+  {
+   "label": "live_typeA",
+   "t": "2026-09-04T21:11:07",
+   "oid": "CPBL_20260904_DRAGONS@BRO_1835",
+   "gs": {
+    "i": "7",
+    "s": "0",
+    "b": "0",
+    "o": "1",
+    "br": "",
+    "pr": "",
+    "ti": "Y",
+    "rs": 0,
+    "ss": null,
+    "isRainDelay": false,
+    "note_full": "",
+    "note": ""
+   },
+   "r": [
+    "6",
+    "5"
+   ]
+  },
+  {
+   "label": "live_typeA",
+   "t": "2026-09-04T21:11:55",
+   "oid": "CPBL_20260904_DRAGONS@BRO_1835",
+   "gs": {
+    "i": "7",
+    "s": "1",
+    "b": "0",
+    "o": "1",
+    "br": "",
+    "pr": "",
+    "ti": "Y",
+    "rs": 0,
+    "ss": null,
+    "isRainDelay": false,
+    "note_full": "",
+    "note": ""
+   },
+   "r": [
+    "6",
+    "5"
+   ]
+  },
+  {
+   "label": "live_typeB",
+   "t": "2026-09-04T21:11:21",
+   "oid": "CPBL_20260904_DRAGONS@BRO_1835",
+   "gs": {
+    "i": "7",
+    "s": 0,
+    "b": 0,
+    "o": "1",
+    "br": "",
+    "pr": "",
+    "ti": "Y",
+    "rs": "1",
+    "ss": "7局 上",
+    "isRainDelay": false,
+    "note_full": "",
+    "note": ""
+   },
+   "r": [
+    "6",
+    "5"
+   ]
+  },
+  {
+   "label": "live_typeB",
+   "t": "2026-09-04T21:12:23",
+   "oid": "CPBL_20260904_DRAGONS@BRO_1835",
+   "gs": {
+    "i": "7",
+    "s": "2",
+    "b": 0,
+    "o": "1",
+    "br": "",
+    "pr": "",
+    "ti": "Y",
+    "rs": "0",
+    "ss": "7局 上",
+    "isRainDelay": false,
+    "note_full": "",
+    "note": ""
+   },
+   "r": [
+    "6",
+    "5"
+   ]
+  },
+  {
+   "label": "live_typeB",
+   "t": "2026-09-04T21:13:48",
+   "oid": "CPBL_20260904_DRAGONS@BRO_1835",
+   "gs": {
+    "i": "7",
+    "s": 0,
+    "b": 0,
+    "o": 0,
+    "br": "",
+    "pr": "",
+    "ti": "N",
+    "rs": "0",
+    "ss": "7局 下",
+    "isRainDelay": false,
+    "note_full": "",
+    "note": ""
+   },
+   "r": [
+    "6",
+    "5"
+   ]
+  },
+  {
+   "label": "corrupt_final",
+   "t": "2026-09-04T21:11:55",
+   "oid": "CPBL_20260904_13342@UNI_1835",
+   "gs": {
+    "i": "9",
+    "s": "0",
+    "b": "0",
+    "o": "0",
+    "br": "",
+    "pr": "",
+    "ti": "Y",
+    "rs": "0",
+    "ss": "Final",
+    "isRainDelay": false,
+    "note_full": "",
+    "note": ""
+   },
+   "r": [
+    "11",
+    "11"
+   ]
+  },
+  {
+   "label": "corrupt_final",
+   "t": "2026-09-04T21:30:07",
+   "oid": "CPBL_20260904_13342@UNI_1835",
+   "gs": {
+    "i": "9",
+    "s": "0",
+    "b": "0",
+    "o": "0",
+    "br": "",
+    "pr": "",
+    "ti": "Y",
+    "rs": "0",
+    "ss": "Final",
+    "isRainDelay": false,
+    "note_full": "",
+    "note": ""
+   },
+   "r": [
+    "11",
+    "0"
+   ]
+  },
+  {
+   "label": "game_over",
+   "t": "2026-09-04T21:10:36",
+   "oid": "CPBL_20260904_13342@UNI_1835",
+   "gs": {
+    "i": 9,
+    "s": 0,
+    "b": 0,
+    "o": 0,
+    "br": "",
+    "pr": "",
+    "ti": "Y",
+    "rs": "0",
+    "ss": "結束",
+    "isRainDelay": false,
+    "note_full": "",
+    "note": ""
+   },
+   "r": [
+    "0",
+    "11"
+   ]
+  },
+  {
+   "label": "game_over",
+   "t": "2026-09-04T21:10:43",
+   "oid": "CPBL_20260904_13342@UNI_1835",
+   "gs": {
+    "i": 9,
+    "s": 0,
+    "b": 0,
+    "o": 0,
+    "br": "",
+    "pr": "",
+    "ti": "Y",
+    "rs": 0,
+    "ss": "結束",
+    "isRainDelay": false,
+    "note_full": "",
+    "note": ""
+   },
+   "r": [
+    "0",
+    "11"
+   ]
+  },
+  {
+   "label": "three_outs",
+   "t": "2026-09-04T21:13:29",
+   "oid": "CPBL_20260904_DRAGONS@BRO_1835",
+   "gs": {
+    "i": "7",
+    "s": "0",
+    "b": "0",
+    "o": "3",
+    "br": "",
+    "pr": "",
+    "ti": "Y",
+    "rs": 0,
+    "ss": null,
+    "isRainDelay": false,
+    "note_full": "",
+    "note": ""
+   },
+   "r": [
+    "6",
+    "5"
+   ]
+  },
+  {
+   "label": "three_outs",
+   "t": "2026-09-04T21:13:34",
+   "oid": "CPBL_20260904_RAKUTEN@FUBON_1835",
+   "gs": {
+    "i": "7",
+    "s": "0",
+    "b": "0",
+    "o": "3",
+    "br": "張育成",
+    "pr": "賴威誠",
+    "ti": "N",
+    "rs": 4,
+    "ss": null,
+    "isRainDelay": false,
+    "note_full": "",
+    "note": ""
+   },
+   "r": [
+    "0",
+    "13"
+   ]
+  }
+ ]
+}

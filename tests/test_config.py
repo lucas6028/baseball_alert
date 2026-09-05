@@ -128,3 +128,23 @@ def test_the_test_message_names_the_league_it_is_testing():
 def test_every_league_has_a_name_to_print():
     """An unnamed league would test its channel as "npb", in a Chinese line."""
     assert set(cli.LEAGUE_LABELS) == set(config.LEAGUES)
+
+
+def test_an_unknown_cpbl_source_warns_and_falls_back(tmp_path, caplog):
+    """A typo must not silently turn the faster source off.
+
+    The watcher treats anything that is not "playsport" as "cpbl", so
+    "playsprot" would look exactly like the feature working.
+    """
+    path = tmp_path / "config.json"
+    path.write_text('{"cpbl_source": "playsprot"}', encoding="utf-8")
+    with caplog.at_level("WARNING"):
+        cfg = config.load(str(path))
+    assert cfg["cpbl_source"] == config.DEFAULTS["cpbl_source"]
+    assert any("cpbl_source" in r.getMessage() for r in caplog.records)
+
+
+def test_a_known_cpbl_source_is_kept_and_normalised(tmp_path):
+    path = tmp_path / "config.json"
+    path.write_text('{"cpbl_source": "  CPBL "}', encoding="utf-8")
+    assert config.load(str(path))["cpbl_source"] == "cpbl"

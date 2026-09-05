@@ -194,6 +194,18 @@ def diamond_rows(state: GameState) -> tuple[str, str]:
     return top, bottom
 
 
+def matchup_row(row: str, label: str, name: str) -> str:
+    """One diamond row, with the matchup hung off its right -- if there is one.
+
+    The label only earns its space when a name follows it. Not every feed
+    publishes the matchup: playsport carries 打者/投手 on roughly 6% of its
+    records, and printing ``打者 `` with nothing after it spends two of the
+    alert's four lines saying that we do not know. The diamond stays either
+    way, because that is the line's actual job.
+    """
+    return f"{row}{label} {name}" if name.strip() else row.rstrip()
+
+
 def ruler_text(lines: int = RULER_LINES, width: int = RULER_WIDTH) -> str:
     """A numbered ruler to push at a real phone, for sizing the alert.
 
@@ -225,8 +237,8 @@ def format_alert(state: GameState, assessment: Assessment) -> str:
     top, bottom = diamond_rows(state)
     return "\n".join((
         f"{headline(state)}{BREAK}{situation(state)}",
-        f"{top}打者 {state.batter}",
-        f"{bottom}投手 {state.pitcher}",
+        matchup_row(top, "打者", state.batter),
+        matchup_row(bottom, "投手", state.pitcher),
         f"{SCORE_LABEL} <b>{assessment.leverage:.2f}</b>"
         f"{BREAK}平均=1.00",
     ))

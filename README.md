@@ -283,9 +283,11 @@ own front-end uses. Three things about them are worth knowing, all handled in
   `/schedule/getgamedatas` wants a different token as a
   `RequestVerificationToken` *header*, inlined in the `/schedule` page's
   JavaScript. Both expire and are re-scraped on rejection.
-- **A CDN cookie challenge.** The first request to any path returns 307/308
-  pointing back at the same path, setting a `__chtcdn` cookie. Replaying with
-  the cookie works, so every request retries.
+- **A CDN in front of www.** `www.cpbl.com.tw` sits behind HiNetCDN's
+  anti-DDoS layer, which now answers `/schedule` and `/box` with 404 and serves
+  a JavaScript challenge at `/`. The client calls the apex host
+  `cpbl.com.tw` instead, which reaches the origin directly. It still retries
+  on 307/308 in case the old cookie challenge comes back.
 - **The live log is regenerated, and its row keys with it.** Every ~60–90
   seconds the server rebuilds the whole log; each rebuild re-mints `Pkno` and
   `CreateTime` on *every* row. Two polls either side of a rebuild share zero

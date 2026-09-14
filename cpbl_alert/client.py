@@ -11,9 +11,10 @@ never see it:
      the ``/schedule`` page's JavaScript. Both expire; both are re-scraped and
      retried on rejection.
 
-  2. **HiNetCDN cookie challenge.** The first request to a path returns 307/308
-     with ``Location`` pointing at that same path plus a ``__chtcdn`` cookie.
-     Replaying with the cookie succeeds, so every request retries.
+  2. **HiNetCDN in front of www.** ``www.cpbl.com.tw`` used to answer with a
+     307/308 cookie challenge; it now blocks scripts outright, so we talk to
+     the apex host, which serves the origin directly. Requests still retry on
+     307/308 in case a cookie challenge ever comes back.
 
   3. **Status lives in the wrong place.** The schedule payload's ``GameStatus``
      is null; it only tells you a game is *scheduled* (plus its start/end
@@ -33,7 +34,9 @@ import time
 
 import requests
 
-BASE = "https://www.cpbl.com.tw"
+# Apex, not www: www is fronted by HiNetCDN, which now 404s /schedule and /box
+# and serves a JavaScript challenge at /. Apex reaches the origin directly.
+BASE = "https://cpbl.com.tw"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36")
 
